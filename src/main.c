@@ -12,12 +12,14 @@
 /*----------------------------------------------------------------------------*/
 /* TODO: Read and overwrite at runtime via program arguments. */
 
-/* Width in pixels of the output image */
+/* Width in pixels of the output image (before applying the zoom) */
 uint32_t g_output_width = 512;
 
+/* Width and height of each "pixel" when drawn in the actual PNG image */
+uint32_t g_output_zoom = 2;
+
 /* Sample size in bytes, used when reading the input. In other words, each pixel
- * in the output will represent `g_sample_step' input bytes. You can think of it
- * as zoom. */
+ * in the output will represent `g_sample_step' input bytes. */
 uint32_t g_sample_step = 1;
 
 /* If true, each pixel represents the average of `g_sample_step' bytes, instead

@@ -13,6 +13,7 @@ typedef struct ByteArray {
 
 /* Globals */
 extern uint32_t g_output_width;
+extern uint32_t g_output_zoom;
 extern uint32_t g_sample_step;
 extern bool g_average_sample;
 
