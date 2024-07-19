@@ -1,26 +1,48 @@
-#+title: Title
+#+title: Binary graph
 #+options: toc:nil
 #+startup: showeverything
 #+author: 8dcc
 
-#+begin_comment
-*TODO*: Change project-name and title
-*TODO*: Change output.out in Makefile
-#+end_comment
-
-*Short description.*
+*Visualize binary files.*
 
 #+TOC: headlines 2
 
 * Description
 
-Long description.
+This program provides a simple way of visualizing the different regions of a
+binary file.
+
+These are some references that inspired this project:
+
+- [[https://github.com/xoreaxeaxeax][Christopher Domas]] - The future of RE Dynamic Binary Visualization ([[https://www.youtube.com/watch?v=4bM3Gut1hIk][YouTube]]).
+- Sergey Bratus and Greg Conti - Voyage of the reverser ([[https://www.youtube.com/watch?v=T3qqeP4TdPA][YouTube]]).
+- [[https://corte.si][Aldo Cortesi]] - [[https://corte.si/posts/visualisation/binvis/][Visualizing binaries with space-filling curves]].
+- Aldo Cortesi - [[https://corte.si/posts/visualisation/entropy/][Visualizing entropy in binary files]].
+
+If you are interested on more professional approaches, check out the following
+links:
+
+- The [[https://github.com/mewbak/binary_viewer][mewbak/binary_viewer]] repository, which also includes some other links.
+- The [[https://github.com/wapiflapi/veles][wapiflapi/veles]] repository, which is no longer maintained.
 
 * Building
 
+The program depends on =libpng= for exporting the image. Install it from your
+package manager.
+
+#+begin_src bash
+# Arch-based distros
+pacman -S libpng
+
+# Gentoo
+emerge media-libs/libpng
+#+end_src
+
+Once all the dependencies are installed, compile the program.
+
 #+begin_src console
-$ git clone https://github.com/8dcc/project-name
-$ cd project-name
+$ git clone https://github.com/8dcc/bin-graph
+$ cd bin-graph
 $ make
 ...
 #+end_src
@@ -28,6 +50,6 @@ $ make
 * Usage
 
 #+begin_src console
-$ ./project-name.out --help
+$ ./bin-graph <input> <output.png>
 ...
 #+end_src
