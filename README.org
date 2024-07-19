@@ -1,0 +1,33 @@
+#+title: Title
+#+options: toc:nil
+#+startup: showeverything
+#+author: 8dcc
+
+#+begin_comment
+*TODO*: Change project-name and title
+*TODO*: Change output.out in Makefile
+#+end_comment
+
+*Short description.*
+
+#+TOC: headlines 2
+
+* Description
+
+Long description.
+
+* Building
+
+#+begin_src console
+$ git clone https://github.com/8dcc/project-name
+$ cd project-name
+$ make
+...
+#+end_src
+
+* Usage
+
+#+begin_src console
+$ ./project-name.out --help
+...
+#+end_src
