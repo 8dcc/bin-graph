@@ -1,6 +1,7 @@
 
 #include <stdlib.h>
 #include <png.h>
+#include <ctype.h>
 
 #include "include/image.h"
 #include "include/main.h" /* ByteArray */
@@ -20,9 +21,22 @@ static const Color COLOR_PADDING = { 0, 0, 0 };
  * on the byte value. */
 static Color byte_to_color(uint8_t byte) {
     Color result;
-    result.r = byte;
-    result.g = byte;
-    result.b = byte;
+
+    /* Common padding values, either black or white */
+    if (byte == 0x00 || byte == 0xFF) {
+        result.r = byte;
+        result.g = byte;
+        result.b = byte;
+    } else if (isgraph(byte) || isspace(byte)) {
+        result.r = 0x37;
+        result.g = 0x7E;
+        result.b = 0xB8;
+    } else {
+        result.r = 0xE4;
+        result.g = 0x1A;
+        result.b = 0x1C;
+    }
+
     return result;
 }
 
