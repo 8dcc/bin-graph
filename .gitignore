@@ -1,3 +1,9 @@
+# Main binary
+bin-graph
+
+# Generated images
+*.png
+
 # Doxygen documentation
 /doc/html/
 /doc/latex/
