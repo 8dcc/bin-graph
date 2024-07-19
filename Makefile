@@ -1,13 +1,12 @@
 
 CC=gcc
 CFLAGS=-std=c99 -Wall -Wextra -Wpedantic -ggdb3
-LDFLAGS=
+LDFLAGS=-lpng
 
-# TODO: Add object files and rename
-OBJ_FILES=main.c.o
+OBJ_FILES=main.c.o util.c.o image.c.o
 OBJS=$(addprefix obj/, $(OBJ_FILES))
 
-BIN=output.out
+BIN=bin-graph
 
 #-------------------------------------------------------------------------------
 
@@ -27,4 +26,3 @@ $(BIN): $(OBJS)
 obj/%.c.o : src/%.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -o $@ -c $<
-
