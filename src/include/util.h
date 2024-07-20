@@ -2,6 +2,10 @@
 #ifndef UTIL_H_
 #define UTIL_H_ 1
 
+#define LENGTH(ARR) (sizeof(ARR) / sizeof((ARR)[0]))
+
+/*----------------------------------------------------------------------------*/
+
 /* Print a format message, and exit */
 void die(const char* fmt, ...);
 

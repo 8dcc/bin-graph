@@ -3,14 +3,51 @@
 #include <stdbool.h>
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 
 #include "include/main.h" /* ByteArray */
 #include "include/image.h"
 #include "include/util.h"
 
+enum EArgError {
+    ARG_ERR_NONE  = 0,
+    ARG_ERR_USAGE = 1,
+    ARG_ERR_HELP  = 2,
+};
+
+/* TODO: Add more modes: zigzag, z-order, bigraph, etc. */
+enum EProgramMode {
+    MODE_GRAYSCALE,
+    MODE_ASCII_LINEAR,
+};
+
 /*----------------------------------------------------------------------------*/
-/* TODO: Read and overwrite at runtime via program arguments. */
+
+/* Program mode. Determines how the bytes will be displayed. */
+enum EProgramMode g_mode = MODE_ASCII_LINEAR;
+
+/* Mode names and descriptions used when parsing the program arguments */
+struct {
+    const char* arg;
+    const char* desc;
+} g_mode_names[] = {
+    [MODE_GRAYSCALE] = {
+        .arg  = "grayscale",
+        .desc =
+        "          The brightness of each pixel represents the value of each\n"
+        "          byte (00..FF).",
+    },
+    [MODE_ASCII_LINEAR] = {
+        .arg  = "ascii_linear",
+        .desc =
+        "          The color of each pixel represents the 'printability' of\n"
+        "          each byte in a linear way. Black represents a null byte\n"
+        "          (0x00), white represents a set byte (0xFF), blue\n"
+        "          represents printable characters and red represents any\n"
+        "          other value.",
+    },
+};
 
 /* Width in pixels of the output image (before applying the zoom) */
 uint32_t g_output_width = 512;
@@ -25,6 +62,93 @@ uint32_t g_sample_step = 1;
 /* If true, each pixel represents the average of `g_sample_step' bytes, instead
  * of just the first byte. */
 bool g_average_sample = false;
+
+/*----------------------------------------------------------------------------*/
+
+static void parse_args(int argc, char** argv) {
+    enum EArgError arg_error = ARG_ERR_NONE;
+
+    if (argc < 3) {
+        /* Too few arguments, but one of them was --help */
+        if (argc > 1 && (strcmp(argv[argc - 1], "--help") == 0 ||
+                         strcmp(argv[argc - 1], "-h") == 0)) {
+            arg_error = ARG_ERR_HELP;
+            goto check_arg_err;
+        }
+
+        fprintf(stderr, "Not enough arguments.\n");
+        arg_error = ARG_ERR_USAGE;
+        goto check_arg_err;
+    }
+
+    /* Parse arguments */
+    for (int i = 1; i < argc - 2; i++) {
+        if (argv[i][0] != '-' || argv[i][1] != '-') {
+            fprintf(stderr, "Expected option argument, instead found: \"%s\"\n",
+                    argv[i]);
+            arg_error = ARG_ERR_USAGE;
+            goto check_arg_err;
+        }
+
+        const char* option = &argv[i][2];
+        if (strcmp(option, "help") == 0) {
+            arg_error = ARG_ERR_HELP;
+            goto check_arg_err;
+        } else if (strcmp(option, "mode") == 0) {
+            i++;
+            if (i >= argc - 2) {
+                fprintf(stderr, "Not enough arguments for option: \"%s\".\n",
+                        option);
+                arg_error = ARG_ERR_USAGE;
+                goto check_arg_err;
+            }
+
+            bool got_match = false;
+            for (size_t mode = 0; mode < LENGTH(g_mode_names); mode++) {
+                if (strcmp(argv[i], g_mode_names[mode].arg) == 0) {
+                    got_match = true;
+                    g_mode    = mode;
+                    break;
+                }
+            }
+
+            if (!got_match) {
+                fprintf(stderr, "Unknown mode: \"%s\".\n", argv[i]);
+                arg_error = ARG_ERR_USAGE;
+                goto check_arg_err;
+            }
+        } else {
+            fprintf(stderr, "Invalid option: \"%s\".\n", option);
+            arg_error = ARG_ERR_USAGE;
+            goto check_arg_err;
+        }
+    }
+
+check_arg_err:
+    if (arg_error >= ARG_ERR_USAGE) {
+        fprintf(stderr,
+                "Usage:\n"
+                "  %s [OPTION...] INPUT OUTPUT.png\n",
+                argv[0]);
+
+        if (arg_error == ARG_ERR_HELP) {
+            fprintf(stderr,
+                    "\nPossible options:\n"
+                    "  --help\n"
+                    "      Show this help and exit the program.\n\n"
+                    "  --mode MODE\n"
+                    "      Set the current mode to MODE. Available modes:\n");
+
+            for (size_t mode = 0; mode < LENGTH(g_mode_names); mode++)
+                fprintf(stderr,
+                        "        %s:\n"
+                        "%s\n",
+                        g_mode_names[mode].arg, g_mode_names[mode].desc);
+        }
+
+        exit(1);
+    }
+}
 
 /*----------------------------------------------------------------------------*/
 
@@ -71,11 +195,11 @@ static ByteArray get_samples(FILE* fp) {
 /*----------------------------------------------------------------------------*/
 
 int main(int argc, char** argv) {
-    if (argc != 3)
-        die("Usage: %s <input> <output.png>", argv[0]);
+    /* Change the global variables depending on the program arguments */
+    parse_args(argc, argv);
 
-    const char* input_filename  = argv[1];
-    const char* output_filename = argv[2];
+    const char* input_filename  = argv[argc - 2];
+    const char* output_filename = argv[argc - 1];
 
     /* Open the input for reading */
     FILE* fp = fopen(input_filename, "rb");
@@ -86,11 +210,18 @@ int main(int argc, char** argv) {
     ByteArray samples = get_samples(fp);
     fclose(fp);
 
-    /* TODO: Modify samples depending on mode: b&w, zigzag, z-order, etc. */
+    /* Convert the samples ByteArray to a different color Image depending on the
+     * global mode. */
     Image image;
+    switch (g_mode) {
+        case MODE_GRAYSCALE:
+            image = image_grayscale(samples);
+            break;
 
-    /* Convert the samples ByteArray to a color Image with dimensions */
-    image = image_ascii_linear(samples);
+        case MODE_ASCII_LINEAR:
+            image = image_ascii_linear(samples);
+            break;
+    }
 
     /* We are done with the initial samples, free the bytes allocated in
      * `get_samples'. */
