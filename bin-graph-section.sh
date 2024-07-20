@@ -11,7 +11,7 @@ fi
 section=$1
 input=${@: -2:1}
 
-readelf_output=$(readelf --sections --wide $input | grep $section | tr -s ' ')
+readelf_output=$(readelf --sections --wide $input | grep $section | head -n 1 | tr -s ' ')
 start_offset=$(echo "$readelf_output" | cut -d ' ' -f 6)
 section_end=$(echo "$readelf_output" | cut -d ' ' -f 7)
 end_offset=$(printf '%x' $((0x$start_offset + 0x$section_end + 1)))
