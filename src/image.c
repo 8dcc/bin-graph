@@ -14,6 +14,35 @@
 
 /*----------------------------------------------------------------------------*/
 
+Image image_grayscale(ByteArray bytes) {
+    /* The image conversion functions ignore zoom. It will be applied when
+     * generating the PNG. */
+    Image image;
+    image.width  = g_output_width;
+    image.height = bytes.size / image.width;
+    if (bytes.size % image.width != 0)
+        image.height++;
+
+    /* Allocate the array that will contain the color information */
+    image.pixels = malloc(image.height * image.width * sizeof(Color));
+
+    for (uint32_t y = 0; y < image.height; y++) {
+        for (uint32_t x = 0; x < image.width; x++) {
+            /* One-dimensional index for both the `bytes.data' and
+             * `image.pixels' arrays. */
+            const size_t raw_idx = image.width * y + x;
+
+            /* Pointer to the current color in the Image */
+            Color* color = &image.pixels[raw_idx];
+
+            /* The color brightness is determined by the byte value */
+            color->r = color->g = color->b = bytes.data[raw_idx];
+        }
+    }
+
+    return image;
+}
+
 Image image_ascii_linear(ByteArray bytes) {
     /* The image conversion functions ignore zoom. It will be applied when
      * generating the PNG. */

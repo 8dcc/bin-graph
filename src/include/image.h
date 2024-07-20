@@ -24,10 +24,14 @@ typedef struct Image {
  * the width will be `g_output_width' pixels, declared in `main.h'.
  *
  * This list briefly explains what each function is meant to represent:
- *   - image_ascii_linear: The "printability" of each byte in a linear way.
- *     Black represents a null byte (0x00), white represents a full byte (0xFF),
- *     blue represents printable characters and red represents any other value.
+ *   - image_grayscale: The brightness of each pixel represents the value of
+ *     each byte (00..FF).
+ *   - image_ascii_linear: The color of each pixel represents the "printability"
+ *     of each byte in a linear way. Black represents a null byte (0x00), white
+ *     represents a set byte (0xFF), blue represents printable characters and
+ *     red represents any other value.
  */
+Image image_grayscale(ByteArray bytes);
 Image image_ascii_linear(ByteArray bytes);
 
 /* Write the specified Image structure into a PNG file with the specified name.
