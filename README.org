@@ -54,6 +54,16 @@ be found with the program's =help= command.
 # ...
 #+end_src
 
+This project also includes a [[file:bin-graph-section.sh][bin-graph-section.sh]] script. It uses =readelf= and
+=grep= to find the offset and size of the specified region, and uses that as the
+=--offsets= argument for =bin-graph=. Additional options after the section name will
+be passed to =bin-graph=.
+
+#+begin_src bash
+./bin-graph-section.sh SECTION [OPTION...] INPUT OUTPUT.png
+# ...
+#+end_src
+
 * Overview of the code
 
 I tried to make each part of the program as modular and independent as possible,
