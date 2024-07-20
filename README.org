@@ -3,12 +3,6 @@
 #+startup: showeverything
 #+author: 8dcc
 
-*Visualize binary files.*
-
-#+TOC: headlines 2
-
-* Description
-
 This program provides a simple way of visualizing the different regions of a
 binary file.
 
