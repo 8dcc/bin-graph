@@ -40,6 +40,12 @@ cd bin-graph
 make
 #+end_src
 
+If you want to install it on your system, run the following command.
+
+#+begin_src bash
+sudo make install
+#+end_src
+
 * Usage and modes
 
 There are various different graph modes that determine how the input binary is
@@ -47,10 +53,10 @@ represented in the output image. The full mode list with their descriptions can
 be found with the program's =help= command.
 
 #+begin_src bash
-./bin-graph --help
+bin-graph --help
 # ...
 
-./bin-graph [OPTION...] INPUT OUTPUT.png
+bin-graph [OPTION...] INPUT OUTPUT.png
 # ...
 #+end_src
 
