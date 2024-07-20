@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <errno.h>
 
 #include "include/main.h" /* ByteArray */
 #include "include/image.h"
@@ -12,8 +13,9 @@
 
 enum EArgError {
     ARG_ERR_NONE  = 0,
-    ARG_ERR_USAGE = 1,
-    ARG_ERR_HELP  = 2,
+    ARG_ERR_EXIT  = 1,
+    ARG_ERR_USAGE = 2,
+    ARG_ERR_HELP  = 3,
 };
 
 /* TODO: Add more modes: zigzag, z-order, bigraph, etc. */
@@ -49,11 +51,9 @@ struct {
     },
 };
 
-/* Width in pixels of the output image (before applying the zoom) */
-uint32_t g_output_width = 512;
-
-/* Width and height of each "pixel" when drawn in the actual PNG image */
-uint32_t g_output_zoom = 2;
+/* Start and end offsets for reading the input file. Zero means ignore. */
+size_t g_offset_start = 0;
+size_t g_offset_end   = 0;
 
 /* Sample size in bytes, used when reading the input. In other words, each pixel
  * in the output will represent `g_sample_step' input bytes. */
@@ -62,6 +62,12 @@ uint32_t g_sample_step = 1;
 /* If true, each pixel represents the average of `g_sample_step' bytes, instead
  * of just the first byte. */
 bool g_average_sample = false;
+
+/* Width in pixels of the output image (before applying the zoom) */
+uint32_t g_output_width = 512;
+
+/* Width and height of each "pixel" when drawn in the actual PNG image */
+uint32_t g_output_zoom = 2;
 
 /*----------------------------------------------------------------------------*/
 
@@ -99,7 +105,7 @@ static void parse_args(int argc, char** argv) {
             if (i >= argc - 2) {
                 fprintf(stderr, "Not enough arguments for option: \"%s\".\n",
                         option);
-                arg_error = ARG_ERR_USAGE;
+                arg_error = ARG_ERR_EXIT;
                 goto check_arg_err;
             }
 
@@ -114,7 +120,31 @@ static void parse_args(int argc, char** argv) {
 
             if (!got_match) {
                 fprintf(stderr, "Unknown mode: \"%s\".\n", argv[i]);
-                arg_error = ARG_ERR_USAGE;
+                arg_error = ARG_ERR_EXIT;
+                goto check_arg_err;
+            }
+        } else if (strcmp(option, "offsets") == 0) {
+            i++;
+            if (i >= argc - 2) {
+                fprintf(stderr, "Not enough arguments for option: \"%s\".\n",
+                        option);
+                arg_error = ARG_ERR_EXIT;
+                goto check_arg_err;
+            }
+
+            if (sscanf(argv[i], "%lx-%lx", &g_offset_start, &g_offset_end) !=
+                2) {
+                fprintf(stderr,
+                        "Invalid format for start and end offsets. Example: "
+                        "\"e1c5-ff10\"\n");
+                arg_error = ARG_ERR_EXIT;
+                goto check_arg_err;
+            }
+
+            if (g_offset_end <= g_offset_start) {
+                fprintf(stderr, "The end offset must be bigger than the start "
+                                "offset.\n");
+                arg_error = ARG_ERR_EXIT;
                 goto check_arg_err;
             }
         } else {
@@ -125,25 +155,32 @@ static void parse_args(int argc, char** argv) {
     }
 
 check_arg_err:
-    if (arg_error >= ARG_ERR_USAGE) {
-        fprintf(stderr,
-                "Usage:\n"
-                "  %s [OPTION...] INPUT OUTPUT.png\n",
-                argv[0]);
-
-        if (arg_error == ARG_ERR_HELP) {
+    if (arg_error >= ARG_ERR_EXIT) {
+        if (arg_error >= ARG_ERR_USAGE) {
             fprintf(stderr,
-                    "\nPossible options:\n"
-                    "  --help\n"
-                    "      Show this help and exit the program.\n\n"
-                    "  --mode MODE\n"
-                    "      Set the current mode to MODE. Available modes:\n");
+                    "Usage:\n"
+                    "  %s [OPTION...] INPUT OUTPUT.png\n",
+                    argv[0]);
 
-            for (size_t mode = 0; mode < LENGTH(g_mode_names); mode++)
-                fprintf(stderr,
-                        "        %s:\n"
-                        "%s\n",
-                        g_mode_names[mode].arg, g_mode_names[mode].desc);
+            if (arg_error == ARG_ERR_HELP) {
+                fprintf(
+                  stderr,
+                  "\nPossible options:\n"
+                  "  --help\n"
+                  "      Show this help and exit the program.\n\n"
+                  "  --offsets START-END\n"
+                  "      Only process from START to END of file. Specified "
+                  "in hexadecimal\n"
+                  "      format, without any prefix.\n\n"
+                  "  --mode MODE\n"
+                  "      Set the current mode to MODE. Available modes:\n");
+
+                for (size_t mode = 0; mode < LENGTH(g_mode_names); mode++)
+                    fprintf(stderr,
+                            "        %s:\n"
+                            "%s\n",
+                            g_mode_names[mode].arg, g_mode_names[mode].desc);
+            }
         }
 
         exit(1);
@@ -156,11 +193,35 @@ check_arg_err:
 static ByteArray get_samples(FILE* fp) {
     const size_t file_sz = get_file_size(fp);
 
+    /* The actual samples that we plan on reading */
+    size_t input_sz = file_sz;
+
+    /* Check if we just want to read a section of the file */
+    if (g_offset_start > 0 && g_offset_end > 0) {
+        if (g_offset_end <= g_offset_start)
+            die("End offset (%lX) was smaller or equal than the start offset "
+                "(%lX).",
+                g_offset_end, g_offset_start);
+
+        if (g_offset_start > file_sz || g_offset_end > file_sz)
+            die("Tried reading an offset bigger than the file size.\n"
+                "Offsets: %lX-%lX. File size: %lX.",
+                g_offset_start, g_offset_end, file_sz);
+
+        /* Move to the starting offset */
+        if (fseek(fp, g_offset_start, SEEK_SET) != 0)
+            die("fseek() failed with offset 0x%lX. Errno: %d.", g_offset_start,
+                errno);
+
+        /* The size of the section that we are trying to read */
+        input_sz = g_offset_end - g_offset_start;
+    }
+
     ByteArray result;
 
     /* Calculate the number of samples we will use for generating the image */
-    result.size = file_sz / g_sample_step;
-    if (file_sz % g_sample_step != 0)
+    result.size = input_sz / g_sample_step;
+    if (input_sz % g_sample_step != 0)
         result.size++;
 
     /* Allocate the array for the samples */
@@ -172,7 +233,7 @@ static ByteArray get_samples(FILE* fp) {
         uint64_t byte = fgetc(fp);
 
         for (uint32_t j = 1;
-             j < g_sample_step && (i * g_sample_step) + j < file_sz; j++) {
+             j < g_sample_step && (i * g_sample_step) + j < input_sz; j++) {
             /* Consume the rest of the chunk, and accumulate them if we want to
              * average them later. */
             const int next_byte = fgetc(fp);
