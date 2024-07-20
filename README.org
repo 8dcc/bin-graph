@@ -34,11 +34,10 @@ emerge media-libs/libpng
 
 Once all the dependencies are installed, compile the program.
 
-#+begin_src console
-$ git clone https://github.com/8dcc/bin-graph
-$ cd bin-graph
-$ make
-...
+#+begin_src bash
+git clone https://github.com/8dcc/bin-graph
+cd bin-graph
+make
 #+end_src
 
 * Usage and modes
@@ -47,12 +46,12 @@ There are various different graph modes that determine how the input binary is
 represented in the output image. The full mode list with their descriptions can
 be found with the program's =help= command.
 
-#+begin_src console
-$ ./bin-graph --help
-...
+#+begin_src bash
+./bin-graph --help
+# ...
 
-$ ./bin-graph [OPTIONS...] INPUT OUTPUT.png
-...
+./bin-graph [OPTION...] INPUT OUTPUT.png
+# ...
 #+end_src
 
 * Overview of the code
