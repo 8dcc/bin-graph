@@ -87,12 +87,19 @@ int main(int argc, char** argv) {
     fclose(fp);
 
     /* TODO: Modify samples depending on mode: b&w, zigzag, z-order, etc. */
+    Image image;
 
-    /* Write the actual samples to the PNG image. The colors are decided by the
-     * `byte_to_color' static function, inside `image.c'. */
-    image_write_png(output_filename, samples);
+    /* Convert the samples ByteArray to a color Image with dimensions */
+    image = image_ascii_linear(samples);
 
-    /* We are done with the samples */
+    /* We are done with the initial samples, free the bytes allocated in
+     * `get_samples'. */
     free(samples.data);
+
+    /* Write the Image structure to the PNG file */
+    image2png(output_filename, image);
+
+    /* We are done with the image, free the pixels allocated in `image_*' */
+    free(image.pixels);
     return 0;
 }
