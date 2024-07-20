@@ -29,7 +29,7 @@ bool g_average_sample = false;
 /*----------------------------------------------------------------------------*/
 
 /* Return the byte samples of a binary file in a linear way */
-static ByteArray get_linear_samples(FILE* fp) {
+static ByteArray get_samples(FILE* fp) {
     const size_t file_sz = get_file_size(fp);
 
     ByteArray result;
@@ -83,9 +83,10 @@ int main(int argc, char** argv) {
         die("Can't open file: \"%s\"", input_filename);
 
     /* Store the byte samples in the same order as the file */
-    ByteArray samples = get_linear_samples(fp);
+    ByteArray samples = get_samples(fp);
+    fclose(fp);
 
-    /* TODO: Modify samples if needed, using zigzag, z-order, etc. */
+    /* TODO: Modify samples depending on mode: b&w, zigzag, z-order, etc. */
 
     /* Write the actual samples to the PNG image. The colors are decided by the
      * `byte_to_color' static function, inside `image.c'. */
