@@ -96,8 +96,8 @@ Image image_ascii_linear(ByteArray bytes) {
 Image image_bigrams(ByteArray bytes) {
     /* For aditional comments, see the previous `image_*' functions. */
     Image image;
-    image.width  = 255;
-    image.height = 255;
+    image.width  = 256;
+    image.height = 256;
     image.pixels = malloc(image.height * image.width * sizeof(Color));
 
     /* In this case we don't want to iterate the image, but the bytes. We start

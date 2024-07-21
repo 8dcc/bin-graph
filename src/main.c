@@ -18,7 +18,7 @@ enum EArgError {
     ARG_ERR_HELP  = 3,
 };
 
-/* TODO: Add more modes: zigzag, z-order, bigram_freq, etc. */
+/* TODO: Add more modes: zigzag, z-order, bigram_freq, dots, etc. */
 enum EProgramMode {
     MODE_GRAYSCALE,
     MODE_ASCII_LINEAR,
