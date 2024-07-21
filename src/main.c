@@ -18,11 +18,12 @@ enum EArgError {
     ARG_ERR_HELP  = 3,
 };
 
-/* TODO: Add more modes: zigzag, z-order, bigram_freq, dots, etc. */
+/* TODO: Add more modes: zigzag, z-order, bigram_freq, etc. */
 enum EProgramMode {
     MODE_GRAYSCALE,
     MODE_ASCII_LINEAR,
     MODE_BIGRAMS,
+    MODE_DOTPLOT,
 };
 
 /*----------------------------------------------------------------------------*/
@@ -56,6 +57,12 @@ struct {
         "          The coordinates of each point are determined by a pair of\n"
         "          samples in the input. This can be used to identify\n"
         "          patterns of different file formats.",
+    },
+    [MODE_DOTPLOT] = {
+        .arg  = "dotplot",
+        .desc =
+        "          Meassure self-similarity. A point (X,Y) in the graph shows\n"
+        "          if the X-th sample matches the Y-th sample.",
     },
 };
 
@@ -293,6 +300,10 @@ int main(int argc, char** argv) {
 
         case MODE_BIGRAMS:
             image = image_bigrams(samples);
+            break;
+
+        case MODE_DOTPLOT:
+            image = image_dotplot(samples);
             break;
     }
 

@@ -44,7 +44,7 @@ Image image_grayscale(ByteArray bytes) {
 }
 
 Image image_ascii_linear(ByteArray bytes) {
-    /* For aditional comments, see the previous `image_*' functions. */
+    /* For aditional comments, see the previous `image_*' functions */
     Image image;
     image.width  = g_output_width;
     image.height = bytes.size / image.width;
@@ -94,7 +94,7 @@ Image image_ascii_linear(ByteArray bytes) {
 }
 
 Image image_bigrams(ByteArray bytes) {
-    /* For aditional comments, see the previous `image_*' functions. */
+    /* For aditional comments, see the previous `image_*' functions */
     Image image;
     image.width  = 256;
     image.height = 256;
@@ -114,6 +114,40 @@ Image image_bigrams(ByteArray bytes) {
          * We don't change the colors depending on the occurrences or anything
          * like that. */
         color->r = color->g = color->b = 0xFF;
+    }
+
+    return image;
+}
+
+Image image_dotplot(ByteArray bytes) {
+    /* For aditional comments, see the previous `image_*' functions */
+    Image image;
+    image.width  = bytes.size;
+    image.height = bytes.size;
+    image.pixels = malloc(image.height * image.width * sizeof(Color));
+
+    for (uint32_t y = 0; y < image.height; y++) {
+        for (uint32_t x = 0; x < image.width; x++) {
+            Color* color = &image.pixels[image.width * y + x];
+
+            /*
+             * The dotplot is used to meassure self-similarity. For each point
+             * (X,Y), set the point if the X-th sample matches the Y-th sample.
+             *
+             * For example:
+             *
+             *     ABCABD
+             *    +------
+             *   A|*  *
+             *   B| *  *
+             *   C|  *
+             *   A|*  *
+             *   B| *  *
+             *   D|     *
+             */
+            color->r = color->g = color->b =
+              (bytes.data[x] == bytes.data[y]) ? 0xFF : 0x00;
+        }
     }
 
     return image;
