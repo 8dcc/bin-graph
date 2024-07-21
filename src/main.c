@@ -45,7 +45,7 @@ struct {
     [MODE_ASCII_LINEAR] = {
         .arg  = "ascii_linear",
         .desc =
-        "          The color of each pixel represents the 'printability' of\n"
+        "          The color of each pixel represents the \"printability\" of\n"
         "          each sample in a linear way. Black represents a null byte\n"
         "          (0x00), white represents a set byte (0xFF), blue\n"
         "          represents printable characters and red represents any\n"
@@ -61,7 +61,7 @@ struct {
     [MODE_DOTPLOT] = {
         .arg  = "dotplot",
         .desc =
-        "          Meassure self-similarity. A point (X,Y) in the graph shows\n"
+        "          Measure self-similarity. A point (X,Y) in the graph shows\n"
         "          if the X-th sample matches the Y-th sample.",
     },
 };
@@ -180,6 +180,25 @@ static void parse_args(int argc, char** argv) {
             }
 
             g_output_zoom = signed_zoom;
+        } else if (strcmp(option, "width") == 0) {
+            i++;
+            if (i >= argc - 2) {
+                fprintf(stderr, "Not enough arguments for option: \"%s\".\n",
+                        option);
+                arg_error = ARG_ERR_EXIT;
+                goto check_arg_err;
+            }
+
+            int signed_width;
+            if (sscanf(argv[i], "%d", &signed_width) != 1 ||
+                signed_width <= 0) {
+                fprintf(stderr,
+                        "The width must be an integer greater than zero.\n");
+                arg_error = ARG_ERR_EXIT;
+                goto check_arg_err;
+            }
+
+            g_output_width = signed_width;
         } else {
             fprintf(stderr, "Invalid option: \"%s\".\n", option);
             arg_error = ARG_ERR_USAGE;
@@ -207,6 +226,13 @@ check_arg_err:
                   "      format, without any prefix.\n\n"
                   "  --zoom FACTOR\n"
                   "      Scale each pixel by FACTOR.\n\n"
+                  "  --width WIDTH\n"
+                  "      Set the default width to WIDTH. This parameter is "
+                  "ignored in\n"
+                  "      some modes (bigrams, dotplot, etc.). This width "
+                  "indicates the\n"
+                  "      sample number in each row before applying the "
+                  "zoom.\n\n"
                   "  --mode MODE\n"
                   "      Set the current mode to MODE. Available modes:\n");
 
