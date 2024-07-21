@@ -162,6 +162,24 @@ static void parse_args(int argc, char** argv) {
                 arg_error = ARG_ERR_EXIT;
                 goto check_arg_err;
             }
+        } else if (strcmp(option, "zoom") == 0) {
+            i++;
+            if (i >= argc - 2) {
+                fprintf(stderr, "Not enough arguments for option: \"%s\".\n",
+                        option);
+                arg_error = ARG_ERR_EXIT;
+                goto check_arg_err;
+            }
+
+            int signed_zoom;
+            if (sscanf(argv[i], "%d", &signed_zoom) != 1 || signed_zoom <= 0) {
+                fprintf(stderr, "The zoom factor must be an integer greater "
+                                "than zero.\n");
+                arg_error = ARG_ERR_EXIT;
+                goto check_arg_err;
+            }
+
+            g_output_zoom = signed_zoom;
         } else {
             fprintf(stderr, "Invalid option: \"%s\".\n", option);
             arg_error = ARG_ERR_USAGE;
@@ -187,6 +205,8 @@ check_arg_err:
                   "      Only process from START to END of file. Specified "
                   "in hexadecimal\n"
                   "      format, without any prefix.\n\n"
+                  "  --zoom FACTOR\n"
+                  "      Scale each pixel by FACTOR.\n\n"
                   "  --mode MODE\n"
                   "      Set the current mode to MODE. Available modes:\n");
 
