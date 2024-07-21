@@ -44,24 +44,19 @@ Image image_grayscale(ByteArray bytes) {
 }
 
 Image image_ascii_linear(ByteArray bytes) {
-    /* The image conversion functions ignore zoom. It will be applied when
-     * generating the PNG. */
+    /* For aditional comments, see the previous `image_*' functions. */
     Image image;
     image.width  = g_output_width;
     image.height = bytes.size / image.width;
     if (bytes.size % image.width != 0)
         image.height++;
 
-    /* Allocate the array that will contain the color information */
     image.pixels = malloc(image.height * image.width * sizeof(Color));
 
     for (uint32_t y = 0; y < image.height; y++) {
         for (uint32_t x = 0; x < image.width; x++) {
-            /* One-dimensional index for both the `bytes.data' and
-             * `image.pixels' arrays. */
             const size_t raw_idx = image.width * y + x;
 
-            /* Pointer to the current color in the Image */
             Color* color = &image.pixels[raw_idx];
 
             if (raw_idx >= bytes.size) {
@@ -93,6 +88,32 @@ Image image_ascii_linear(ByteArray bytes) {
                 color->b = 0x1C;
             }
         }
+    }
+
+    return image;
+}
+
+Image image_bigrams(ByteArray bytes) {
+    /* For aditional comments, see the previous `image_*' functions. */
+    Image image;
+    image.width  = 255;
+    image.height = 255;
+    image.pixels = malloc(image.height * image.width * sizeof(Color));
+
+    /* In this case we don't want to iterate the image, but the bytes. We start
+     * from the second byte because we are plotting bigrams (pairs). */
+    for (size_t i = 1; i < bytes.size; i++) {
+        const uint32_t x = bytes.data[i - 1];
+        const uint32_t y = bytes.data[i];
+
+        /* The position is determined by the values of the current byte and the
+         * previous one. */
+        Color* color = &image.pixels[image.width * y + x];
+
+        /* This mode just plots whether a bigram is present or not in the input.
+         * We don't change the colors depending on the occurrences or anything
+         * like that. */
+        color->r = color->g = color->b = 0xFF;
     }
 
     return image;

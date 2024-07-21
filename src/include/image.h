@@ -30,9 +30,13 @@ typedef struct Image {
  *     of each byte in a linear way. Black represents a null byte (0x00), white
  *     represents a set byte (0xFF), blue represents printable characters and
  *     red represents any other value.
+ *   - bigrams: The coordinates of each point are determined by a pair of
+ *     samples in the input. This can be used to identify patterns of different
+ *     file formats.
  */
 Image image_grayscale(ByteArray bytes);
 Image image_ascii_linear(ByteArray bytes);
+Image image_bigrams(ByteArray bytes);
 
 /* Write the specified Image structure into a PNG file with the specified name.
  * This function is responsible for scaling the Image depending on

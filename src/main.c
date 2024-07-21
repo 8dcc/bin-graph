@@ -22,6 +22,7 @@ enum EArgError {
 enum EProgramMode {
     MODE_GRAYSCALE,
     MODE_ASCII_LINEAR,
+    MODE_BIGRAMS,
 };
 
 /*----------------------------------------------------------------------------*/
@@ -38,16 +39,23 @@ struct {
         .arg  = "grayscale",
         .desc =
         "          The brightness of each pixel represents the value of each\n"
-        "          byte (00..FF).",
+        "          sample (00..FF).",
     },
     [MODE_ASCII_LINEAR] = {
         .arg  = "ascii_linear",
         .desc =
         "          The color of each pixel represents the 'printability' of\n"
-        "          each byte in a linear way. Black represents a null byte\n"
+        "          each sample in a linear way. Black represents a null byte\n"
         "          (0x00), white represents a set byte (0xFF), blue\n"
         "          represents printable characters and red represents any\n"
         "          other value.",
+    },
+    [MODE_BIGRAMS] = {
+        .arg  = "bigrams",
+        .desc =
+        "          The coordinates of each point are determined by a pair of\n"
+        "          samples in the input. This can be used to identify\n"
+        "          patterns of different file formats.",
     },
 };
 
@@ -281,6 +289,10 @@ int main(int argc, char** argv) {
 
         case MODE_ASCII_LINEAR:
             image = image_ascii_linear(samples);
+            break;
+
+        case MODE_BIGRAMS:
+            image = image_bigrams(samples);
             break;
     }
 
