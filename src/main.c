@@ -18,7 +18,7 @@ enum EArgError {
     ARG_ERR_HELP  = 3,
 };
 
-/* TODO: Add more modes: zigzag, z-order, bigraph, etc. */
+/* TODO: Add more modes: zigzag, z-order, bigram_freq, etc. */
 enum EProgramMode {
     MODE_GRAYSCALE,
     MODE_ASCII_LINEAR,
@@ -205,7 +205,7 @@ static ByteArray get_samples(FILE* fp) {
     size_t input_sz = file_sz;
 
     /* Check if we just want to read a section of the file */
-    if (g_offset_start > 0 && g_offset_end > 0) {
+    if (g_offset_end > 0) {
         if (g_offset_end <= g_offset_start)
             die("End offset (%lX) was smaller or equal than the start offset "
                 "(%lX).",
