@@ -109,6 +109,14 @@ Image image_bigrams(ByteArray bytes) {
     if (image.pixels == NULL)
         die("Failed to allocate pixel array.");
 
+    /* Initialize the image to black */
+    for (size_t y = 0; y < image.height; y++) {
+        for (size_t x = 0; x < image.width; x++) {
+            Color* color = &image.pixels[image.width * y + x];
+            color->r = color->g = color->b = 0x00;
+        }
+    }
+
     /* In this case we don't want to iterate the image, but the bytes. We start
      * from the second byte because we are plotting bigrams (pairs). */
     for (size_t i = 1; i < bytes.size; i++) {
