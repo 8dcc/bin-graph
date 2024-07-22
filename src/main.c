@@ -74,10 +74,6 @@ size_t g_offset_end   = 0;
  * in the output will represent `g_sample_step' input bytes. */
 uint32_t g_sample_step = 1;
 
-/* If true, each pixel represents the average of `g_sample_step' bytes, instead
- * of just the first byte. */
-bool g_average_sample = false;
-
 /* Width in pixels of the output image (before applying the zoom) */
 uint32_t g_output_width = 512;
 
@@ -291,23 +287,13 @@ static ByteArray get_samples(FILE* fp) {
         die("Failed to allocate the samples array (%zu bytes).", result.size);
 
     for (size_t i = 0; i < result.size; i++) {
-        /* Will hold just the first byte or the average, depending on
-         * `g_average_sample'. */
-        uint64_t byte = fgetc(fp);
+        /* Store the first byte of the chunk */
+        const int byte = fgetc(fp);
 
+        /* Consume the rest of the chunk */
         for (uint32_t j = 1;
-             j < g_sample_step && (i * g_sample_step) + j < input_sz; j++) {
-            /* Consume the rest of the chunk, and accumulate them if we want to
-             * average them later. */
-            const int next_byte = fgetc(fp);
-
-            if (g_average_sample)
-                byte += next_byte;
-        }
-
-        /* If we accumulated the other bytes, average them */
-        if (g_average_sample)
-            byte /= g_sample_step;
+             j < g_sample_step && (i * g_sample_step) + j < input_sz; j++)
+            fgetc(fp);
 
         assert(byte <= 0xFF);
         result.data[i] = byte;

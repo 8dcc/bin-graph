@@ -12,9 +12,10 @@ typedef struct ByteArray {
 } ByteArray;
 
 /* Globals */
+extern size_t g_offset_start;
+extern size_t g_offset_end;
 extern uint32_t g_output_width;
 extern uint32_t g_output_zoom;
 extern uint32_t g_sample_step;
-extern bool g_average_sample;
 
 #endif /* MAIN_H_ */
