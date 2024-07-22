@@ -30,6 +30,9 @@ typedef struct Image {
  *     of each byte in a linear way. Black represents a null byte (0x00), white
  *     represents a set byte (0xFF), blue represents printable characters and
  *     red represents any other value.
+ *   - histogram: Each row represents a byte (00..FF), and the width of each
+ *     line represents the frequency of that byte relative to the most frequent
+ *     one.
  *   - image_bigrams: The coordinates of each point are determined by a pair of
  *     samples in the input. This can be used to identify patterns of different
  *     file formats.
@@ -39,6 +42,7 @@ typedef struct Image {
  */
 Image image_grayscale(ByteArray bytes);
 Image image_ascii_linear(ByteArray bytes);
+Image image_histogram(ByteArray bytes);
 Image image_bigrams(ByteArray bytes);
 Image image_dotplot(ByteArray bytes);
 

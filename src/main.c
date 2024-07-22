@@ -22,6 +22,7 @@ enum EArgError {
 enum EProgramMode {
     MODE_GRAYSCALE,
     MODE_ASCII_LINEAR,
+    MODE_HISTOGRAM,
     MODE_BIGRAMS,
     MODE_DOTPLOT,
 };
@@ -47,9 +48,15 @@ struct {
         .desc =
         "          The color of each pixel represents the \"printability\" of\n"
         "          each sample in a linear way. Black represents a null byte\n"
-        "          (0x00), white represents a set byte (0xFF), blue\n"
-        "          represents printable characters and red represents any\n"
-        "          other value.",
+        "          (00), white represents a set byte (FF), blue represents\n"
+        "          printable characters and red represents any other value.",
+    },
+    [MODE_HISTOGRAM] = {
+        .arg  = "histogram",
+        .desc =
+        "          Each row represents a byte (00..FF), and the width of each\n"
+        "          line represents the frequency of that byte relative to the\n"
+        "          most frequent one.",
     },
     [MODE_BIGRAMS] = {
         .arg  = "bigrams",
@@ -332,6 +339,10 @@ int main(int argc, char** argv) {
             image = image_ascii_linear(samples);
             break;
 
+        case MODE_HISTOGRAM:
+            image = image_histogram(samples);
+            break;
+
         case MODE_BIGRAMS:
             image = image_bigrams(samples);
             break;
@@ -350,5 +361,6 @@ int main(int argc, char** argv) {
 
     /* We are done with the image, free the pixels allocated in `image_*' */
     free(image.pixels);
+
     return 0;
 }

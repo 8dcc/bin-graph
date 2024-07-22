@@ -99,6 +99,52 @@ Image image_ascii_linear(ByteArray bytes) {
     return image;
 }
 
+Image image_histogram(ByteArray bytes) {
+    Image image;
+    image.width  = g_output_width;
+    image.height = 256;
+
+    image.pixels = malloc((size_t)image.height * image.width * sizeof(Color));
+    if (image.pixels == NULL)
+        die("Failed to allocate pixel array.");
+
+    uint8_t most_frequent = 0;
+    uint32_t* occurrences = malloc(image.height * sizeof(uint32_t));
+    if (occurrences == NULL)
+        die("Failed to allocate occurrences array.");
+
+    /* Initialize the occurrences array */
+    for (size_t i = 0; i < image.height; i++)
+        occurrences[i] = 0;
+
+    /* Store the occurrences including the most frequent byte */
+    for (size_t i = 0; i < bytes.size; i++) {
+        const uint8_t byte = bytes.data[i];
+
+        occurrences[byte]++;
+
+        if (occurrences[byte] > occurrences[most_frequent])
+            most_frequent = byte;
+    }
+
+    /* Draw each horizontal line based on occurrences relative to the most
+     * frequen byte. */
+    for (size_t y = 0; y < image.height; y++) {
+        const uint32_t line_width =
+          occurrences[y] * image.width / occurrences[most_frequent];
+
+        for (size_t x = 0; x < line_width; x++) {
+            Color* color = &image.pixels[image.width * y + x];
+            color->r = color->g = color->b = 0xFF;
+        }
+    }
+
+    /* We are done with the occurrences array */
+    free(occurrences);
+
+    return image;
+}
+
 Image image_bigrams(ByteArray bytes) {
     /* For aditional comments, see the previous `image_*' functions */
     Image image;
