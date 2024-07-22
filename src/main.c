@@ -18,7 +18,7 @@ enum EArgError {
     ARG_ERR_HELP  = 3,
 };
 
-/* TODO: Add more modes: zigzag, z-order, bigram_freq, etc. */
+/* TODO: Add more modes: zigzag, z-order, bigram_freq, histogram, etc. */
 enum EProgramMode {
     MODE_GRAYSCALE,
     MODE_ASCII_LINEAR,
@@ -147,7 +147,7 @@ static void parse_args(int argc, char** argv) {
                 goto check_arg_err;
             }
 
-            if (sscanf(argv[i], "%lx-%lx", &g_offset_start, &g_offset_end) !=
+            if (sscanf(argv[i], "%zx-%zx", &g_offset_start, &g_offset_end) !=
                 2) {
                 fprintf(stderr,
                         "Invalid format for start and end offsets. Example: "
@@ -260,18 +260,18 @@ static ByteArray get_samples(FILE* fp) {
     /* Check if we just want to read a section of the file */
     if (g_offset_end > 0) {
         if (g_offset_end <= g_offset_start)
-            die("End offset (%lX) was smaller or equal than the start offset "
-                "(%lX).",
+            die("End offset (%zX) was smaller or equal than the start offset "
+                "(%zX).",
                 g_offset_end, g_offset_start);
 
         if (g_offset_start > file_sz || g_offset_end > file_sz)
             die("Tried reading an offset bigger than the file size.\n"
-                "Offsets: %lX-%lX. File size: %lX.",
+                "Offsets: %zX-%zX. File size: %zX.",
                 g_offset_start, g_offset_end, file_sz);
 
         /* Move to the starting offset */
         if (fseek(fp, g_offset_start, SEEK_SET) != 0)
-            die("fseek() failed with offset 0x%lX. Errno: %d.", g_offset_start,
+            die("fseek() failed with offset 0x%zX. Errno: %d.", g_offset_start,
                 errno);
 
         /* The size of the section that we are trying to read */
@@ -287,6 +287,8 @@ static ByteArray get_samples(FILE* fp) {
 
     /* Allocate the array for the samples */
     result.data = malloc(result.size);
+    if (result.data == NULL)
+        die("Failed to allocate the samples array (%zu bytes).", result.size);
 
     for (size_t i = 0; i < result.size; i++) {
         /* Will hold just the first byte or the average, depending on

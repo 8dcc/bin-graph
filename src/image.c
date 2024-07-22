@@ -23,11 +23,15 @@ Image image_grayscale(ByteArray bytes) {
     if (bytes.size % image.width != 0)
         image.height++;
 
-    /* Allocate the array that will contain the color information */
-    image.pixels = malloc(image.height * image.width * sizeof(Color));
+    /* Allocate the array that will contain the color information. We need to
+     * cast the first value to `size_t' to make sure the multiplication result
+     * doesn't overflow in an `uint32_t'. */
+    image.pixels = malloc((size_t)image.height * image.width * sizeof(Color));
+    if (image.pixels == NULL)
+        die("Failed to allocate pixel array.");
 
-    for (uint32_t y = 0; y < image.height; y++) {
-        for (uint32_t x = 0; x < image.width; x++) {
+    for (size_t y = 0; y < image.height; y++) {
+        for (size_t x = 0; x < image.width; x++) {
             /* One-dimensional index for both the `bytes.data' and
              * `image.pixels' arrays. */
             const size_t raw_idx = image.width * y + x;
@@ -51,10 +55,12 @@ Image image_ascii_linear(ByteArray bytes) {
     if (bytes.size % image.width != 0)
         image.height++;
 
-    image.pixels = malloc(image.height * image.width * sizeof(Color));
+    image.pixels = malloc((size_t)image.height * image.width * sizeof(Color));
+    if (image.pixels == NULL)
+        die("Failed to allocate pixel array.");
 
-    for (uint32_t y = 0; y < image.height; y++) {
-        for (uint32_t x = 0; x < image.width; x++) {
+    for (size_t y = 0; y < image.height; y++) {
+        for (size_t x = 0; x < image.width; x++) {
             const size_t raw_idx = image.width * y + x;
 
             Color* color = &image.pixels[raw_idx];
@@ -98,13 +104,16 @@ Image image_bigrams(ByteArray bytes) {
     Image image;
     image.width  = 256;
     image.height = 256;
-    image.pixels = malloc(image.height * image.width * sizeof(Color));
+
+    image.pixels = malloc((size_t)image.height * image.width * sizeof(Color));
+    if (image.pixels == NULL)
+        die("Failed to allocate pixel array.");
 
     /* In this case we don't want to iterate the image, but the bytes. We start
      * from the second byte because we are plotting bigrams (pairs). */
     for (size_t i = 1; i < bytes.size; i++) {
-        const uint32_t x = bytes.data[i - 1];
-        const uint32_t y = bytes.data[i];
+        const uint8_t x = bytes.data[i - 1];
+        const uint8_t y = bytes.data[i];
 
         /* The position is determined by the values of the current byte and the
          * previous one. */
@@ -124,10 +133,13 @@ Image image_dotplot(ByteArray bytes) {
     Image image;
     image.width  = bytes.size;
     image.height = bytes.size;
-    image.pixels = malloc(image.height * image.width * sizeof(Color));
 
-    for (uint32_t y = 0; y < image.height; y++) {
-        for (uint32_t x = 0; x < image.width; x++) {
+    image.pixels = malloc((size_t)image.height * image.width * sizeof(Color));
+    if (image.pixels == NULL)
+        die("Failed to allocate pixel array.");
+
+    for (size_t y = 0; y < image.height; y++) {
+        for (size_t x = 0; x < image.width; x++) {
             Color* color = &image.pixels[image.width * y + x];
 
             /*
@@ -184,8 +196,14 @@ void image2png(const char* filename, Image image) {
     /* Allocate the PNG rows. Since png_bytep is typedef'd to a pointer, this is
      * a (void**). */
     png_bytep* rows = malloc(png_height * sizeof(png_bytep));
-    for (uint32_t y = 0; y < png_height; y++)
+    if (rows == NULL)
+        die("Failed to allocate PNG rows.");
+
+    for (uint32_t y = 0; y < png_height; y++) {
         rows[y] = malloc(png_width * PNG_BPP);
+        if (rows[y] == NULL)
+            die("Failed to allocate PNG row %d.", y);
+    }
 
     /* Write the `bytes' array we received into the `rows' array we just
      * allocated.
