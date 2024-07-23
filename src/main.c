@@ -11,6 +11,8 @@
 #include "include/image.h"
 #include "include/util.h"
 
+/*----------------------------------------------------------------------------*/
+
 enum EArgError {
     ARG_ERR_NONE  = 0,
     ARG_ERR_EXIT  = 1,
@@ -26,6 +28,10 @@ enum EProgramMode {
     MODE_BIGRAMS,
     MODE_DOTPLOT,
 };
+
+#define DEFAULT_SAMPLE_STEP  1
+#define DEFAULT_OUTPUT_WIDTH 512
+#define DEFAULT_OUTPUT_ZOOM  2
 
 /*----------------------------------------------------------------------------*/
 
@@ -79,13 +85,13 @@ size_t g_offset_end   = 0;
 
 /* Sample size in bytes, used when reading the input. In other words, each pixel
  * in the output will represent `g_sample_step' input bytes. */
-uint32_t g_sample_step = 1;
+uint32_t g_sample_step = DEFAULT_SAMPLE_STEP;
 
 /* Width in pixels of the output image (before applying the zoom) */
-uint32_t g_output_width = 512;
+uint32_t g_output_width = DEFAULT_OUTPUT_WIDTH;
 
 /* Width and height of each "pixel" when drawn in the actual PNG image */
-uint32_t g_output_zoom = 2;
+uint32_t g_output_zoom = DEFAULT_OUTPUT_ZOOM;
 
 /*----------------------------------------------------------------------------*/
 
@@ -141,7 +147,7 @@ static void parse_args(int argc, char** argv) {
                 arg_error = ARG_ERR_EXIT;
                 goto check_arg_err;
             }
-        } else if (strcmp(option, "offsets") == 0) {
+        } else if (strcmp(option, "offset-start") == 0) {
             i++;
             if (i >= argc - 2) {
                 fprintf(stderr, "Not enough arguments for option: \"%s\".\n",
@@ -150,18 +156,24 @@ static void parse_args(int argc, char** argv) {
                 goto check_arg_err;
             }
 
-            if (sscanf(argv[i], "%zx-%zx", &g_offset_start, &g_offset_end) !=
-                2) {
+            if (sscanf(argv[i], "%zx", &g_offset_start) != 1) {
                 fprintf(stderr,
-                        "Invalid format for start and end offsets. Example: "
-                        "\"e1c5-ff10\"\n");
+                        "Invalid format for start offset. Example: \"e1c5\"\n");
+                arg_error = ARG_ERR_EXIT;
+                goto check_arg_err;
+            }
+        } else if (strcmp(option, "offset-end") == 0) {
+            i++;
+            if (i >= argc - 2) {
+                fprintf(stderr, "Not enough arguments for option: \"%s\".\n",
+                        option);
                 arg_error = ARG_ERR_EXIT;
                 goto check_arg_err;
             }
 
-            if (g_offset_end <= g_offset_start) {
-                fprintf(stderr, "The end offset must be bigger than the start "
-                                "offset.\n");
+            if (sscanf(argv[i], "%zx", &g_offset_end) != 1) {
+                fprintf(stderr,
+                        "Invalid format for end offset. Example: \"e1c5\"\n");
                 arg_error = ARG_ERR_EXIT;
                 goto check_arg_err;
             }
@@ -209,6 +221,26 @@ static void parse_args(int argc, char** argv) {
         }
     }
 
+    /* Ensure that there are no invalid argument combinations */
+    if (g_offset_end != 0 && g_offset_end <= g_offset_start) {
+        fprintf(stderr,
+                "The end offset (%zx) must be bigger than the start offset "
+                "(%zx).\n",
+                g_offset_end, g_offset_start);
+        arg_error = ARG_ERR_EXIT;
+        goto check_arg_err;
+    }
+
+    /* Also check for ignored argument combinations. These just cause a
+     * warning. */
+    if (g_output_width != DEFAULT_OUTPUT_WIDTH &&
+        (g_mode == MODE_BIGRAMS || g_mode == MODE_DOTPLOT)) {
+        fprintf(stderr,
+                "Warning: The output width will be overwritten by the current "
+                "mode (%s).\n",
+                g_mode_names[g_mode].arg);
+    }
+
 check_arg_err:
     if (arg_error >= ARG_ERR_EXIT) {
         if (arg_error >= ARG_ERR_USAGE) {
@@ -223,10 +255,15 @@ check_arg_err:
                   "\nPossible options:\n"
                   "  --help\n"
                   "      Show this help and exit the program.\n\n"
-                  "  --offsets START-END\n"
-                  "      Only process from START to END of file. Specified "
-                  "in hexadecimal\n"
+                  "  --offset-start OFFSET\n"
+                  "      Start processing the file from OFFSET. Specified in "
+                  "hexadecimal\n"
                   "      format, without any prefix.\n\n"
+                  "  --offset-end OFFSET\n"
+                  "      Stop processing the file at OFFSET. Specified in "
+                  "hexadecimal\n"
+                  "      format, without any prefix. Zero means the end of the "
+                  "file.\n\n"
                   "  --zoom FACTOR\n"
                   "      Scale each pixel by FACTOR.\n\n"
                   "  --width WIDTH\n"
@@ -257,33 +294,30 @@ check_arg_err:
 static ByteArray get_samples(FILE* fp) {
     const size_t file_sz = get_file_size(fp);
 
-    /* The actual samples that we plan on reading */
-    size_t input_sz = file_sz;
+    /* Make sure the offsets are not out of bounds */
+    if (g_offset_start > file_sz || g_offset_end > file_sz)
+        die("Tried reading an offset bigger than the file size.\n"
+            "Offsets: %zX-%zX. File size: %zX.",
+            g_offset_start, g_offset_end, file_sz);
 
-    /* Check if we just want to read a section of the file */
-    if (g_offset_end > 0) {
-        if (g_offset_end <= g_offset_start)
-            die("End offset (%zX) was smaller or equal than the start offset "
-                "(%zX).",
-                g_offset_end, g_offset_start);
+    /* If the global offset is zero, read until the end of the file */
+    const size_t offset_end = (g_offset_end == 0) ? file_sz : g_offset_end;
 
-        if (g_offset_start > file_sz || g_offset_end > file_sz)
-            die("Tried reading an offset bigger than the file size.\n"
-                "Offsets: %zX-%zX. File size: %zX.",
-                g_offset_start, g_offset_end, file_sz);
+    if (offset_end <= g_offset_start)
+        die("End offset (%zX) was smaller or equal than the start offset "
+            "(%zX).",
+            offset_end, g_offset_start);
 
-        /* Move to the starting offset */
-        if (fseek(fp, g_offset_start, SEEK_SET) != 0)
-            die("fseek() failed with offset 0x%zX. Errno: %d.", g_offset_start,
-                errno);
+    /* Move to the starting offset */
+    if (fseek(fp, g_offset_start, SEEK_SET) != 0)
+        die("fseek() failed with offset 0x%zX. Errno: %d.", g_offset_start,
+            errno);
 
-        /* The size of the section that we are trying to read */
-        input_sz = g_offset_end - g_offset_start;
-    }
-
-    ByteArray result;
+    /* The size of the section that we are trying to read */
+    size_t input_sz = offset_end - g_offset_start;
 
     /* Calculate the number of samples we will use for generating the image */
+    ByteArray result;
     result.size = input_sz / g_sample_step;
     if (input_sz % g_sample_step != 0)
         result.size++;
