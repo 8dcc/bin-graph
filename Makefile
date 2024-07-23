@@ -3,7 +3,7 @@ CC=gcc
 CFLAGS=-std=c99 -Wall -Wextra -Wpedantic -ggdb3
 LDFLAGS=-lpng
 
-OBJ_FILES=main.c.o util.c.o image.c.o
+OBJ_FILES=main.c.o liblog.c.o util.c.o image.c.o
 OBJS=$(addprefix obj/, $(OBJ_FILES))
 
 BIN=bin-graph

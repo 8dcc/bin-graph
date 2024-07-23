@@ -106,7 +106,7 @@ static void parse_args(int argc, char** argv) {
             goto check_arg_err;
         }
 
-        fprintf(stderr, "Not enough arguments.\n");
+        log_err("Not enough arguments.");
         arg_error = ARG_ERR_USAGE;
         goto check_arg_err;
     }
@@ -114,8 +114,7 @@ static void parse_args(int argc, char** argv) {
     /* Parse arguments */
     for (int i = 1; i < argc - 2; i++) {
         if (argv[i][0] != '-' || argv[i][1] != '-') {
-            fprintf(stderr, "Expected option argument, instead found: \"%s\"\n",
-                    argv[i]);
+            log_err("Expected option argument, instead found: \"%s\"", argv[i]);
             arg_error = ARG_ERR_USAGE;
             goto check_arg_err;
         }
@@ -127,8 +126,7 @@ static void parse_args(int argc, char** argv) {
         } else if (strcmp(option, "mode") == 0) {
             i++;
             if (i >= argc - 2) {
-                fprintf(stderr, "Not enough arguments for option: \"%s\".\n",
-                        option);
+                log_err("Not enough arguments for option: \"%s\".", option);
                 arg_error = ARG_ERR_EXIT;
                 goto check_arg_err;
             }
@@ -143,53 +141,48 @@ static void parse_args(int argc, char** argv) {
             }
 
             if (!got_match) {
-                fprintf(stderr, "Unknown mode: \"%s\".\n", argv[i]);
+                log_err("Unknown mode: \"%s\".\n", argv[i]);
                 arg_error = ARG_ERR_EXIT;
                 goto check_arg_err;
             }
         } else if (strcmp(option, "offset-start") == 0) {
             i++;
             if (i >= argc - 2) {
-                fprintf(stderr, "Not enough arguments for option: \"%s\".\n",
-                        option);
+                log_err("Not enough arguments for option: \"%s\".", option);
                 arg_error = ARG_ERR_EXIT;
                 goto check_arg_err;
             }
 
             if (sscanf(argv[i], "%zx", &g_offset_start) != 1) {
-                fprintf(stderr,
-                        "Invalid format for start offset. Example: \"e1c5\"\n");
+                log_err("Invalid format for start offset. Example: \"e1c5\"");
                 arg_error = ARG_ERR_EXIT;
                 goto check_arg_err;
             }
         } else if (strcmp(option, "offset-end") == 0) {
             i++;
             if (i >= argc - 2) {
-                fprintf(stderr, "Not enough arguments for option: \"%s\".\n",
-                        option);
+                log_err("Not enough arguments for option: \"%s\".", option);
                 arg_error = ARG_ERR_EXIT;
                 goto check_arg_err;
             }
 
             if (sscanf(argv[i], "%zx", &g_offset_end) != 1) {
-                fprintf(stderr,
-                        "Invalid format for end offset. Example: \"e1c5\"\n");
+                log_err("Invalid format for end offset. Example: \"e1c5\"");
                 arg_error = ARG_ERR_EXIT;
                 goto check_arg_err;
             }
         } else if (strcmp(option, "zoom") == 0) {
             i++;
             if (i >= argc - 2) {
-                fprintf(stderr, "Not enough arguments for option: \"%s\".\n",
-                        option);
+                log_err("Not enough arguments for option: \"%s\".", option);
                 arg_error = ARG_ERR_EXIT;
                 goto check_arg_err;
             }
 
             int signed_zoom;
             if (sscanf(argv[i], "%d", &signed_zoom) != 1 || signed_zoom <= 0) {
-                fprintf(stderr, "The zoom factor must be an integer greater "
-                                "than zero.\n");
+                log_err(
+                  "The zoom factor must be an integer greater than zero.");
                 arg_error = ARG_ERR_EXIT;
                 goto check_arg_err;
             }
@@ -198,8 +191,7 @@ static void parse_args(int argc, char** argv) {
         } else if (strcmp(option, "width") == 0) {
             i++;
             if (i >= argc - 2) {
-                fprintf(stderr, "Not enough arguments for option: \"%s\".\n",
-                        option);
+                log_err("Not enough arguments for option: \"%s\".", option);
                 arg_error = ARG_ERR_EXIT;
                 goto check_arg_err;
             }
@@ -207,15 +199,14 @@ static void parse_args(int argc, char** argv) {
             int signed_width;
             if (sscanf(argv[i], "%d", &signed_width) != 1 ||
                 signed_width <= 0) {
-                fprintf(stderr,
-                        "The width must be an integer greater than zero.\n");
+                log_err("The width must be an integer greater than zero.");
                 arg_error = ARG_ERR_EXIT;
                 goto check_arg_err;
             }
 
             g_output_width = signed_width;
         } else {
-            fprintf(stderr, "Invalid option: \"%s\".\n", option);
+            log_err("Invalid option: \"%s\".", option);
             arg_error = ARG_ERR_USAGE;
             goto check_arg_err;
         }
@@ -223,9 +214,8 @@ static void parse_args(int argc, char** argv) {
 
     /* Ensure that there are no invalid argument combinations */
     if (g_offset_end != 0 && g_offset_end <= g_offset_start) {
-        fprintf(stderr,
-                "The end offset (%zx) must be bigger than the start offset "
-                "(%zx).\n",
+        log_err("The end offset (%zx) must be bigger than the start offset "
+                "(%zx).",
                 g_offset_end, g_offset_start);
         arg_error = ARG_ERR_EXIT;
         goto check_arg_err;
@@ -235,9 +225,8 @@ static void parse_args(int argc, char** argv) {
      * warning. */
     if (g_output_width != DEFAULT_OUTPUT_WIDTH &&
         (g_mode == MODE_BIGRAMS || g_mode == MODE_DOTPLOT)) {
-        fprintf(stderr,
-                "Warning: The output width will be overwritten by the current "
-                "mode (%s).\n",
+        log_err("Warning: The output width will be overwritten by the current "
+                "mode (%s).",
                 g_mode_names[g_mode].arg);
     }
 
@@ -296,8 +285,7 @@ static ByteArray get_samples(FILE* fp) {
 
     /* Make sure the offsets are not out of bounds */
     if (g_offset_start > file_sz || g_offset_end > file_sz)
-        die("Tried reading an offset bigger than the file size.\n"
-            "Offsets: %zX-%zX. File size: %zX.",
+        die("An offset (%zX, %zX) was bigger than the file size (%zX).",
             g_offset_start, g_offset_end, file_sz);
 
     /* If the global offset is zero, read until the end of the file */
