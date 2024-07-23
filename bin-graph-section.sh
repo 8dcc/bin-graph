@@ -8,24 +8,27 @@ if [ $# -lt 3 ]; then
     exit 1
 fi
 
-section=$1
-input=${@: -2:1}
+input_section=$1
+input_file=${@: -2:1}
 
-readelf_output=$(readelf --sections --wide "$input" | grep --fixed-strings "$section" | head -n 1 | tr -s ' ')
+readelf_output=$(readelf --sections --wide "$input_file" | grep --fixed-strings "$input_section" | head -n 1 | tr -s ' ')
 
 if [ -z "$readelf_output" ]; then
-    echo "Section \"$section\" not found"
+    echo "Section \"$input_section\" not found"
     exit 1
 fi
 
 section_name=$(echo "$readelf_output" | cut -d ' ' -f 3)
-start_offset=$(echo "$readelf_output" | cut -d ' ' -f 6)
-section_size=$(echo "$readelf_output" | cut -d ' ' -f 7)
-end_offset=$(printf '%x' $((0x$start_offset + 0x$section_size + 1)))
-
 echo "Section name: $section_name"
-echo "Start offset: 0x$start_offset"
-echo "End offset: 0x$end_offset"
 
-echo "Running: ./bin-graph --offsets \"$start_offset-$end_offset\" ${@:2}"
-./bin-graph --offsets "$start_offset-$end_offset" ${@:2}
+offset_start_str=$(echo "$readelf_output" | cut -d ' ' -f 6)
+offset_start=$(printf '%x' "0x$offset_start_str")
+echo "Start offset: 0x$offset_start"
+
+section_size=$(echo "$readelf_output" | cut -d ' ' -f 7)
+offset_end=$(printf '%x' $((0x$offset_start + 0x$section_size + 1)))
+echo "End offset: 0x$offset_end"
+
+bin_graph_cmd="./bin-graph --offset-start $offset_start --offset-end $offset_end ${@:2}"
+echo "Running: $bin_graph_cmd"
+$($bin_graph_cmd)
