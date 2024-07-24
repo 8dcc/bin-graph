@@ -205,6 +205,23 @@ static void parse_args(int argc, char** argv) {
             }
 
             g_output_width = signed_width;
+        } else if (strcmp(option, "sample-step") == 0) {
+            i++;
+            if (i >= argc - 2) {
+                log_err("Not enough arguments for option: \"%s\".", option);
+                arg_error = ARG_ERR_EXIT;
+                goto check_arg_err;
+            }
+
+            int signed_step;
+            if (sscanf(argv[i], "%d", &signed_step) != 1 || signed_step <= 0) {
+                log_err(
+                  "The sample step must be an integer greater than zero.");
+                arg_error = ARG_ERR_EXIT;
+                goto check_arg_err;
+            }
+
+            g_sample_step = signed_step;
         } else {
             log_err("Invalid option: \"%s\".", option);
             arg_error = ARG_ERR_USAGE;
@@ -225,8 +242,8 @@ static void parse_args(int argc, char** argv) {
      * warning. */
     if (g_output_width != DEFAULT_OUTPUT_WIDTH &&
         (g_mode == MODE_BIGRAMS || g_mode == MODE_DOTPLOT)) {
-        log_err("Warning: The output width will be overwritten by the current "
-                "mode (%s).",
+        log_wrn("The output width will be overwritten by the current mode "
+                "(%s).",
                 g_mode_names[g_mode].arg);
     }
 
@@ -262,6 +279,10 @@ check_arg_err:
                   "indicates the\n"
                   "      sample number in each row before applying the "
                   "zoom.\n\n"
+                  "  --sample-step BYTES\n"
+                  "      Only read one out of every BYTES from the input. "
+                  "Specified in\n"
+                  "      decimal format.\n\n"
                   "  --mode MODE\n"
                   "      Set the current mode to MODE. Available modes:\n");
 
