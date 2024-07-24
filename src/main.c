@@ -24,12 +24,14 @@ enum EArgError {
 enum EProgramMode {
     MODE_GRAYSCALE,
     MODE_ASCII_LINEAR,
+    MODE_ENTROPY,
     MODE_HISTOGRAM,
     MODE_BIGRAMS,
     MODE_DOTPLOT,
 };
 
 #define DEFAULT_SAMPLE_STEP  1
+#define DEFAULT_BLOCK_SIZE   256
 #define DEFAULT_OUTPUT_WIDTH 512
 #define DEFAULT_OUTPUT_ZOOM  2
 
@@ -56,6 +58,13 @@ struct {
         "          each sample in a linear way. Black represents a null byte\n"
         "          (00), white represents a set byte (FF), blue represents\n"
         "          printable characters and red represents any other value.",
+    },
+    [MODE_ENTROPY] = {
+        .arg  = "entropy",
+        .desc =
+        "          The intensity of each pixel represents its entropy (i.e.\n"
+        "          its \"predictability\"). This is useful for distinguishing\n"
+        "          compressed/encrypted from non-compressed chunks.",
     },
     [MODE_HISTOGRAM] = {
         .arg  = "histogram",
@@ -84,8 +93,11 @@ size_t g_offset_start = 0;
 size_t g_offset_end   = 0;
 
 /* Sample size in bytes, used when reading the input. In other words, each pixel
- * in the output will represent `g_sample_step' input bytes. */
+ * in the output will represent one out of `g_sample_step' input bytes. */
 uint32_t g_sample_step = DEFAULT_SAMPLE_STEP;
+
+/* Block size used in some modes like MODE_ENTROPY. */
+uint32_t g_block_size = DEFAULT_BLOCK_SIZE;
 
 /* Width in pixels of the output image (before applying the zoom) */
 uint32_t g_output_width = DEFAULT_OUTPUT_WIDTH;
@@ -222,6 +234,22 @@ static void parse_args(int argc, char** argv) {
             }
 
             g_sample_step = signed_step;
+        } else if (strcmp(option, "block-size") == 0) {
+            i++;
+            if (i >= argc - 2) {
+                log_err("Not enough arguments for option: \"%s\".", option);
+                arg_error = ARG_ERR_EXIT;
+                goto check_arg_err;
+            }
+
+            int signed_size;
+            if (sscanf(argv[i], "%d", &signed_size) != 1 || signed_size <= 0) {
+                log_err("The block size must be an integer greater than zero.");
+                arg_error = ARG_ERR_EXIT;
+                goto check_arg_err;
+            }
+
+            g_block_size = signed_size;
         } else {
             log_err("Invalid option: \"%s\".", option);
             arg_error = ARG_ERR_USAGE;
@@ -245,6 +273,18 @@ static void parse_args(int argc, char** argv) {
         log_wrn("The output width will be overwritten by the current mode "
                 "(%s).",
                 g_mode_names[g_mode].arg);
+    }
+
+    if (g_block_size != DEFAULT_BLOCK_SIZE && g_mode != MODE_ENTROPY) {
+        log_wrn("The current mode (%s) isn't affected by the block size.",
+                g_mode_names[g_mode].arg);
+    }
+
+    if (g_block_size <= 1 && g_mode == MODE_ENTROPY) {
+        log_wrn("The block size (%d) is too small for this mode (%s). "
+                "Overwritting to %d bytes.",
+                g_sample_step, g_mode_names[g_mode].arg, DEFAULT_BLOCK_SIZE);
+        g_sample_step = DEFAULT_BLOCK_SIZE;
     }
 
 check_arg_err:
@@ -283,6 +323,9 @@ check_arg_err:
                   "      Only read one out of every BYTES from the input. "
                   "Specified in\n"
                   "      decimal format.\n\n"
+                  "  --block-size BYTES\n"
+                  "      Set the size for some block-specific modes like "
+                  "entropy.\n\n"
                   "  --mode MODE\n"
                   "      Set the current mode to MODE. Available modes:\n");
 
@@ -380,6 +423,10 @@ int main(int argc, char** argv) {
 
         case MODE_ASCII_LINEAR:
             image = image_ascii_linear(samples);
+            break;
+
+        case MODE_ENTROPY:
+            image = image_entropy(samples);
             break;
 
         case MODE_HISTOGRAM:

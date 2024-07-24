@@ -1,7 +1,7 @@
 
 CC=gcc
 CFLAGS=-std=c99 -Wall -Wextra -Wpedantic -ggdb3
-LDFLAGS=-lpng
+LDFLAGS=-lm -lpng
 
 OBJ_FILES=main.c.o liblog.c.o util.c.o image.c.o
 OBJS=$(addprefix obj/, $(OBJ_FILES))

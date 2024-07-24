@@ -19,4 +19,8 @@
 /* Return the size of a file using `fseek' */
 size_t get_file_size(FILE* fp);
 
+/* Calculate the Shannon entropy of the specified bytes. Since log2() is used,
+ * the return value is in the [0..8] range. */
+double entropy(void* data, size_t data_sz);
+
 #endif /* UTIL_H_ */

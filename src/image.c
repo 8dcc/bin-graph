@@ -48,7 +48,6 @@ Image image_grayscale(ByteArray bytes) {
 }
 
 Image image_ascii_linear(ByteArray bytes) {
-    /* For aditional comments, see the previous `image_*' functions */
     Image image;
     image.width  = g_output_width;
     image.height = bytes.size / image.width;
@@ -61,16 +60,13 @@ Image image_ascii_linear(ByteArray bytes) {
 
     for (size_t y = 0; y < image.height; y++) {
         for (size_t x = 0; x < image.width; x++) {
-            const size_t raw_idx = image.width * y + x;
+            const size_t raw_idx = (size_t)image.width * y + x;
+            Color* color         = &image.pixels[raw_idx];
 
-            Color* color = &image.pixels[raw_idx];
-
+            /* If we are not in-bounds, we are filling the last row; use a
+             * generic padding color. */
             if (raw_idx >= bytes.size) {
-                /* If we are not in-bounds, we are filling the last row; use a
-                 * generic padding color. */
-                color->r = 0;
-                color->g = 0;
-                color->b = 0;
+                color->r = color->g = color->b = 0;
                 continue;
             }
 
@@ -93,6 +89,40 @@ Image image_ascii_linear(ByteArray bytes) {
                 color->g = 0x1A;
                 color->b = 0x1C;
             }
+        }
+    }
+
+    return image;
+}
+
+Image image_entropy(ByteArray bytes) {
+    Image image;
+    image.width  = g_output_width;
+    image.height = bytes.size / image.width;
+    if (bytes.size % image.width != 0)
+        image.height++;
+
+    image.pixels = calloc((size_t)image.height * image.width, sizeof(Color));
+    if (image.pixels == NULL)
+        die("Failed to allocate pixel array.");
+
+    /* Iterate blocks of the input, each will share the same entropy color */
+    for (size_t i = 0; i < bytes.size; i += g_block_size) {
+        /* Make sure we are not reading past the end of `bytes.size' */
+        const size_t real_block_size =
+          (i + g_block_size < bytes.size) ? g_block_size : bytes.size - i;
+
+        /* Calculate the Shannon entropy for this block */
+        const double block_entropy = entropy(&bytes.data[i], real_block_size);
+
+        /* Calculate the [00..FF] color for this block based on the [0..8]
+         * entropy. */
+        uint8_t color_intensity = block_entropy * 255 / 8;
+
+        /* Render this block with the same color */
+        for (size_t j = 0; j < real_block_size; j++) {
+            Color* color = &image.pixels[i + j];
+            color->r = color->g = color->b = color_intensity;
         }
     }
 
@@ -146,7 +176,6 @@ Image image_histogram(ByteArray bytes) {
 }
 
 Image image_bigrams(ByteArray bytes) {
-    /* For aditional comments, see the previous `image_*' functions */
     Image image;
     image.width  = 256;
     image.height = 256;
@@ -183,7 +212,6 @@ Image image_bigrams(ByteArray bytes) {
 }
 
 Image image_dotplot(ByteArray bytes) {
-    /* For aditional comments, see the previous `image_*' functions */
     Image image;
     image.width  = bytes.size;
     image.height = bytes.size;
