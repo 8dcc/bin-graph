@@ -26,7 +26,7 @@ Image image_grayscale(ByteArray bytes) {
     /* Allocate the array that will contain the color information. We need to
      * cast the first value to `size_t' to make sure the multiplication result
      * doesn't overflow in an `uint32_t'. */
-    image.pixels = malloc((size_t)image.height * image.width * sizeof(Color));
+    image.pixels = calloc((size_t)image.height * image.width, sizeof(Color));
     if (image.pixels == NULL)
         die("Failed to allocate pixel array.");
 
@@ -54,7 +54,7 @@ Image image_ascii_linear(ByteArray bytes) {
     if (bytes.size % image.width != 0)
         image.height++;
 
-    image.pixels = malloc((size_t)image.height * image.width * sizeof(Color));
+    image.pixels = calloc((size_t)image.height * image.width, sizeof(Color));
     if (image.pixels == NULL)
         die("Failed to allocate pixel array.");
 
@@ -134,18 +134,14 @@ Image image_histogram(ByteArray bytes) {
     image.width  = g_output_width;
     image.height = 256;
 
-    image.pixels = malloc((size_t)image.height * image.width * sizeof(Color));
+    image.pixels = calloc((size_t)image.height * image.width, sizeof(Color));
     if (image.pixels == NULL)
         die("Failed to allocate pixel array.");
 
     uint8_t most_frequent = 0;
-    uint32_t* occurrences = malloc(image.height * sizeof(uint32_t));
+    uint32_t* occurrences = calloc(image.height, sizeof(uint32_t));
     if (occurrences == NULL)
         die("Failed to allocate occurrences array.");
-
-    /* Initialize the occurrences array */
-    for (size_t i = 0; i < image.height; i++)
-        occurrences[i] = 0;
 
     /* Store the occurrences including the most frequent byte */
     for (size_t i = 0; i < bytes.size; i++) {
@@ -180,7 +176,7 @@ Image image_bigrams(ByteArray bytes) {
     image.width  = 256;
     image.height = 256;
 
-    image.pixels = malloc((size_t)image.height * image.width * sizeof(Color));
+    image.pixels = calloc((size_t)image.height * image.width, sizeof(Color));
     if (image.pixels == NULL)
         die("Failed to allocate pixel array.");
 
@@ -216,7 +212,7 @@ Image image_dotplot(ByteArray bytes) {
     image.width  = bytes.size;
     image.height = bytes.size;
 
-    image.pixels = malloc((size_t)image.height * image.width * sizeof(Color));
+    image.pixels = calloc((size_t)image.height * image.width, sizeof(Color));
     if (image.pixels == NULL)
         die("Failed to allocate pixel array.");
 
@@ -277,7 +273,7 @@ void image2png(const char* filename, Image image) {
 
     /* Allocate the PNG rows. Since png_bytep is typedef'd to a pointer, this is
      * a (void**). */
-    png_bytep* rows = malloc(png_height * sizeof(png_bytep));
+    png_bytep* rows = calloc(png_height, sizeof(png_bytep));
     if (rows == NULL)
         die("Failed to allocate PNG rows.");
 
