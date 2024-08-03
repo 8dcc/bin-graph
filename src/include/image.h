@@ -33,10 +33,14 @@ Image image_histogram(ByteArray bytes);
 Image image_bigrams(ByteArray bytes);
 Image image_dotplot(ByteArray bytes);
 
+/* Group the data of a linear image into squares of side N. If the image
+ * dimensions are not divisible by N, they will be increased. */
+void image_transform_squares(Image* image, uint32_t square_side);
+
 /* Write the specified Image structure into a PNG file with the specified name.
  * This function is responsible for scaling the Image depending on
  * `g_output_zoom'. */
-void image2png(const char* filename, Image image);
+void image2png(Image image, const char* filename);
 
 /* Free all the members of an Image structure. Doesn't free the Image itself. */
 void image_free(Image* image);

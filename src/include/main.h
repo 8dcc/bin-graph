@@ -41,5 +41,6 @@ extern uint32_t g_sample_step;
 extern uint32_t g_block_size;
 extern uint32_t g_output_width;
 extern uint32_t g_output_zoom;
+extern uint32_t g_transform_squares_side;
 
 #endif /* MAIN_H_ */

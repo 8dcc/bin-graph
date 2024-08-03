@@ -34,6 +34,10 @@ uint32_t g_output_width = DEFAULT_OUTPUT_WIDTH;
 /* Width and height of each "pixel" when drawn in the actual PNG image */
 uint32_t g_output_zoom = DEFAULT_OUTPUT_ZOOM;
 
+/* Side of each square used when transforming the generated image. Values lower
+ * than two are ignored. */
+uint32_t g_transform_squares_side = 0;
+
 /*----------------------------------------------------------------------------*/
 
 /* Return the byte samples of a binary file in a linear way */
@@ -135,12 +139,16 @@ int main(int argc, char** argv) {
             break;
     }
 
+    /* Perform different transformations to the generated image */
+    if (g_transform_squares_side > 1)
+        image_transform_squares(&image, g_transform_squares_side);
+
     /* We are done with the initial samples, free the bytes allocated in
      * `get_samples'. */
     free(samples.data);
 
     /* Write the Image structure to the PNG file */
-    image2png(output_filename, image);
+    image2png(image, output_filename);
 
     /* We are done with the image, free the pixels allocated in `image_*' */
     free(image.pixels);

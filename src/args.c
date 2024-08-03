@@ -199,6 +199,22 @@ void parse_args(int argc, char** argv) {
             }
 
             g_block_size = signed_size;
+        } else if (strcmp(option, "transform-squares") == 0) {
+            i++;
+            if (i >= argc - 2) {
+                log_err("Not enough arguments for option: \"%s\".", option);
+                arg_error = ARG_ERR_EXIT;
+                goto check_arg_err;
+            }
+
+            int signed_side;
+            if (sscanf(argv[i], "%d", &signed_side) != 1 || signed_side <= 1) {
+                log_err("The square side must be an integer greater than one.");
+                arg_error = ARG_ERR_EXIT;
+                goto check_arg_err;
+            }
+
+            g_transform_squares_side = signed_side;
         } else {
             log_err("Invalid option: \"%s\".", option);
             arg_error = ARG_ERR_USAGE;
@@ -230,10 +246,18 @@ void parse_args(int argc, char** argv) {
     }
 
     if (g_block_size <= 1 && g_mode == MODE_ENTROPY) {
-        log_wrn("The block size (%d) is too small for this mode (%s). "
+        log_wrn("The block size (%d) is too small for the current mode (%s). "
                 "Overwritting to %d bytes.",
                 g_sample_step, g_mode_names[g_mode].arg, DEFAULT_BLOCK_SIZE);
         g_sample_step = DEFAULT_BLOCK_SIZE;
+    }
+
+    if (g_transform_squares_side > 1 &&
+        (g_mode == MODE_HISTOGRAM || g_mode == MODE_BIGRAMS ||
+         g_mode == MODE_DOTPLOT)) {
+        log_wrn("The \"squares\" transformation is not recommended for the "
+                "current mode (%s).",
+                g_mode_names[g_mode].arg);
     }
 
 check_arg_err:
@@ -275,6 +299,14 @@ check_arg_err:
                   "  --block-size BYTES\n"
                   "      Set the size for some block-specific modes like "
                   "entropy.\n\n"
+                  "  --transform-squares SIDE\n"
+                  "      After generating the image, group its pixels into "
+                  "squares of\n"
+                  "      side SIDE. If the image dimensions are not divisible "
+                  "by SIDE,\n"
+                  "      they will be increased. This option is useful with "
+                  "the entropy\n"
+                  "      mode.\n\n"
                   "  --mode MODE\n"
                   "      Set the current mode to MODE. Available modes:\n");
 
