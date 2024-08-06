@@ -277,8 +277,8 @@ void parse_args(int argc, char** argv) {
     if (g_block_size <= 1 && g_mode == MODE_ENTROPY) {
         log_wrn("The block size (%d) is too small for the current mode (%s). "
                 "Overwritting to %d bytes.",
-                g_sample_step, g_mode_names[g_mode].arg, DEFAULT_BLOCK_SIZE);
-        g_sample_step = DEFAULT_BLOCK_SIZE;
+                g_block_size, g_mode_names[g_mode].arg, DEFAULT_BLOCK_SIZE);
+        g_block_size = DEFAULT_BLOCK_SIZE;
     }
 
     if (g_transform_squares_side > 1 &&
