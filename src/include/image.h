@@ -3,7 +3,7 @@
 #define IMAGE_H_ 1
 
 #include <stdint.h>
-#include "main.h" /* ByteArray */
+#include "read_file.h" /* ByteArray */
 
 typedef struct Color {
     uint8_t r, g, b;

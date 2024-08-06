@@ -1,73 +1,12 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <assert.h>
 #include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <errno.h>
 
-#include "include/main.h" /* ByteArray */
 #include "include/args.h"
+#include "include/read_file.h"
 #include "include/image.h"
 #include "include/util.h"
-
-/*----------------------------------------------------------------------------*/
-/* TODO: Move to different source, along with ByteArray */
-
-/* Return the byte samples of a binary file in a linear way */
-static ByteArray get_samples(FILE* fp) {
-    const size_t file_sz = get_file_size(fp);
-
-    /* Make sure the offsets are not out of bounds */
-    if (g_offset_start > file_sz || g_offset_end > file_sz)
-        die("An offset (%zX, %zX) was bigger than the file size (%zX).",
-            g_offset_start, g_offset_end, file_sz);
-
-    /* If the global offset is zero, read until the end of the file */
-    const size_t offset_end = (g_offset_end == 0) ? file_sz : g_offset_end;
-
-    if (offset_end <= g_offset_start)
-        die("End offset (%zX) was smaller or equal than the start offset "
-            "(%zX).",
-            offset_end, g_offset_start);
-
-    /* Move to the starting offset */
-    if (fseek(fp, g_offset_start, SEEK_SET) != 0)
-        die("fseek() failed with offset 0x%zX. Errno: %d.", g_offset_start,
-            errno);
-
-    /* The size of the section that we are trying to read */
-    size_t input_sz = offset_end - g_offset_start;
-
-    /* Calculate the number of samples we will use for generating the image */
-    ByteArray result;
-    result.size = input_sz / g_sample_step;
-    if (input_sz % g_sample_step != 0)
-        result.size++;
-
-    /* Allocate the array for the samples */
-    result.data = malloc(result.size);
-    if (result.data == NULL)
-        die("Failed to allocate the samples array (%zu bytes).", result.size);
-
-    for (size_t i = 0; i < result.size; i++) {
-        /* Store the first byte of the chunk */
-        const int byte = fgetc(fp);
-
-        /* Consume the rest of the chunk */
-        for (uint32_t j = 1;
-             j < g_sample_step && (i * g_sample_step) + j < input_sz; j++)
-            fgetc(fp);
-
-        assert(byte <= 0xFF);
-        result.data[i] = byte;
-    }
-
-    return result;
-}
-
-/*----------------------------------------------------------------------------*/
 
 int main(int argc, char** argv) {
     /* Change the global variables (declared in args.h) depending on the program
@@ -82,36 +21,35 @@ int main(int argc, char** argv) {
     if (!fp)
         die("Can't open file: \"%s\"", input_filename);
 
-    /* Store the byte samples in the same order as the file */
-    ByteArray samples = get_samples(fp);
+    /* Read and store the file bytes in a linear way */
+    ByteArray file_bytes = read_file(fp, g_offset_start, g_offset_end);
     fclose(fp);
 
-    /* Convert the samples ByteArray to a different color Image depending on the
-     * global mode. */
+    /* Convert the ByteArray to a color Image depending on the global mode */
     Image image;
     switch (g_mode) {
         case MODE_GRAYSCALE:
-            image = image_grayscale(samples);
+            image = image_grayscale(file_bytes);
             break;
 
         case MODE_ASCII_LINEAR:
-            image = image_ascii_linear(samples);
+            image = image_ascii_linear(file_bytes);
             break;
 
         case MODE_ENTROPY:
-            image = image_entropy(samples);
+            image = image_entropy(file_bytes);
             break;
 
         case MODE_HISTOGRAM:
-            image = image_histogram(samples);
+            image = image_histogram(file_bytes);
             break;
 
         case MODE_BIGRAMS:
-            image = image_bigrams(samples);
+            image = image_bigrams(file_bytes);
             break;
 
         case MODE_DOTPLOT:
-            image = image_dotplot(samples);
+            image = image_dotplot(file_bytes);
             break;
     }
 
@@ -119,9 +57,9 @@ int main(int argc, char** argv) {
     if (g_transform_squares_side > 1)
         image_transform_squares(&image, g_transform_squares_side);
 
-    /* We are done with the initial samples, free the bytes allocated in
-     * `get_samples'. */
-    free(samples.data);
+    /* We are done with the initial file bytes, free the data allocated in
+     * `get_file_bytes'. */
+    free(file_bytes.data);
 
     /* Write the Image structure to the PNG file */
     image2png(image, output_filename);

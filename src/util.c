@@ -7,13 +7,6 @@
 
 #include "include/util.h"
 
-size_t get_file_size(FILE* fp) {
-    fseek(fp, 0L, SEEK_END);
-    const size_t file_sz = ftell(fp);
-    fseek(fp, 0L, SEEK_SET);
-    return file_sz;
-}
-
 double entropy(void* data, size_t data_sz) {
     uint32_t* occurrences = calloc(256, sizeof(uint32_t));
 

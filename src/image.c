@@ -3,8 +3,8 @@
 #include <png.h>
 #include <ctype.h>
 
-#include "include/main.h" /* ByteArray */
 #include "include/args.h"
+#include "include/read_file.h"
 #include "include/image.h"
 #include "include/util.h"
 
