@@ -22,7 +22,6 @@ enum EProgramMode {
     MODE_DOTPLOT,
 };
 
-#define DEFAULT_SAMPLE_STEP  1
 #define DEFAULT_BLOCK_SIZE   256
 #define DEFAULT_OUTPUT_WIDTH 512
 #define DEFAULT_OUTPUT_ZOOM  2
@@ -31,7 +30,6 @@ enum EProgramMode {
 extern enum EProgramMode g_mode;
 extern size_t g_offset_start;
 extern size_t g_offset_end;
-extern uint32_t g_sample_step;
 extern uint32_t g_block_size;
 extern uint32_t g_output_width;
 extern uint32_t g_output_zoom;

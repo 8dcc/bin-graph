@@ -16,10 +16,6 @@ enum EProgramMode g_mode = MODE_ASCII_LINEAR;
 size_t g_offset_start = 0;
 size_t g_offset_end   = 0;
 
-/* Sample size in bytes, used when reading the input. In other words, each pixel
- * in the output will represent one out of `g_sample_step' input bytes. */
-uint32_t g_sample_step = DEFAULT_SAMPLE_STEP;
-
 /* Block size used in some modes like MODE_ENTROPY. */
 uint32_t g_block_size = DEFAULT_BLOCK_SIZE;
 
@@ -195,23 +191,6 @@ void parse_args(int argc, char** argv) {
             }
 
             g_output_width = signed_width;
-        } else if (strcmp(option, "sample-step") == 0) {
-            i++;
-            if (i >= argc - 2) {
-                log_err("Not enough arguments for option: \"%s\".", option);
-                arg_error = ARG_ERR_EXIT;
-                goto check_arg_err;
-            }
-
-            int signed_step;
-            if (sscanf(argv[i], "%d", &signed_step) != 1 || signed_step <= 0) {
-                log_err(
-                  "The sample step must be an integer greater than zero.");
-                arg_error = ARG_ERR_EXIT;
-                goto check_arg_err;
-            }
-
-            g_sample_step = signed_step;
         } else if (strcmp(option, "block-size") == 0) {
             i++;
             if (i >= argc - 2) {

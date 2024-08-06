@@ -40,33 +40,19 @@ ByteArray read_file(FILE* fp, long offset_start, long offset_end) {
         die("fseek() failed with offset 0x%zX. Errno: %s (%d).", offset_start,
             strerror(errno), errno);
 
-    /* The size of the section that we are trying to read */
-    const long input_sz = offset_end - offset_start;
-
-    /* Calculate the number of samples we will use for generating the image */
-    /* TODO: Remove g_sample_step entirely */
     ByteArray result;
-    result.size = input_sz / g_sample_step;
-    if (input_sz % g_sample_step != 0)
-        result.size++;
 
-    /* Allocate the array for the samples */
+    /* The size of the section that we are trying to read */
+    result.size = offset_end - offset_start;
+
+    /* Allocate the array for the bytes */
     result.data = malloc(result.size);
     if (result.data == NULL)
         die("Failed to allocate the samples array (%zu bytes).", result.size);
 
-    for (size_t i = 0; i < result.size; i++) {
-        /* Store the first byte of the chunk */
-        const int byte = fgetc(fp);
-
-        /* Consume the rest of the chunk */
-        for (size_t j = 1;
-             j < g_sample_step && (i * g_sample_step) + j < input_sz; j++)
-            fgetc(fp);
-
-        assert(byte <= 0xFF);
-        result.data[i] = byte;
-    }
+    /* Read the bytes from the file */
+    for (size_t i = 0; i < result.size; i++)
+        result.data[i] = fgetc(fp);
 
     return result;
 }
