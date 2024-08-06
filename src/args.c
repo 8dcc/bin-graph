@@ -1,10 +1,39 @@
 
 #include <stddef.h>
+#include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
 
-#include "include/main.h"
+#include "include/args.h"
 #include "include/util.h"
+
+/*----------------------------------------------------------------------------*/
+
+/* Program mode. Determines how the bytes will be displayed. */
+enum EProgramMode g_mode = MODE_ASCII_LINEAR;
+
+/* Start and end offsets for reading the input file. Zero means ignore. */
+size_t g_offset_start = 0;
+size_t g_offset_end   = 0;
+
+/* Sample size in bytes, used when reading the input. In other words, each pixel
+ * in the output will represent one out of `g_sample_step' input bytes. */
+uint32_t g_sample_step = DEFAULT_SAMPLE_STEP;
+
+/* Block size used in some modes like MODE_ENTROPY. */
+uint32_t g_block_size = DEFAULT_BLOCK_SIZE;
+
+/* Width in pixels of the output image (before applying the zoom) */
+uint32_t g_output_width = DEFAULT_OUTPUT_WIDTH;
+
+/* Width and height of each "pixel" when drawn in the actual PNG image */
+uint32_t g_output_zoom = DEFAULT_OUTPUT_ZOOM;
+
+/* Side of each square used when transforming the generated image. Values lower
+ * than two are ignored. */
+uint32_t g_transform_squares_side = 0;
+
+/*----------------------------------------------------------------------------*/
 
 /* Mode names and descriptions used when parsing the program arguments */
 static struct {
