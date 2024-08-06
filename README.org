@@ -54,16 +54,16 @@ be found with the program's =help= command.
 
 #+begin_src bash
 bin-graph --help
-# ...
-
-bin-graph [OPTION...] INPUT OUTPUT.png
+# Usage:
+#   ./bin-graph [OPTION...] INPUT OUTPUT.png
+#
 # ...
 #+end_src
 
 This project also includes a [[file:bin-graph-section.sh][bin-graph-section.sh]] script. It uses =readelf= and
 =grep= to find the offset and size of the specified region, and uses that as the
-=--offsets= argument for =bin-graph=. Additional options after the section name will
-be passed to =bin-graph=.
+=--offset-*= arguments for =bin-graph=. Additional options after the section name
+will be passed to =bin-graph=.
 
 #+begin_src bash
 ./bin-graph-section.sh SECTION [OPTION...] INPUT OUTPUT.png
@@ -75,19 +75,16 @@ be passed to =bin-graph=.
 I tried to make each part of the program as modular and independent as possible,
 for more maintainability and for easier expansion.
 
-This is the basic process for generating an image from a binary. Note that this
-section might be slightly outdated depending on when you are reading it.
+This is the basic process for generating an image from a binary.
 
-1. The arguments are parsed, and the necessary global variables in [[file:src/main.c][main.c]] are
-   overwritten. These will be used from all the sources, not just from =main.c=.
-2. The samples are read from the input file as a byte array, using the
-   =get_samples= function, defined in  [[file:src/main.c][main.c]]. Each element of this byte array is a
-   sample from the file that represents a chunk of data. By default, since
-   =g_sample_step= is 1, each sample represents a single byte of the input file.
-3. The array of sample bytes is converted into an =Image= structure, which is just
-   an array of RGB =Color= structures, along with its dimensions. The program mode
+1. The arguments are parsed, and the necessary global variables in [[file:src/args.c][args.c]] are
+   overwritten. These will be used from all the sources.
+2. The data is read from the input file as a byte array, using the =read_file=
+   function, defined in [[file:src/read_file.c][read_file.c]].
+3. The array of bytes is converted into an =Image= structure, which is just an
+   array of RGB =Color= structures, along with its dimensions. The program mode
    (which might have been overwritten with the =--mode= parameter) determines what
    =image_*= function is used. These =image_*= functions are defined in [[file:src/image.c][image.c]]. For
    more information on the available modes, see [[*Usage and modes][Usage and modes]].
 4. The =Image= structure is converted into a PNG file with the =image2png= function,
-   defined in  [[file:src/image.c][image.c]].
+   defined in [[file:src/image.c][image.c]].
