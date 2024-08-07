@@ -18,22 +18,27 @@ long get_file_size(FILE* fp) {
     return file_sz;
 }
 
-ByteArray read_file(FILE* fp, long offset_start, long offset_end) {
+void get_real_offsets(FILE* fp, long* offset_start, long* offset_end) {
     const long file_sz = get_file_size(fp);
 
     /* Make sure the offsets are not out of bounds */
-    if (offset_start > file_sz || offset_end > file_sz)
+    if (*offset_start > file_sz || *offset_end > file_sz)
         die("An offset (%zX, %zX) was bigger than the file size (%zX).",
-            offset_start, offset_end, file_sz);
+            *offset_start, *offset_end, file_sz);
 
-    /* If the global offset is zero, read until the end of the file */
-    if (offset_end == 0)
-        offset_end = file_sz;
+    /* If the global offset is zero, it means end of the file. Overwrite it */
+    if (*offset_end == 0)
+        *offset_end = file_sz;
 
-    if (offset_end <= offset_start)
+    if (*offset_end <= *offset_start)
         die("End offset (%zX) was smaller or equal than the start offset "
             "(%zX).",
-            offset_end, offset_start);
+            *offset_end, *offset_start);
+}
+
+ByteArray read_file(FILE* fp, long offset_start, long offset_end) {
+    /* Ensure these are real and valid offsets */
+    get_real_offsets(fp, &offset_start, &offset_end);
 
     /* Move to the starting offset */
     if (fseek(fp, offset_start, SEEK_SET) != 0)
