@@ -23,7 +23,7 @@ void get_real_offsets(FILE* fp, long* offset_start, long* offset_end) {
 
     /* Make sure the offsets are not out of bounds */
     if (*offset_start > file_sz || *offset_end > file_sz)
-        die("An offset (%zX, %zX) was bigger than the file size (%zX).",
+        die("An offset (%zX, %zX) was bigger than the file size (%zX)",
             *offset_start, *offset_end, file_sz);
 
     /* If the global offset is zero, it means end of the file. Overwrite it */
@@ -31,8 +31,7 @@ void get_real_offsets(FILE* fp, long* offset_start, long* offset_end) {
         *offset_end = file_sz;
 
     if (*offset_end <= *offset_start)
-        die("End offset (%zX) was smaller or equal than the start offset "
-            "(%zX).",
+        die("End offset (%zX) was smaller or equal than the start offset (%zX)",
             *offset_end, *offset_start);
 }
 
@@ -42,7 +41,7 @@ ByteArray read_file(FILE* fp, long offset_start, long offset_end) {
 
     /* Move to the starting offset */
     if (fseek(fp, offset_start, SEEK_SET) != 0)
-        die("fseek() failed with offset 0x%zX. Errno: %s (%d).", offset_start,
+        die("fseek() failed with offset 0x%zX. Errno: %s (%d)", offset_start,
             strerror(errno), errno);
 
     ByteArray result;
@@ -53,7 +52,7 @@ ByteArray read_file(FILE* fp, long offset_start, long offset_end) {
     /* Allocate the array for the bytes */
     result.data = malloc(result.size);
     if (result.data == NULL)
-        die("Failed to allocate the samples array (%zu bytes).", result.size);
+        die("Failed to allocate the samples array (%zu bytes)", result.size);
 
     /* Read the bytes from the file */
     for (size_t i = 0; i < result.size; i++)
