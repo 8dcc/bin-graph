@@ -17,6 +17,17 @@ typedef struct Image {
 /*----------------------------------------------------------------------------*/
 
 /*
+ * Initialize an Image structure. Get its dimensions, and allocate the pixel
+ * array.
+ */
+void image_init(Image* image, size_t data_sz);
+
+/*
+ * Free all the members of an Image structure. Doesn't free the Image itself.
+ */
+void image_free(Image* image);
+
+/*
  * Convert a ByteArray to an Image structure that represents different
  * information of the bytes.
  *
@@ -26,23 +37,24 @@ typedef struct Image {
  * For more information on each mode, run the program with the `--help'
  * argument.
  */
-Image image_grayscale(ByteArray bytes);
-Image image_ascii_linear(ByteArray bytes);
-Image image_entropy(ByteArray bytes);
-Image image_histogram(ByteArray bytes);
-Image image_bigrams(ByteArray bytes);
-Image image_dotplot(ByteArray bytes);
+void image_grayscale(Image* image, ByteArray* bytes);
+void image_ascii_linear(Image* image, ByteArray* bytes);
+void image_entropy(Image* image, ByteArray* bytes);
+void image_histogram(Image* image, ByteArray* bytes);
+void image_bigrams(Image* image, ByteArray* bytes);
+void image_dotplot(Image* image, ByteArray* bytes);
 
-/* Group the data of a linear image into squares of side N. If the image
- * dimensions are not divisible by N, they will be increased. */
+/*
+ * Group the data of a linear image into squares of side N. If the image
+ * dimensions are not divisible by N, they will be increased.
+ */
 void image_transform_squares(Image* image, uint32_t square_side);
 
-/* Write the specified Image structure into a PNG file with the specified name.
+/*
+ * Write the specified Image structure into a PNG file with the specified name.
  * This function is responsible for scaling the Image depending on
- * `g_output_zoom'. */
-void image2png(Image image, const char* filename);
-
-/* Free all the members of an Image structure. Doesn't free the Image itself. */
-void image_free(Image* image);
+ * `g_output_zoom'.
+ */
+void image2png(Image* image, const char* filename);
 
 #endif /* IMAGE_H_ */

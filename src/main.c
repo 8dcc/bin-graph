@@ -25,47 +25,49 @@ int main(int argc, char** argv) {
     ByteArray file_bytes = read_file(fp, g_offset_start, g_offset_end);
     fclose(fp);
 
-    /* Convert the ByteArray to a color Image depending on the global mode */
+    /* Initialize the image structure */
     Image image;
+    image_init(&image, file_bytes.size);
+
+    /* Convert the ByteArray to a color Image depending on the global mode */
     switch (g_mode) {
         case MODE_GRAYSCALE:
-            image = image_grayscale(file_bytes);
+            image_grayscale(&image, &file_bytes);
             break;
 
         case MODE_ASCII_LINEAR:
-            image = image_ascii_linear(file_bytes);
+            image_ascii_linear(&image, &file_bytes);
             break;
 
         case MODE_ENTROPY:
-            image = image_entropy(file_bytes);
+            image_entropy(&image, &file_bytes);
             break;
 
         case MODE_HISTOGRAM:
-            image = image_histogram(file_bytes);
+            image_histogram(&image, &file_bytes);
             break;
 
         case MODE_BIGRAMS:
-            image = image_bigrams(file_bytes);
+            image_bigrams(&image, &file_bytes);
             break;
 
         case MODE_DOTPLOT:
-            image = image_dotplot(file_bytes);
+            image_dotplot(&image, &file_bytes);
             break;
     }
+
+    /* We are done with the initial file bytes, free them */
+    byte_array_free(&file_bytes);
 
     /* Perform different transformations to the generated image */
     if (g_transform_squares_side > 1)
         image_transform_squares(&image, g_transform_squares_side);
 
-    /* We are done with the initial file bytes, free the data allocated in
-     * `get_file_bytes'. */
-    free(file_bytes.data);
-
     /* Write the Image structure to the PNG file */
-    image2png(image, output_filename);
+    image2png(&image, output_filename);
 
-    /* We are done with the image, free the pixels allocated in `image_*' */
-    free(image.pixels);
+    /* We are done with the image, free it */
+    image_free(&image);
 
     return 0;
 }

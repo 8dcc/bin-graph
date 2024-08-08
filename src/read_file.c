@@ -61,3 +61,8 @@ ByteArray read_file(FILE* fp, long offset_start, long offset_end) {
 
     return result;
 }
+
+void byte_array_free(ByteArray* bytes) {
+    free(bytes->data);
+    bytes->data = NULL;
+}

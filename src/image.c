@@ -1,4 +1,5 @@
 
+#include <assert.h>
 #include <stdlib.h>
 #include <png.h>
 #include <ctype.h>
@@ -8,72 +9,87 @@
 #include "include/image.h"
 #include "include/util.h"
 
-/*----------------------------------------------------------------------------*/
-
 /* Bytes per pixel of the PNG image (R, G, B) */
 #define PNG_BPP 3
 
 /*----------------------------------------------------------------------------*/
 
-Image image_grayscale(ByteArray bytes) {
+void image_init(Image* image, size_t data_sz) {
     /* The image conversion functions ignore zoom. It will be applied when
      * generating the PNG. */
-    Image image;
-    image.width  = g_output_width;
-    image.height = bytes.size / image.width;
-    if (bytes.size % image.width != 0)
-        image.height++;
+    switch (g_mode) {
+        case MODE_GRAYSCALE:
+        case MODE_ASCII_LINEAR:
+        case MODE_ENTROPY: {
+            image->width  = g_output_width;
+            image->height = data_sz / image->width;
+            if (data_sz % image->width != 0)
+                image->height++;
+        } break;
+
+        case MODE_HISTOGRAM: {
+            image->width  = g_output_width;
+            image->height = 256;
+        } break;
+
+        case MODE_BIGRAMS: {
+            image->width  = 256;
+            image->height = 256;
+        } break;
+
+        case MODE_DOTPLOT: {
+            image->width  = data_sz;
+            image->height = data_sz;
+        } break;
+    }
 
     /* Allocate the array that will contain the color information. We need to
      * cast the first value to `size_t' to make sure the multiplication result
      * doesn't overflow in an `uint32_t'. */
-    image.pixels = calloc((size_t)image.height * image.width, sizeof(Color));
-    if (image.pixels == NULL)
+    image->pixels = calloc((size_t)image->height * image->width, sizeof(Color));
+    if (image->pixels == NULL)
         die("Failed to allocate pixel array.");
-
-    for (size_t y = 0; y < image.height; y++) {
-        for (size_t x = 0; x < image.width; x++) {
-            /* One-dimensional index for both the `bytes.data' and
-             * `image.pixels' arrays. */
-            const size_t raw_idx = image.width * y + x;
-
-            /* Pointer to the current color in the Image */
-            Color* color = &image.pixels[raw_idx];
-
-            /* The color brightness is determined by the byte value */
-            color->r = color->g = color->b = bytes.data[raw_idx];
-        }
-    }
-
-    return image;
 }
 
-Image image_ascii_linear(ByteArray bytes) {
-    Image image;
-    image.width  = g_output_width;
-    image.height = bytes.size / image.width;
-    if (bytes.size % image.width != 0)
-        image.height++;
+void image_free(Image* image) {
+    free(image->pixels);
+    image->pixels = NULL;
+}
 
-    image.pixels = calloc((size_t)image.height * image.width, sizeof(Color));
-    if (image.pixels == NULL)
-        die("Failed to allocate pixel array.");
+/*----------------------------------------------------------------------------*/
 
-    for (size_t y = 0; y < image.height; y++) {
-        for (size_t x = 0; x < image.width; x++) {
-            const size_t raw_idx = (size_t)image.width * y + x;
-            Color* color         = &image.pixels[raw_idx];
+void image_grayscale(Image* image, ByteArray* bytes) {
+    for (size_t y = 0; y < image->height; y++) {
+        for (size_t x = 0; x < image->width; x++) {
+            /* One-dimensional index for both the `bytes->data' and
+             * `image->pixels' arrays. */
+            const size_t raw_idx = image->width * y + x;
+
+            /* Pointer to the current color in the Image */
+            Color* color = &image->pixels[raw_idx];
+
+            /* The color brightness is determined by the byte value */
+            color->r = color->g = color->b = bytes->data[raw_idx];
+        }
+    }
+}
+
+void image_ascii_linear(Image* image, ByteArray* bytes) {
+    for (size_t y = 0; y < image->height; y++) {
+        for (size_t x = 0; x < image->width; x++) {
+            const size_t raw_idx = (size_t)image->width * y + x;
+            Color* color         = &image->pixels[raw_idx];
 
             /* If we are not in-bounds, we are filling the last row; use a
              * generic padding color. */
-            if (raw_idx >= bytes.size) {
+            if (raw_idx >= bytes->size) {
                 color->r = color->g = color->b = 0;
                 continue;
             }
 
             /* Determine the RGB color of the pixel depending on the byte
              * value. */
-            const uint8_t byte = bytes.data[raw_idx];
+            const uint8_t byte = bytes->data[raw_idx];
             if (byte == 0x00 || byte == 0xFF) {
                 /* Common padding values, either black or white */
                 color->r = byte;
@@ -92,29 +108,17 @@ Image image_ascii_linear(ByteArray bytes) {
             }
         }
     }
-
-    return image;
 }
 
-Image image_entropy(ByteArray bytes) {
-    Image image;
-    image.width  = g_output_width;
-    image.height = bytes.size / image.width;
-    if (bytes.size % image.width != 0)
-        image.height++;
-
-    image.pixels = calloc((size_t)image.height * image.width, sizeof(Color));
-    if (image.pixels == NULL)
-        die("Failed to allocate pixel array.");
-
+void image_entropy(Image* image, ByteArray* bytes) {
     /* Iterate blocks of the input, each will share the same entropy color */
-    for (size_t i = 0; i < bytes.size; i += g_block_size) {
-        /* Make sure we are not reading past the end of `bytes.size' */
+    for (size_t i = 0; i < bytes->size; i += g_block_size) {
+        /* Make sure we are not reading past the end of `bytes->size' */
         const size_t real_block_size =
-          (i + g_block_size < bytes.size) ? g_block_size : bytes.size - i;
+          (i + g_block_size < bytes->size) ? g_block_size : bytes->size - i;
 
         /* Calculate the Shannon entropy for this block */
-        const double block_entropy = entropy(&bytes.data[i], real_block_size);
+        const double block_entropy = entropy(&bytes->data[i], real_block_size);
 
         /* Calculate the [00..FF] color for this block based on the [0..8]
          * entropy. */
@@ -122,31 +126,23 @@ Image image_entropy(ByteArray bytes) {
 
         /* Render this block with the same color */
         for (size_t j = 0; j < real_block_size; j++) {
-            Color* color = &image.pixels[i + j];
+            Color* color = &image->pixels[i + j];
             color->r = color->g = color->b = color_intensity;
         }
     }
-
-    return image;
 }
 
-Image image_histogram(ByteArray bytes) {
-    Image image;
-    image.width  = g_output_width;
-    image.height = 256;
-
-    image.pixels = calloc((size_t)image.height * image.width, sizeof(Color));
-    if (image.pixels == NULL)
-        die("Failed to allocate pixel array.");
+void image_histogram(Image* image, ByteArray* bytes) {
+    assert(image->height == 256);
 
     uint8_t most_frequent = 0;
-    uint32_t* occurrences = calloc(image.height, sizeof(uint32_t));
+    uint32_t* occurrences = calloc(256, sizeof(uint32_t));
     if (occurrences == NULL)
         die("Failed to allocate occurrences array.");
 
     /* Store the occurrences including the most frequent byte */
-    for (size_t i = 0; i < bytes.size; i++) {
-        const uint8_t byte = bytes.data[i];
+    for (size_t i = 0; i < bytes->size; i++) {
+        const uint8_t byte = bytes->data[i];
 
         occurrences[byte]++;
 
@@ -155,71 +151,55 @@ Image image_histogram(ByteArray bytes) {
     }
 
     /* Draw each horizontal line based on occurrences relative to the most
-     * frequen byte. */
-    for (size_t y = 0; y < image.height; y++) {
+     * frequent byte. */
+    for (size_t y = 0; y < image->height; y++) {
         const uint32_t line_width =
-          occurrences[y] * image.width / occurrences[most_frequent];
+          occurrences[y] * image->width / occurrences[most_frequent];
 
         for (size_t x = 0; x < line_width; x++) {
-            Color* color = &image.pixels[image.width * y + x];
+            Color* color = &image->pixels[image->width * y + x];
             color->r = color->g = color->b = 0xFF;
         }
     }
 
     /* We are done with the occurrences array */
     free(occurrences);
-
-    return image;
 }
 
-Image image_bigrams(ByteArray bytes) {
-    Image image;
-    image.width  = 256;
-    image.height = 256;
-
-    image.pixels = calloc((size_t)image.height * image.width, sizeof(Color));
-    if (image.pixels == NULL)
-        die("Failed to allocate pixel array.");
+void image_bigrams(Image* image, ByteArray* bytes) {
+    assert(image->width == 256 && image->height == 256);
 
     /* Initialize the image to black */
-    for (size_t y = 0; y < image.height; y++) {
-        for (size_t x = 0; x < image.width; x++) {
-            Color* color = &image.pixels[image.width * y + x];
+    for (size_t y = 0; y < image->height; y++) {
+        for (size_t x = 0; x < image->width; x++) {
+            Color* color = &image->pixels[image->width * y + x];
             color->r = color->g = color->b = 0x00;
         }
     }
 
-    /* In this case we don't want to iterate the image, but the bytes. We start
+    /* In this case we don't want to iterate the image, but the bytes-> We start
      * from the second byte because we are plotting bigrams (pairs). */
-    for (size_t i = 1; i < bytes.size; i++) {
-        const uint8_t x = bytes.data[i - 1];
-        const uint8_t y = bytes.data[i];
+    for (size_t i = 1; i < bytes->size; i++) {
+        const uint8_t x = bytes->data[i - 1];
+        const uint8_t y = bytes->data[i];
 
         /* The position is determined by the values of the current byte and the
          * previous one. */
-        Color* color = &image.pixels[image.width * y + x];
+        Color* color = &image->pixels[image->width * y + x];
 
         /* This mode just plots whether a bigram is present or not in the input.
          * We don't change the colors depending on the occurrences or anything
          * like that. */
         color->r = color->g = color->b = 0xFF;
     }
-
-    return image;
 }
 
-Image image_dotplot(ByteArray bytes) {
-    Image image;
-    image.width  = bytes.size;
-    image.height = bytes.size;
+void image_dotplot(Image* image, ByteArray* bytes) {
+    assert(image->width == bytes->size && image->height == bytes->size);
 
-    image.pixels = calloc((size_t)image.height * image.width, sizeof(Color));
-    if (image.pixels == NULL)
-        die("Failed to allocate pixel array.");
-
-    for (size_t y = 0; y < image.height; y++) {
-        for (size_t x = 0; x < image.width; x++) {
-            Color* color = &image.pixels[image.width * y + x];
+    for (size_t y = 0; y < image->height; y++) {
+        for (size_t x = 0; x < image->width; x++) {
+            Color* color = &image->pixels[image->width * y + x];
 
             /*
              * The dotplot is used to meassure self-similarity. For each point
@@ -237,11 +217,9 @@ Image image_dotplot(ByteArray bytes) {
              *   D|     *
              */
             color->r = color->g = color->b =
-              (bytes.data[x] == bytes.data[y]) ? 0xFF : 0x00;
+              (bytes->data[x] == bytes->data[y]) ? 0xFF : 0x00;
         }
     }
-
-    return image;
 }
 
 /*----------------------------------------------------------------------------*/
@@ -291,7 +269,7 @@ void image_transform_squares(Image* image, uint32_t square_side) {
 
 /*----------------------------------------------------------------------------*/
 
-void image2png(Image image, const char* filename) {
+void image2png(Image* image, const char* filename) {
     FILE* fd = fopen(filename, "wb");
     if (!fd)
         die("Can't open file: \"%s\"\n", filename);
@@ -307,8 +285,8 @@ void image2png(Image image, const char* filename) {
 
     /* The actual PNG image dimensions, remember that the Image is unscaled */
     const int zoom      = g_output_zoom;
-    uint32_t png_height = image.height * zoom;
-    uint32_t png_width  = image.width * zoom;
+    uint32_t png_height = image->height * zoom;
+    uint32_t png_width  = image->width * zoom;
 
     /* Specify the PNG info */
     png_init_io(png, fd);
@@ -333,10 +311,10 @@ void image2png(Image image, const char* filename) {
      * allocated.
      *
      * The outer loops iterate the unscaled pixels, and are needed for accessing
-     * the `bytes.data' array. */
-    for (uint32_t y = 0; y < image.height; y++) {
-        for (uint32_t x = 0; x < image.width; x++) {
-            Color color = image.pixels[image.width * y + x];
+     * the `bytes->data' array. */
+    for (uint32_t y = 0; y < image->height; y++) {
+        for (uint32_t x = 0; x < image->width; x++) {
+            Color color = image->pixels[(size_t)image->width * y + x];
 
             /* Draw a rectangle of side `g_output_zoom' */
             for (int rect_y = 0; rect_y < zoom; rect_y++) {
@@ -363,11 +341,4 @@ void image2png(Image image, const char* filename) {
 
     fclose(fd);
     png_destroy_write_struct(&png, &info);
-}
-
-/*----------------------------------------------------------------------------*/
-
-void image_free(Image* image) {
-    free(image->pixels);
-    image->pixels = NULL;
 }

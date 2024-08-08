@@ -33,4 +33,9 @@ void get_real_offsets(FILE* fp, long* offset_start, long* offset_end);
  */
 ByteArray read_file(FILE* fp, long offset_start, long offset_end);
 
+/*
+ * Free a ByteArray structure.
+ */
+void byte_array_free(ByteArray* bytes);
+
 #endif /* READ_FILE_H_ */
