@@ -18,12 +18,12 @@ typedef struct Image {
 
 /*
  * Initialize an Image structure. Get its dimensions, and allocate the pixel
- * array.
+ * array. It must be freed with `image_free'.
  */
 void image_init(Image* image, size_t data_sz);
 
 /*
- * Free all the members of an Image structure. Doesn't free the Image itself.
+ * Free all members of an Image structure. Doesn't free the Image itself.
  */
 void image_free(Image* image);
 

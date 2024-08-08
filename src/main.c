@@ -21,8 +21,12 @@ int main(int argc, char** argv) {
     if (!fp)
         die("Can't open file: \"%s\"", input_filename);
 
+    /* Allocate the bytes needed for reading this chunk of the file */
+    ByteArray file_bytes;
+    byte_array_init(&file_bytes, fp, g_offset_start, g_offset_end);
+
     /* Read and store the file bytes in a linear way */
-    ByteArray file_bytes = read_file(fp, g_offset_start, g_offset_end);
+    read_file(&file_bytes, fp, g_offset_start, g_offset_end);
     fclose(fp);
 
     /* Initialize the image structure */

@@ -35,7 +35,7 @@ void get_real_offsets(FILE* fp, long* offset_start, long* offset_end) {
             *offset_end, *offset_start);
 }
 
-ByteArray read_file(FILE* fp, long offset_start, long offset_end) {
+void read_file(ByteArray* dst, FILE* fp, long offset_start, long offset_end) {
     /* Ensure these are real and valid offsets */
     get_real_offsets(fp, &offset_start, &offset_end);
 
@@ -44,21 +44,22 @@ ByteArray read_file(FILE* fp, long offset_start, long offset_end) {
         die("fseek() failed with offset 0x%zX. Errno: %s (%d)", offset_start,
             strerror(errno), errno);
 
-    ByteArray result;
-
-    /* The size of the section that we are trying to read */
-    result.size = offset_end - offset_start;
-
-    /* Allocate the array for the bytes */
-    result.data = malloc(result.size);
-    if (result.data == NULL)
-        die("Failed to allocate the samples array (%zu bytes)", result.size);
-
     /* Read the bytes from the file */
-    for (size_t i = 0; i < result.size; i++)
-        result.data[i] = fgetc(fp);
+    for (size_t i = 0; i < dst->size; i++)
+        dst->data[i] = fgetc(fp);
+}
 
-    return result;
+/*----------------------------------------------------------------------------*/
+
+void byte_array_init(ByteArray* bytes, FILE* fp, long offset_start,
+                     long offset_end) {
+    /* Ensure these are real and valid offsets */
+    get_real_offsets(fp, &offset_start, &offset_end);
+
+    bytes->size = offset_end - offset_start;
+    bytes->data = calloc(bytes->size, sizeof(uint8_t));
+    if (bytes->data == NULL)
+        die("Failed to allocate the byte array (%zu bytes)", bytes->size);
 }
 
 void byte_array_free(ByteArray* bytes) {
