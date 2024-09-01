@@ -39,8 +39,8 @@ int main(int argc, char** argv) {
             image_grayscale(&image, &file_bytes);
             break;
 
-        case MODE_ASCII_LINEAR:
-            image_ascii_linear(&image, &file_bytes);
+        case MODE_ASCII:
+            image_ascii(&image, &file_bytes);
             break;
 
         case MODE_ENTROPY:

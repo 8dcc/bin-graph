@@ -10,7 +10,7 @@
 /*----------------------------------------------------------------------------*/
 
 /* Program mode. Determines how the bytes will be displayed. */
-enum EProgramMode g_mode = MODE_ASCII_LINEAR;
+enum EProgramMode g_mode = MODE_ASCII;
 
 /* Start and end offsets for reading the input file. Zero means ignore. */
 size_t g_offset_start = 0;
@@ -42,8 +42,8 @@ static struct {
         "          The brightness of each pixel represents the value of each\n"
         "          sample (00..FF).",
     },
-    [MODE_ASCII_LINEAR] = {
-        .arg  = "ascii_linear",
+    [MODE_ASCII] = {
+        .arg  = "ascii",
         .desc =
         "          The color of each pixel represents the \"printability\" of\n"
         "          each sample in a linear way. Black represents a null byte\n"

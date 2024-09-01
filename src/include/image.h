@@ -38,7 +38,7 @@ void image_free(Image* image);
  * argument.
  */
 void image_grayscale(Image* image, ByteArray* bytes);
-void image_ascii_linear(Image* image, ByteArray* bytes);
+void image_ascii(Image* image, ByteArray* bytes);
 void image_entropy(Image* image, ByteArray* bytes);
 void image_histogram(Image* image, ByteArray* bytes);
 void image_bigrams(Image* image, ByteArray* bytes);

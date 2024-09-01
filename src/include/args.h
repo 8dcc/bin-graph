@@ -15,7 +15,7 @@ enum EArgError {
 /* TODO: Add more modes: bigram_freq, etc. */
 enum EProgramMode {
     MODE_GRAYSCALE,
-    MODE_ASCII_LINEAR,
+    MODE_ASCII,
     MODE_ENTROPY,
     MODE_HISTOGRAM,
     MODE_BIGRAMS,

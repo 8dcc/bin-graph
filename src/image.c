@@ -19,7 +19,7 @@ void image_init(Image* image, size_t data_sz) {
      * generating the PNG. */
     switch (g_mode) {
         case MODE_GRAYSCALE:
-        case MODE_ASCII_LINEAR:
+        case MODE_ASCII:
         case MODE_ENTROPY: {
             image->width  = g_output_width;
             image->height = data_sz / image->width;
@@ -74,7 +74,7 @@ void image_grayscale(Image* image, ByteArray* bytes) {
     }
 }
 
-void image_ascii_linear(Image* image, ByteArray* bytes) {
+void image_ascii(Image* image, ByteArray* bytes) {
     for (size_t y = 0; y < image->height; y++) {
         for (size_t x = 0; x < image->width; x++) {
             const size_t raw_idx = (size_t)image->width * y + x;
