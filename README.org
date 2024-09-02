@@ -16,6 +16,7 @@ These are some references that inspired this project:
 If you are interested on more professional approaches, check out the following
 links:
 
+- The [[https://binvis.io][binvis.io]] online tool by Aldo Cortesi.
 - The [[https://github.com/mewbak/binary_viewer][mewbak/binary_viewer]] repository, which also includes some other links.
 - The [[https://github.com/wapiflapi/veles][wapiflapi/veles]] repository, which is no longer maintained.
 
