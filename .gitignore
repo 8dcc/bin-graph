@@ -2,7 +2,7 @@
 bin-graph
 
 # Generated images
-*.png
+/*.png
 
 # Doxygen documentation
 /doc/html/

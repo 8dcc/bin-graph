@@ -88,3 +88,43 @@ This is the basic process for generating an image from a binary.
    more information on the available modes, see [[*Usage and modes][Usage and modes]].
 4. The =Image= structure is converted into a PNG file with the =image2png= function,
    defined in [[file:src/image.c][image.c]].
+
+* Screenshots
+
+#+begin_src bash
+./bin-graph --mode grayscale bin-graph examples/grayscale.png
+#+end_src
+
+[[file:examples/grayscale.png]]
+
+#+begin_src bash
+./bin-graph --mode ascii bin-graph examples/ascii.png
+#+end_src
+
+[[file:examples/ascii.png]]
+
+#+begin_src bash
+./bin-graph --mode entropy --transform-squares 16 bin-graph examples/entropy-squared.png
+#+end_src
+
+[[file:examples/entropy-squared.png]]
+
+#+begin_src bash
+# Only the .text section of the ELF file
+./bin-graph-section.sh .text --mode histogram bin-graph examples/histogram.png
+#+end_src
+
+[[file:examples/histogram.png]]
+
+#+begin_src bash
+# Only the .rodata section of the ELF file
+./bin-graph-section.sh .rodata --mode bigrams bin-graph examples/rodata-bigrams.png
+#+end_src
+
+[[file:examples/rodata-bigrams.png]]
+
+#+begin_src bash
+./bin-graph --mode dotplot --zoom 1 --offset-start 5000 --offset-end 5500 input.wav examples/dotplot.png
+#+end_src
+
+[[file:examples/dotplot.png]]
