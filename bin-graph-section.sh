@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Parse the output of `readelf', and use the offsets of the specified section
 # as arguments for `bin-graph'.
