@@ -3,11 +3,13 @@ CC=gcc
 CFLAGS=-std=c99 -Wall -Wextra -Wpedantic -ggdb3
 LDLIBS=-lm -lpng
 
-OBJ_FILES=main.c.o args.c.o read_file.c.o image.c.o util.c.o liblog.c.o
-OBJS=$(addprefix obj/, $(OBJ_FILES))
+SRCS=main.c args.c read_file.c image.c util.c liblog.c
+OBJS=$(addprefix obj/, $(addsuffix .o, $(SRCS)))
 
 BIN=bin-graph
-INSTALL_DIR=/usr/local/bin
+
+PREFIX=/usr/local
+BINDIR=$(PREFIX)/bin
 
 #-------------------------------------------------------------------------------
 
@@ -20,8 +22,8 @@ clean:
 	rm -f $(BIN)
 
 install: $(BIN)
-	mkdir -p $(INSTALL_DIR)
-	install -m 755 $^ $(INSTALL_DIR)
+	mkdir -p $(BINDIR)
+	install -m 755 $^ $(BINDIR)
 
 #-------------------------------------------------------------------------------
 
