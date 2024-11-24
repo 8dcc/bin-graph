@@ -3,8 +3,8 @@ CC=gcc
 CFLAGS=-std=c99 -Wall -Wextra -Wpedantic -ggdb3
 LDLIBS=-lm -lpng
 
-SRCS=main.c args.c read_file.c image.c util.c liblog.c
-OBJS=$(addprefix obj/, $(addsuffix .o, $(SRCS)))
+SRC=main.c args.c read_file.c image.c util.c liblog.c
+OBJ=$(addprefix obj/, $(addsuffix .o, $(SRC)))
 
 BIN=bin-graph
 
@@ -18,16 +18,16 @@ BINDIR=$(PREFIX)/bin
 all: $(BIN)
 
 clean:
-	rm -f $(OBJS)
+	rm -f $(OBJ)
 	rm -f $(BIN)
 
 install: $(BIN)
 	mkdir -p $(BINDIR)
-	install -m 755 $^ $(BINDIR)
+	install -m 755 $^ $(DESTDIR)$(BINDIR)
 
 #-------------------------------------------------------------------------------
 
-$(BIN): $(OBJS)
+$(BIN): $(OBJ)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDLIBS)
 
 obj/%.c.o : src/%.c
