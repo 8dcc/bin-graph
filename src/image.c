@@ -32,8 +32,10 @@
 /*----------------------------------------------------------------------------*/
 
 void image_init(Image* image, size_t data_sz) {
-    /* The image conversion functions ignore zoom. It will be applied when
-     * generating the PNG. */
+    /*
+     * The image conversion functions ignore zoom. It will be applied when
+     * generating the PNG.
+     */
     switch (g_mode) {
         case MODE_GRAYSCALE:
         case MODE_ASCII:
@@ -60,9 +62,11 @@ void image_init(Image* image, size_t data_sz) {
         } break;
     }
 
-    /* Allocate the array that will contain the color information. We need to
+    /*
+     * Allocate the array that will contain the color information. We need to
      * cast the first value to `size_t' to make sure the multiplication result
-     * doesn't overflow in an `uint32_t'. */
+     * doesn't overflow in an `uint32_t'.
+     */
     image->pixels = calloc((size_t)image->height * image->width, sizeof(Color));
     if (image->pixels == NULL)
         die("Failed to allocate pixel array");
@@ -78,8 +82,10 @@ void image_free(Image* image) {
 void image_grayscale(Image* image, ByteArray* bytes) {
     for (size_t y = 0; y < image->height; y++) {
         for (size_t x = 0; x < image->width; x++) {
-            /* One-dimensional index for both the `bytes->data' and
-             * `image->pixels' arrays. */
+            /*
+             * One-dimensional index for both the `bytes->data' and
+             * `image->pixels' arrays.
+             */
             const size_t raw_idx = image->width * y + x;
 
             /* Pointer to the current color in the Image */
@@ -97,15 +103,19 @@ void image_ascii(Image* image, ByteArray* bytes) {
             const size_t raw_idx = (size_t)image->width * y + x;
             Color* color         = &image->pixels[raw_idx];
 
-            /* If we are not in-bounds, we are filling the last row; use a
-             * generic padding color. */
+            /*
+             * If we are not in-bounds, we are filling the last row; use a
+             * generic padding color.
+             */
             if (raw_idx >= bytes->size) {
                 color->r = color->g = color->b = 0;
                 continue;
             }
 
-            /* Determine the RGB color of the pixel depending on the byte
-             * value. */
+            /*
+             * Determine the RGB color of the pixel depending on the byte
+             * value.
+             */
             const uint8_t byte = bytes->data[raw_idx];
             if (byte == 0x00 || byte == 0xFF) {
                 /* Common padding values, either black or white */
@@ -137,8 +147,10 @@ void image_entropy(Image* image, ByteArray* bytes) {
         /* Calculate the Shannon entropy for this block */
         const double block_entropy = entropy(&bytes->data[i], real_block_size);
 
-        /* Calculate the [00..FF] color for this block based on the [0..8]
-         * entropy. */
+        /*
+         * Calculate the [00..FF] color for this block based on the [0..8]
+         * entropy.
+         */
         uint8_t color_intensity = block_entropy * 255 / 8;
 
         /* Render this block with the same color */
@@ -167,8 +179,10 @@ void image_histogram(Image* image, ByteArray* bytes) {
             most_frequent = byte;
     }
 
-    /* Draw each horizontal line based on occurrences relative to the most
-     * frequent byte. */
+    /*
+     * Draw each horizontal line based on occurrences relative to the most
+     * frequent byte.
+     */
     for (size_t y = 0; y < image->height; y++) {
         const uint32_t line_width =
           occurrences[y] * image->width / occurrences[most_frequent];
@@ -194,19 +208,25 @@ void image_bigrams(Image* image, ByteArray* bytes) {
         }
     }
 
-    /* In this case we don't want to iterate the image, but the bytes-> We start
-     * from the second byte because we are plotting bigrams (pairs). */
+    /*
+     * In this case we don't want to iterate the image, but the bytes-> We start
+     * from the second byte because we are plotting bigrams (pairs).
+     */
     for (size_t i = 1; i < bytes->size; i++) {
         const uint8_t x = bytes->data[i - 1];
         const uint8_t y = bytes->data[i];
 
-        /* The position is determined by the values of the current byte and the
-         * previous one. */
+        /*
+         * The position is determined by the values of the current byte and the
+         * previous one.
+         */
         Color* color = &image->pixels[image->width * y + x];
 
-        /* This mode just plots whether a bigram is present or not in the input.
+        /*
+         * This mode just plots whether a bigram is present or not in the input.
          * We don't change the colors depending on the occurrences or anything
-         * like that. */
+         * like that.
+         */
         color->r = color->g = color->b = 0xFF;
     }
 }
@@ -245,8 +265,10 @@ void image_transform_squares(Image* image, uint32_t square_side) {
     const int square_size     = square_side * square_side;
     const size_t total_pixels = image->width * image->height;
 
-    /* Increase the width and height if they are not divisible by the square
-     * side. */
+    /*
+     * Increase the width and height if they are not divisible by the square
+     * side.
+     */
     if (image->width % square_side != 0)
         image->width += square_side - image->width % square_side;
     if (image->height % square_side != 0)
@@ -307,13 +329,21 @@ void image2png(Image* image, const char* filename) {
 
     /* Specify the PNG info */
     png_init_io(png, fd);
-    png_set_IHDR(png, info, png_width, png_height, 8, PNG_COLOR_TYPE_RGB,
-                 PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT,
+    png_set_IHDR(png,
+                 info,
+                 png_width,
+                 png_height,
+                 8,
+                 PNG_COLOR_TYPE_RGB,
+                 PNG_INTERLACE_NONE,
+                 PNG_COMPRESSION_TYPE_DEFAULT,
                  PNG_FILTER_TYPE_DEFAULT);
     png_write_info(png, info);
 
-    /* Allocate the PNG rows. Since png_bytep is typedef'd to a pointer, this is
-     * a (void**). */
+    /*
+     * Allocate the PNG rows. Since png_bytep is typedef'd to a pointer, this is
+     * a (void**).
+     */
     png_bytep* rows = calloc(png_height, sizeof(png_bytep));
     if (rows == NULL)
         die("Failed to allocate PNG rows");
@@ -324,11 +354,13 @@ void image2png(Image* image, const char* filename) {
             die("Failed to allocate PNG row %d", y);
     }
 
-    /* Write the `bytes' array we received into the `rows' array we just
+    /*
+     * Write the `bytes' array we received into the `rows' array we just
      * allocated.
      *
      * The outer loops iterate the unscaled pixels, and are needed for accessing
-     * the `bytes->data' array. */
+     * the `bytes->data' array.
+     */
     for (uint32_t y = 0; y < image->height; y++) {
         for (uint32_t x = 0; x < image->width; x++) {
             Color color = image->pixels[(size_t)image->width * y + x];

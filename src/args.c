@@ -42,8 +42,10 @@ uint32_t g_output_width = DEFAULT_OUTPUT_WIDTH;
 /* Width and height of each "pixel" when drawn in the actual PNG image */
 uint32_t g_output_zoom = DEFAULT_OUTPUT_ZOOM;
 
-/* Side of each square used when transforming the generated image. Values lower
- * than two are ignored. */
+/*
+ * Side of each square used when transforming the generated image. Values lower
+ * than two are ignored.
+ */
 uint32_t g_transform_squares_side = 0;
 
 /*----------------------------------------------------------------------------*/
@@ -251,13 +253,16 @@ void parse_args(int argc, char** argv) {
     if (g_offset_end != 0 && g_offset_end <= g_offset_start) {
         log_err("The end offset (%zx) must be bigger than the start offset "
                 "(%zx).",
-                g_offset_end, g_offset_start);
+                g_offset_end,
+                g_offset_start);
         arg_error = ARG_ERR_EXIT;
         goto check_arg_err;
     }
 
-    /* Also check for ignored argument combinations. These just cause a
-     * warning. */
+    /*
+     * Also check for ignored argument combinations. These just cause a
+     * warning.
+     */
     if (g_output_width != DEFAULT_OUTPUT_WIDTH &&
         (g_mode == MODE_BIGRAMS || g_mode == MODE_DOTPLOT)) {
         log_wrn("The output width will be overwritten by the current mode "
@@ -273,7 +278,9 @@ void parse_args(int argc, char** argv) {
     if (g_block_size <= 1 && g_mode == MODE_ENTROPY) {
         log_wrn("The block size (%d) is too small for the current mode (%s). "
                 "Overwritting to %d bytes.",
-                g_block_size, g_mode_names[g_mode].arg, DEFAULT_BLOCK_SIZE);
+                g_block_size,
+                g_mode_names[g_mode].arg,
+                DEFAULT_BLOCK_SIZE);
         g_block_size = DEFAULT_BLOCK_SIZE;
     }
 
@@ -339,7 +346,8 @@ check_arg_err:
                     fprintf(stderr,
                             "        %s:\n"
                             "%s\n",
-                            g_mode_names[mode].arg, g_mode_names[mode].desc);
+                            g_mode_names[mode].arg,
+                            g_mode_names[mode].desc);
             }
         }
 

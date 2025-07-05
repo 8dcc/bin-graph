@@ -26,8 +26,10 @@
 #include "include/util.h"
 
 int main(int argc, char** argv) {
-    /* Change the global variables (declared in args.h) depending on the program
-     * arguments. */
+    /*
+     * Change the global variables (declared in args.h) depending on the program
+     * arguments.
+     */
     parse_args(argc, argv);
 
     const char* input_filename  = argv[argc - 2];
