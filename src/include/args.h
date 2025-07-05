@@ -54,6 +54,7 @@ extern uint32_t g_transform_squares_side;
 
 /*----------------------------------------------------------------------------*/
 
+/* TODO: Document */
 void parse_args(int argc, char** argv);
 
 #endif /* ARGS_H_ */

@@ -38,7 +38,7 @@ int main(int argc, char** argv) {
     /* Open the input for reading */
     FILE* fp = fopen(input_filename, "rb");
     if (!fp)
-        die("Can't open file: \"%s\"", input_filename);
+        DIE("Can't open file: \"%s\"", input_filename);
 
     /* Allocate the bytes needed for reading this chunk of the file */
     ByteArray file_bytes;

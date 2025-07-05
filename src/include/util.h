@@ -19,22 +19,37 @@
 #ifndef UTIL_H_
 #define UTIL_H_ 1
 
-#include <stdlib.h> /* exit() */
-#include "liblog.h"
+#include <stdio.h>  /* printf, stderr */
+#include <stdlib.h> /* exit */
 
 #define LENGTH(ARR) (sizeof(ARR) / sizeof((ARR)[0]))
 
-/* Print a fatal error and exit */
-#define die(...)                                                               \
+/*
+ * Print an error with the specified format, along with the program name and a
+ * newline.
+ */
+#define ERR(...)                                                               \
     do {                                                                       \
-        log_ftl(__VA_ARGS__);                                                  \
+        fprintf(stderr, "bin-graph: ");                                        \
+        fprintf(stderr, __VA_ARGS__);                                          \
+        fputc('\n', stderr);                                                   \
+    } while (0)
+
+/*
+ * Print an error and exit unsuccessfully.
+ */
+#define DIE(...)                                                               \
+    do {                                                                       \
+        ERR(__VA_ARGS__);                                                      \
         exit(1);                                                               \
     } while (0)
 
 /*----------------------------------------------------------------------------*/
 
-/* Calculate the Shannon entropy of the specified bytes. Since log2() is used,
- * the return value is in the [0..8] range. */
+/*
+ * Calculate the Shannon entropy of the specified bytes. Since log2() is used,
+ * the return value is in the [0..8] range.
+ */
 double entropy(void* data, size_t data_sz);
 
 #endif /* UTIL_H_ */

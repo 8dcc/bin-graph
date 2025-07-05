@@ -111,7 +111,7 @@ void parse_args(int argc, char** argv) {
             goto check_arg_err;
         }
 
-        log_err("Not enough arguments.");
+        ERR("Not enough arguments.");
         arg_error = ARG_ERR_USAGE;
         goto check_arg_err;
     }
@@ -119,7 +119,7 @@ void parse_args(int argc, char** argv) {
     /* Parse arguments */
     for (int i = 1; i < argc - 2; i++) {
         if (argv[i][0] != '-' || argv[i][1] != '-') {
-            log_err("Expected option argument, instead found: \"%s\"", argv[i]);
+            ERR("Expected option argument, instead found: \"%s\"", argv[i]);
             arg_error = ARG_ERR_USAGE;
             goto check_arg_err;
         }
@@ -131,7 +131,7 @@ void parse_args(int argc, char** argv) {
         } else if (strcmp(option, "mode") == 0) {
             i++;
             if (i >= argc - 2) {
-                log_err("Not enough arguments for option: \"%s\".", option);
+                ERR("Not enough arguments for option: \"%s\".", option);
                 arg_error = ARG_ERR_EXIT;
                 goto check_arg_err;
             }
@@ -146,48 +146,47 @@ void parse_args(int argc, char** argv) {
             }
 
             if (!got_match) {
-                log_err("Unknown mode: \"%s\".\n", argv[i]);
+                ERR("Unknown mode: \"%s\".\n", argv[i]);
                 arg_error = ARG_ERR_EXIT;
                 goto check_arg_err;
             }
         } else if (strcmp(option, "offset-start") == 0) {
             i++;
             if (i >= argc - 2) {
-                log_err("Not enough arguments for option: \"%s\".", option);
+                ERR("Not enough arguments for option: \"%s\".", option);
                 arg_error = ARG_ERR_EXIT;
                 goto check_arg_err;
             }
 
             if (sscanf(argv[i], "%zx", &g_offset_start) != 1) {
-                log_err("Invalid format for start offset. Example: \"e1c5\"");
+                ERR("Invalid format for start offset. Example: \"e1c5\"");
                 arg_error = ARG_ERR_EXIT;
                 goto check_arg_err;
             }
         } else if (strcmp(option, "offset-end") == 0) {
             i++;
             if (i >= argc - 2) {
-                log_err("Not enough arguments for option: \"%s\".", option);
+                ERR("Not enough arguments for option: \"%s\".", option);
                 arg_error = ARG_ERR_EXIT;
                 goto check_arg_err;
             }
 
             if (sscanf(argv[i], "%zx", &g_offset_end) != 1) {
-                log_err("Invalid format for end offset. Example: \"e1c5\"");
+                ERR("Invalid format for end offset. Example: \"e1c5\"");
                 arg_error = ARG_ERR_EXIT;
                 goto check_arg_err;
             }
         } else if (strcmp(option, "zoom") == 0) {
             i++;
             if (i >= argc - 2) {
-                log_err("Not enough arguments for option: \"%s\".", option);
+                ERR("Not enough arguments for option: \"%s\".", option);
                 arg_error = ARG_ERR_EXIT;
                 goto check_arg_err;
             }
 
             int signed_zoom;
             if (sscanf(argv[i], "%d", &signed_zoom) != 1 || signed_zoom <= 0) {
-                log_err(
-                  "The zoom factor must be an integer greater than zero.");
+                ERR("The zoom factor must be an integer greater than zero.");
                 arg_error = ARG_ERR_EXIT;
                 goto check_arg_err;
             }
@@ -196,7 +195,7 @@ void parse_args(int argc, char** argv) {
         } else if (strcmp(option, "width") == 0) {
             i++;
             if (i >= argc - 2) {
-                log_err("Not enough arguments for option: \"%s\".", option);
+                ERR("Not enough arguments for option: \"%s\".", option);
                 arg_error = ARG_ERR_EXIT;
                 goto check_arg_err;
             }
@@ -204,7 +203,7 @@ void parse_args(int argc, char** argv) {
             int signed_width;
             if (sscanf(argv[i], "%d", &signed_width) != 1 ||
                 signed_width <= 0) {
-                log_err("The width must be an integer greater than zero.");
+                ERR("The width must be an integer greater than zero.");
                 arg_error = ARG_ERR_EXIT;
                 goto check_arg_err;
             }
@@ -213,14 +212,14 @@ void parse_args(int argc, char** argv) {
         } else if (strcmp(option, "block-size") == 0) {
             i++;
             if (i >= argc - 2) {
-                log_err("Not enough arguments for option: \"%s\".", option);
+                ERR("Not enough arguments for option: \"%s\".", option);
                 arg_error = ARG_ERR_EXIT;
                 goto check_arg_err;
             }
 
             int signed_size;
             if (sscanf(argv[i], "%d", &signed_size) != 1 || signed_size <= 0) {
-                log_err("The block size must be an integer greater than zero.");
+                ERR("The block size must be an integer greater than zero.");
                 arg_error = ARG_ERR_EXIT;
                 goto check_arg_err;
             }
@@ -229,21 +228,21 @@ void parse_args(int argc, char** argv) {
         } else if (strcmp(option, "transform-squares") == 0) {
             i++;
             if (i >= argc - 2) {
-                log_err("Not enough arguments for option: \"%s\".", option);
+                ERR("Not enough arguments for option: \"%s\".", option);
                 arg_error = ARG_ERR_EXIT;
                 goto check_arg_err;
             }
 
             int signed_side;
             if (sscanf(argv[i], "%d", &signed_side) != 1 || signed_side <= 1) {
-                log_err("The square side must be an integer greater than one.");
+                ERR("The square side must be an integer greater than one.");
                 arg_error = ARG_ERR_EXIT;
                 goto check_arg_err;
             }
 
             g_transform_squares_side = signed_side;
         } else {
-            log_err("Invalid option: \"%s\".", option);
+            ERR("Invalid option: \"%s\".", option);
             arg_error = ARG_ERR_USAGE;
             goto check_arg_err;
         }
@@ -251,10 +250,10 @@ void parse_args(int argc, char** argv) {
 
     /* Ensure that there are no invalid argument combinations */
     if (g_offset_end != 0 && g_offset_end <= g_offset_start) {
-        log_err("The end offset (%zx) must be bigger than the start offset "
-                "(%zx).",
-                g_offset_end,
-                g_offset_start);
+        ERR("The end offset (%zx) must be bigger than the start offset "
+            "(%zx).",
+            g_offset_end,
+            g_offset_start);
         arg_error = ARG_ERR_EXIT;
         goto check_arg_err;
     }
@@ -265,31 +264,31 @@ void parse_args(int argc, char** argv) {
      */
     if (g_output_width != DEFAULT_OUTPUT_WIDTH &&
         (g_mode == MODE_BIGRAMS || g_mode == MODE_DOTPLOT)) {
-        log_wrn("The output width will be overwritten by the current mode "
-                "(%s).",
-                g_mode_names[g_mode].arg);
+        ERR("Warning: The output width will be overwritten by the current mode "
+            "(%s).",
+            g_mode_names[g_mode].arg);
     }
 
     if (g_block_size != DEFAULT_BLOCK_SIZE && g_mode != MODE_ENTROPY) {
-        log_wrn("The current mode (%s) isn't affected by the block size.",
-                g_mode_names[g_mode].arg);
+        ERR("Warning: The current mode (%s) isn't affected by the block size.",
+            g_mode_names[g_mode].arg);
     }
 
     if (g_block_size <= 1 && g_mode == MODE_ENTROPY) {
-        log_wrn("The block size (%d) is too small for the current mode (%s). "
-                "Overwritting to %d bytes.",
-                g_block_size,
-                g_mode_names[g_mode].arg,
-                DEFAULT_BLOCK_SIZE);
+        ERR("Warning: The block size (%d) is too small for the current mode "
+            "(%s). Overwritting to %d bytes.",
+            g_block_size,
+            g_mode_names[g_mode].arg,
+            DEFAULT_BLOCK_SIZE);
         g_block_size = DEFAULT_BLOCK_SIZE;
     }
 
     if (g_transform_squares_side > 1 &&
         (g_mode == MODE_HISTOGRAM || g_mode == MODE_BIGRAMS ||
          g_mode == MODE_DOTPLOT)) {
-        log_wrn("The \"squares\" transformation is not recommended for the "
-                "current mode (%s).",
-                g_mode_names[g_mode].arg);
+        ERR("Warning: The \"squares\" transformation is not recommended for "
+            "the current mode (%s).",
+            g_mode_names[g_mode].arg);
     }
 
 check_arg_err:

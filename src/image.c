@@ -69,7 +69,7 @@ void image_init(Image* image, size_t data_sz) {
      */
     image->pixels = calloc((size_t)image->height * image->width, sizeof(Color));
     if (image->pixels == NULL)
-        die("Failed to allocate pixel array");
+        DIE("Failed to allocate pixel array");
 }
 
 void image_free(Image* image) {
@@ -167,7 +167,7 @@ void image_histogram(Image* image, ByteArray* bytes) {
     uint8_t most_frequent = 0;
     uint32_t* occurrences = calloc(256, sizeof(uint32_t));
     if (occurrences == NULL)
-        die("Failed to allocate occurrences array");
+        DIE("Failed to allocate occurrences array");
 
     /* Store the occurrences including the most frequent byte */
     for (size_t i = 0; i < bytes->size; i++) {
@@ -311,16 +311,16 @@ void image_transform_squares(Image* image, uint32_t square_side) {
 void image2png(Image* image, const char* filename) {
     FILE* fd = fopen(filename, "wb");
     if (!fd)
-        die("Can't open file: \"%s\"", filename);
+        DIE("Can't open file: \"%s\"", filename);
 
     png_structp png =
       png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
     if (!png)
-        die("Can't create png_structp");
+        DIE("Can't create png_structp");
 
     png_infop info = png_create_info_struct(png);
     if (!info)
-        die("Can't create png_infop");
+        DIE("Can't create png_infop");
 
     /* The actual PNG image dimensions, remember that the Image is unscaled */
     const int zoom      = g_output_zoom;
@@ -346,12 +346,12 @@ void image2png(Image* image, const char* filename) {
      */
     png_bytep* rows = calloc(png_height, sizeof(png_bytep));
     if (rows == NULL)
-        die("Failed to allocate PNG rows");
+        DIE("Failed to allocate PNG rows");
 
     for (uint32_t y = 0; y < png_height; y++) {
         rows[y] = malloc(png_width * PNG_BPP);
         if (rows[y] == NULL)
-            die("Failed to allocate PNG row %d", y);
+            DIE("Failed to allocate PNG row %d", y);
     }
 
     /*
