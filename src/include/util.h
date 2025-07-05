@@ -25,10 +25,10 @@
 #define LENGTH(ARR) (sizeof(ARR) / sizeof((ARR)[0]))
 
 /* Print a fatal error and exit */
-#define die(...)              \
-    do {                      \
-        log_ftl(__VA_ARGS__); \
-        exit(1);              \
+#define die(...)                                                               \
+    do {                                                                       \
+        log_ftl(__VA_ARGS__);                                                  \
+        exit(1);                                                               \
     } while (0)
 
 /*----------------------------------------------------------------------------*/

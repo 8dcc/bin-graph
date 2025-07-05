@@ -21,6 +21,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h> /* FILE */
 
 typedef struct ByteArray {
     uint8_t* data;
@@ -55,7 +56,9 @@ void read_file(ByteArray* dst, FILE* fp, long offset_start, long offset_end);
  * calls `get_real_offsets' to ensure they are valid. It must be freed with
  * `byte_array_free'.
  */
-void byte_array_init(ByteArray* bytes, FILE* fp, long offset_start,
+void byte_array_init(ByteArray* bytes,
+                     FILE* fp,
+                     long offset_start,
                      long offset_end);
 
 /*
