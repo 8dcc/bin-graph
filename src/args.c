@@ -60,6 +60,7 @@ enum ELongOptionIds {
     LONGOPT_OFFSET_END,
     LONGOPT_BLOCK_SIZE,
     LONGOPT_TRANSFORM_SQUARES,
+    LONGOPT_LIST_MODES,
 };
 
 /*
@@ -118,21 +119,50 @@ static struct {
  * Command-line options used by the Argp library.
  */
 static struct argp_option options[] = {
+    { NULL, 0, NULL, 0, "General options", 1 },
     {
       "mode",
       'm',
       "MODE",
       0,
-      "Set the current mode to MODE.",
+      "Set the current mode to MODE. Use `--list-modes' for a list of modes.",
       1,
     },
+    { NULL, 0, NULL, 0, "Input options", 2 },
+    {
+      "offset-start",
+      LONGOPT_OFFSET_START,
+      "OFFSET",
+      0,
+      "Start processing the file from OFFSET. Specified in hexadecimal format, "
+      "without any prefix.",
+      2,
+    },
+    {
+      "offset-end",
+      LONGOPT_OFFSET_END,
+      "OFFSET",
+      0,
+      "Stop processing the file at OFFSET. Specified in hexadecimal format, "
+      "without any prefix. Zero means the end of the file.",
+      2,
+    },
+    {
+      "block-size",
+      LONGOPT_BLOCK_SIZE,
+      "BYTES",
+      0,
+      "Set the size for some block-specific modes like entropy.",
+      2,
+    },
+    { NULL, 0, NULL, 0, "Output options", 3 },
     {
       "zoom",
       'z',
       "FACTOR",
       0,
       "Scale each pixel by FACTOR.",
-      1,
+      3,
     },
     {
       "width",
@@ -142,33 +172,7 @@ static struct argp_option options[] = {
       "Set the default width to WIDTH. This parameter is ignored in some modes "
       "(bigrams, dotplot, etc.). This width indicates the sample number in "
       "each row before applying the zoom.",
-      1,
-    },
-    {
-      "offset-start",
-      LONGOPT_OFFSET_START,
-      "OFFSET",
-      0,
-      "Start processing the file from OFFSET. Specified in hexadecimal format, "
-      "without any prefix.",
-      1,
-    },
-    {
-      "offset-end",
-      LONGOPT_OFFSET_END,
-      "OFFSET",
-      0,
-      "Stop processing the file at OFFSET. Specified in hexadecimal format, "
-      "without any prefix. Zero means the end of the file.",
-      1,
-    },
-    {
-      "block-size",
-      LONGOPT_BLOCK_SIZE,
-      "BYTES",
-      0,
-      "Set the size for some block-specific modes like entropy.",
-      1,
+      3,
     },
     {
       "transform-squares",
@@ -178,7 +182,17 @@ static struct argp_option options[] = {
       "After generating the image, group its pixels into squares of side SIDE. "
       "If the image dimensions are not divisible by SIDE, they will be "
       "increased. This option is useful with the entropy mode.",
-      1,
+      3,
+    },
+    { NULL, 0, NULL, 0, "Help options", 4 },
+    {
+      "list-modes",
+      LONGOPT_LIST_MODES,
+      NULL,
+      0,
+      "List the availiable values for the `--mode' option, along with their "
+      "descriptions.",
+      4,
     },
     { NULL, 0, NULL, 0, NULL, 0 }
 };
@@ -292,6 +306,16 @@ static error_t parse_opt(int key, char* arg, struct argp_state* state) {
                 argp_usage(state);
             }
             parsed_args->transform_squares_side = signed_side;
+        } break;
+
+        case LONGOPT_LIST_MODES: {
+            /* TODO: Wrap descriptions to column 80 when priting */
+            for (size_t mode = 0; mode < LENGTH(g_mode_names); mode++) {
+                printf("* %s: %s\n",
+                       g_mode_names[mode].arg,
+                       g_mode_names[mode].desc);
+            }
+            exit(0);
         } break;
 
         case ARGP_KEY_ARG: {
