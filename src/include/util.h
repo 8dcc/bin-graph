@@ -22,6 +22,14 @@
 #include <stdio.h>  /* printf, stderr */
 #include <stdlib.h> /* exit */
 
+/*
+ * Mark a symbol as unused in the current scope.
+ */
+#define UNUSED(SYM) ((void)SYM)
+
+/*
+ * Obtain the compile-time length of an array.
+ */
 #define LENGTH(ARR) (sizeof(ARR) / sizeof((ARR)[0]))
 
 /*

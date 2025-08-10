@@ -26,11 +26,9 @@
 #include "include/util.h"
 
 int main(int argc, char** argv) {
-    /*
-     * Change the global variables (declared in args.h) depending on the program
-     * arguments.
-     */
-    parse_args(argc, argv);
+    args_t args;
+    args_init(&args);
+    args_parse(&args, argc, argv);
 
     const char* input_filename  = argv[argc - 2];
     const char* output_filename = argv[argc - 1];
@@ -42,40 +40,46 @@ int main(int argc, char** argv) {
 
     /* Allocate the bytes needed for reading this chunk of the file */
     ByteArray file_bytes;
-    byte_array_init(&file_bytes, fp, g_offset_start, g_offset_end);
+    byte_array_init(&file_bytes, fp, args.offset_start, args.offset_end);
 
     /* Read and store the file bytes in a linear way */
-    read_file(&file_bytes, fp, g_offset_start, g_offset_end);
+    read_file(&file_bytes, fp, args.offset_start, args.offset_end);
     fclose(fp);
 
     /* Initialize the image structure */
     Image image;
-    image_init(&image, file_bytes.size);
+    image_init(&image, &args, file_bytes.size);
 
-    /* Convert the ByteArray to a color Image depending on the global mode */
-    switch (g_mode) {
-        case MODE_GRAYSCALE:
-            image_grayscale(&image, &file_bytes);
+    /*
+     * Convert the ByteArray to a color Image depending on the global mode.
+     *
+     * TODO: Since all these functions share the same interface, we could set a
+     * function pointer variable and call that, instead of duplicating this
+     * calling logic.
+     */
+    switch (args.mode) {
+        case ARGS_MODE_GRAYSCALE:
+            image_grayscale(&image, &args, &file_bytes);
             break;
 
-        case MODE_ASCII:
-            image_ascii(&image, &file_bytes);
+        case ARGS_MODE_ASCII:
+            image_ascii(&image, &args, &file_bytes);
             break;
 
-        case MODE_ENTROPY:
-            image_entropy(&image, &file_bytes);
+        case ARGS_MODE_ENTROPY:
+            image_entropy(&image, &args, &file_bytes);
             break;
 
-        case MODE_HISTOGRAM:
-            image_histogram(&image, &file_bytes);
+        case ARGS_MODE_HISTOGRAM:
+            image_histogram(&image, &args, &file_bytes);
             break;
 
-        case MODE_BIGRAMS:
-            image_bigrams(&image, &file_bytes);
+        case ARGS_MODE_BIGRAMS:
+            image_bigrams(&image, &args, &file_bytes);
             break;
 
-        case MODE_DOTPLOT:
-            image_dotplot(&image, &file_bytes);
+        case ARGS_MODE_DOTPLOT:
+            image_dotplot(&image, &args, &file_bytes);
             break;
     }
 
@@ -83,11 +87,11 @@ int main(int argc, char** argv) {
     byte_array_free(&file_bytes);
 
     /* Perform different transformations to the generated image */
-    if (g_transform_squares_side > 1)
-        image_transform_squares(&image, g_transform_squares_side);
+    if (args.transform_squares_side > 1)
+        image_transform_squares(&image, args.transform_squares_side);
 
     /* Write the Image structure to the PNG file */
-    image2png(&image, output_filename);
+    image2png(&image, output_filename, args.output_zoom);
 
     /* We are done with the image, free it */
     image_free(&image);

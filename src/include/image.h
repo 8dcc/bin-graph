@@ -20,6 +20,8 @@
 #define IMAGE_H_ 1
 
 #include <stdint.h>
+
+#include "args.h"      /* args_t */
 #include "read_file.h" /* ByteArray */
 
 typedef struct Color {
@@ -37,7 +39,7 @@ typedef struct Image {
  * Initialize an Image structure. Get its dimensions, and allocate the pixel
  * array. It must be freed with `image_free'.
  */
-void image_init(Image* image, size_t data_sz);
+void image_init(Image* image, const args_t* args, size_t data_sz);
 
 /*
  * Free all members of an Image structure. Doesn't free the Image itself.
@@ -54,12 +56,12 @@ void image_free(Image* image);
  * For more information on each mode, run the program with the `--help'
  * argument.
  */
-void image_grayscale(Image* image, ByteArray* bytes);
-void image_ascii(Image* image, ByteArray* bytes);
-void image_entropy(Image* image, ByteArray* bytes);
-void image_histogram(Image* image, ByteArray* bytes);
-void image_bigrams(Image* image, ByteArray* bytes);
-void image_dotplot(Image* image, ByteArray* bytes);
+void image_grayscale(Image* image, const args_t* args, ByteArray* bytes);
+void image_ascii(Image* image, const args_t* args, ByteArray* bytes);
+void image_entropy(Image* image, const args_t* args, ByteArray* bytes);
+void image_histogram(Image* image, const args_t* args, ByteArray* bytes);
+void image_bigrams(Image* image, const args_t* args, ByteArray* bytes);
+void image_dotplot(Image* image, const args_t* args, ByteArray* bytes);
 
 /*
  * Group the data of a linear image into squares of side N. If the image
@@ -72,6 +74,6 @@ void image_transform_squares(Image* image, uint32_t square_side);
  * This function is responsible for scaling the Image depending on
  * `g_output_zoom'.
  */
-void image2png(Image* image, const char* filename);
+void image2png(Image* image, const char* filename, int zoom);
 
 #endif /* IMAGE_H_ */

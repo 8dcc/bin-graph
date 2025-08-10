@@ -22,39 +22,65 @@
 #include <stddef.h>
 #include <stdint.h>
 
-enum EArgError {
-    ARG_ERR_NONE  = 0,
-    ARG_ERR_EXIT  = 1,
-    ARG_ERR_USAGE = 2,
-    ARG_ERR_HELP  = 3,
+enum EArgsError {
+    ARGS_ERR_NONE  = 0,
+    ARGS_ERR_EXIT  = 1,
+    ARGS_ERR_USAGE = 2,
+    ARGS_ERR_HELP  = 3,
 };
 
 /* TODO: Add more modes: bigram_freq, etc. */
-enum EProgramMode {
-    MODE_GRAYSCALE,
-    MODE_ASCII,
-    MODE_ENTROPY,
-    MODE_HISTOGRAM,
-    MODE_BIGRAMS,
-    MODE_DOTPLOT,
+enum EArgsMode {
+    ARGS_MODE_GRAYSCALE,
+    ARGS_MODE_ASCII,
+    ARGS_MODE_ENTROPY,
+    ARGS_MODE_HISTOGRAM,
+    ARGS_MODE_BIGRAMS,
+    ARGS_MODE_DOTPLOT,
 };
 
-#define DEFAULT_BLOCK_SIZE   256
-#define DEFAULT_OUTPUT_WIDTH 512
-#define DEFAULT_OUTPUT_ZOOM  2
+/*
+ * Structure filled by 'args_parse' to indicate the program's command-line
+ * arguments.
+ */
+typedef struct args {
+    /* Input and output filenames */
+    const char* input_filename;
+    const char* output_filename;
 
-/* Globals */
-extern enum EProgramMode g_mode;
-extern size_t g_offset_start;
-extern size_t g_offset_end;
-extern uint32_t g_block_size;
-extern uint32_t g_output_width;
-extern uint32_t g_output_zoom;
-extern uint32_t g_transform_squares_side;
+    /* Program mode. Determines how the bytes will be displayed. */
+    enum EArgsMode mode;
+
+    /* Block size used in some modes like MODE_ENTROPY. */
+    uint32_t block_size;
+
+    /* Width in pixels of the output image (before applying the zoom) */
+    uint32_t output_width;
+
+    /* Start and end offsets for reading the input file. Zero means ignore. */
+    size_t offset_start, offset_end;
+
+    /* Width and height of each "pixel" when drawn in the actual PNG image */
+    uint32_t output_zoom;
+
+    /*
+     * Side of each square used when transforming the generated image. Values
+     * lower than two are ignored.
+     */
+    uint32_t transform_squares_side;
+} args_t;
 
 /*----------------------------------------------------------------------------*/
 
-/* TODO: Document */
-void parse_args(int argc, char** argv);
+/*
+ * Initialize an 'args_t' structure.
+ */
+void args_init(args_t* args);
+
+/*
+ * Parse the arguments in the 'argv' array, of length 'argc', storing the
+ * results in the 'args_t' structure pointed to by 'args'.
+ */
+void args_parse(args_t* args, int argc, char** argv);
 
 #endif /* ARGS_H_ */

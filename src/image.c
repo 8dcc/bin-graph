@@ -31,32 +31,32 @@
 
 /*----------------------------------------------------------------------------*/
 
-void image_init(Image* image, size_t data_sz) {
+void image_init(Image* image, const args_t* args, size_t data_sz) {
     /*
      * The image conversion functions ignore zoom. It will be applied when
      * generating the PNG.
      */
-    switch (g_mode) {
-        case MODE_GRAYSCALE:
-        case MODE_ASCII:
-        case MODE_ENTROPY: {
-            image->width  = g_output_width;
+    switch (args->mode) {
+        case ARGS_MODE_GRAYSCALE:
+        case ARGS_MODE_ASCII:
+        case ARGS_MODE_ENTROPY: {
+            image->width  = args->output_width;
             image->height = data_sz / image->width;
             if (data_sz % image->width != 0)
                 image->height++;
         } break;
 
-        case MODE_HISTOGRAM: {
-            image->width  = g_output_width;
+        case ARGS_MODE_HISTOGRAM: {
+            image->width  = args->output_width;
             image->height = 256;
         } break;
 
-        case MODE_BIGRAMS: {
+        case ARGS_MODE_BIGRAMS: {
             image->width  = 256;
             image->height = 256;
         } break;
 
-        case MODE_DOTPLOT: {
+        case ARGS_MODE_DOTPLOT: {
             image->width  = data_sz;
             image->height = data_sz;
         } break;
@@ -79,7 +79,9 @@ void image_free(Image* image) {
 
 /*----------------------------------------------------------------------------*/
 
-void image_grayscale(Image* image, ByteArray* bytes) {
+void image_grayscale(Image* image, const args_t* args, ByteArray* bytes) {
+    UNUSED(args);
+
     for (size_t y = 0; y < image->height; y++) {
         for (size_t x = 0; x < image->width; x++) {
             /*
@@ -97,7 +99,9 @@ void image_grayscale(Image* image, ByteArray* bytes) {
     }
 }
 
-void image_ascii(Image* image, ByteArray* bytes) {
+void image_ascii(Image* image, const args_t* args, ByteArray* bytes) {
+    UNUSED(args);
+
     for (size_t y = 0; y < image->height; y++) {
         for (size_t x = 0; x < image->width; x++) {
             const size_t raw_idx = (size_t)image->width * y + x;
@@ -137,12 +141,13 @@ void image_ascii(Image* image, ByteArray* bytes) {
     }
 }
 
-void image_entropy(Image* image, ByteArray* bytes) {
+void image_entropy(Image* image, const args_t* args, ByteArray* bytes) {
     /* Iterate blocks of the input, each will share the same entropy color */
-    for (size_t i = 0; i < bytes->size; i += g_block_size) {
+    for (size_t i = 0; i < bytes->size; i += args->block_size) {
         /* Make sure we are not reading past the end of `bytes->size' */
-        const size_t real_block_size =
-          (i + g_block_size < bytes->size) ? g_block_size : bytes->size - i;
+        const size_t real_block_size = (i + args->block_size < bytes->size)
+                                         ? args->block_size
+                                         : bytes->size - i;
 
         /* Calculate the Shannon entropy for this block */
         const double block_entropy = entropy(&bytes->data[i], real_block_size);
@@ -161,7 +166,8 @@ void image_entropy(Image* image, ByteArray* bytes) {
     }
 }
 
-void image_histogram(Image* image, ByteArray* bytes) {
+void image_histogram(Image* image, const args_t* args, ByteArray* bytes) {
+    UNUSED(args);
     assert(image->height == 256);
 
     uint8_t most_frequent = 0;
@@ -197,7 +203,8 @@ void image_histogram(Image* image, ByteArray* bytes) {
     free(occurrences);
 }
 
-void image_bigrams(Image* image, ByteArray* bytes) {
+void image_bigrams(Image* image, const args_t* args, ByteArray* bytes) {
+    UNUSED(args);
     assert(image->width == 256 && image->height == 256);
 
     /* Initialize the image to black */
@@ -231,7 +238,8 @@ void image_bigrams(Image* image, ByteArray* bytes) {
     }
 }
 
-void image_dotplot(Image* image, ByteArray* bytes) {
+void image_dotplot(Image* image, const args_t* args, ByteArray* bytes) {
+    UNUSED(args);
     assert(image->width == bytes->size && image->height == bytes->size);
 
     for (size_t y = 0; y < image->height; y++) {
@@ -308,7 +316,7 @@ void image_transform_squares(Image* image, uint32_t square_side) {
 
 /*----------------------------------------------------------------------------*/
 
-void image2png(Image* image, const char* filename) {
+void image2png(Image* image, const char* filename, int zoom) {
     FILE* fd = fopen(filename, "wb");
     if (!fd)
         DIE("Can't open file: \"%s\"", filename);
@@ -323,7 +331,6 @@ void image2png(Image* image, const char* filename) {
         DIE("Can't create png_infop");
 
     /* The actual PNG image dimensions, remember that the Image is unscaled */
-    const int zoom      = g_output_zoom;
     uint32_t png_height = image->height * zoom;
     uint32_t png_width  = image->width * zoom;
 
