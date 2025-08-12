@@ -21,7 +21,7 @@
 
 #include <stdint.h>
 
-#include "args.h"      /* args_t */
+#include "args.h"      /* Args */
 #include "read_file.h" /* ByteArray */
 
 typedef struct Color {
@@ -39,7 +39,7 @@ typedef struct Image {
  * Initialize an Image structure. Get its dimensions, and allocate the pixel
  * array. It must be freed with `image_free'.
  */
-void image_init(Image* image, const args_t* args, size_t data_sz);
+void image_init(Image* image, const Args* args, size_t data_sz);
 
 /*
  * Free all members of an Image structure. Doesn't free the Image itself.
@@ -56,12 +56,12 @@ void image_free(Image* image);
  * For more information on each mode, run the program with the `--help'
  * argument.
  */
-void image_grayscale(Image* image, const args_t* args, ByteArray* bytes);
-void image_ascii(Image* image, const args_t* args, ByteArray* bytes);
-void image_entropy(Image* image, const args_t* args, ByteArray* bytes);
-void image_histogram(Image* image, const args_t* args, ByteArray* bytes);
-void image_bigrams(Image* image, const args_t* args, ByteArray* bytes);
-void image_dotplot(Image* image, const args_t* args, ByteArray* bytes);
+void image_grayscale(Image* image, const Args* args, ByteArray* bytes);
+void image_ascii(Image* image, const Args* args, ByteArray* bytes);
+void image_entropy(Image* image, const Args* args, ByteArray* bytes);
+void image_histogram(Image* image, const Args* args, ByteArray* bytes);
+void image_bigrams(Image* image, const Args* args, ByteArray* bytes);
+void image_dotplot(Image* image, const Args* args, ByteArray* bytes);
 
 /*
  * Group the data of a linear image into squares of side N. If the image

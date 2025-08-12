@@ -228,7 +228,7 @@ static error_t parse_opt(int key, char* arg, struct argp_state* state) {
      * Get the 'input' argument from 'argp_parse', which we know is a pointer to
      * our 'Args' structure.
      */
-    args_t* parsed_args = state->input;
+    Args* parsed_args = state->input;
 
     switch (key) {
         case 'm': {
@@ -349,7 +349,7 @@ static error_t parse_opt(int key, char* arg, struct argp_state* state) {
 
 /*----------------------------------------------------------------------------*/
 
-void args_init(args_t* args) {
+void args_init(Args* args) {
     args->input_filename         = NULL;
     args->output_filename        = NULL;
     args->mode                   = ARGS_MODE_ASCII;
@@ -361,7 +361,7 @@ void args_init(args_t* args) {
     args->transform_squares_side = 0;
 }
 
-void args_parse(args_t* args, int argc, char** argv) {
+void args_parse(Args* args, int argc, char** argv) {
     static struct argp argp = {
         options, parse_opt, ARGS_DOC, PROGRAM_DOC, NULL, NULL, NULL,
     };

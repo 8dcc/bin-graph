@@ -31,7 +31,7 @@
 
 /*----------------------------------------------------------------------------*/
 
-void image_init(Image* image, const args_t* args, size_t data_sz) {
+void image_init(Image* image, const Args* args, size_t data_sz) {
     /*
      * The image conversion functions ignore zoom. It will be applied when
      * generating the PNG.
@@ -79,7 +79,7 @@ void image_free(Image* image) {
 
 /*----------------------------------------------------------------------------*/
 
-void image_grayscale(Image* image, const args_t* args, ByteArray* bytes) {
+void image_grayscale(Image* image, const Args* args, ByteArray* bytes) {
     UNUSED(args);
 
     for (size_t y = 0; y < image->height; y++) {
@@ -99,7 +99,7 @@ void image_grayscale(Image* image, const args_t* args, ByteArray* bytes) {
     }
 }
 
-void image_ascii(Image* image, const args_t* args, ByteArray* bytes) {
+void image_ascii(Image* image, const Args* args, ByteArray* bytes) {
     UNUSED(args);
 
     for (size_t y = 0; y < image->height; y++) {
@@ -141,7 +141,7 @@ void image_ascii(Image* image, const args_t* args, ByteArray* bytes) {
     }
 }
 
-void image_entropy(Image* image, const args_t* args, ByteArray* bytes) {
+void image_entropy(Image* image, const Args* args, ByteArray* bytes) {
     /* Iterate blocks of the input, each will share the same entropy color */
     for (size_t i = 0; i < bytes->size; i += args->block_size) {
         /* Make sure we are not reading past the end of `bytes->size' */
@@ -166,7 +166,7 @@ void image_entropy(Image* image, const args_t* args, ByteArray* bytes) {
     }
 }
 
-void image_histogram(Image* image, const args_t* args, ByteArray* bytes) {
+void image_histogram(Image* image, const Args* args, ByteArray* bytes) {
     UNUSED(args);
     assert(image->height == 256);
 
@@ -203,7 +203,7 @@ void image_histogram(Image* image, const args_t* args, ByteArray* bytes) {
     free(occurrences);
 }
 
-void image_bigrams(Image* image, const args_t* args, ByteArray* bytes) {
+void image_bigrams(Image* image, const Args* args, ByteArray* bytes) {
     UNUSED(args);
     assert(image->width == 256 && image->height == 256);
 
@@ -238,7 +238,7 @@ void image_bigrams(Image* image, const args_t* args, ByteArray* bytes) {
     }
 }
 
-void image_dotplot(Image* image, const args_t* args, ByteArray* bytes) {
+void image_dotplot(Image* image, const Args* args, ByteArray* bytes) {
     UNUSED(args);
     assert(image->width == bytes->size && image->height == bytes->size);
 

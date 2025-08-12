@@ -68,19 +68,19 @@ typedef struct args {
      * lower than two are ignored.
      */
     uint32_t transform_squares_side;
-} args_t;
+} Args;
 
 /*----------------------------------------------------------------------------*/
 
 /*
  * Initialize an 'args_t' structure.
  */
-void args_init(args_t* args);
+void args_init(Args* args);
 
 /*
  * Parse the arguments in the 'argv' array, of length 'argc', storing the
  * results in the 'args_t' structure pointed to by 'args'.
  */
-void args_parse(args_t* args, int argc, char** argv);
+void args_parse(Args* args, int argc, char** argv);
 
 #endif /* ARGS_H_ */

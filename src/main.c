@@ -26,7 +26,7 @@
 #include "include/util.h"
 
 int main(int argc, char** argv) {
-    args_t args;
+    Args args;
     args_init(&args);
     args_parse(&args, argc, argv);
 
