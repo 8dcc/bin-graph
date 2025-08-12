@@ -61,13 +61,13 @@ bin-graph --help
 # ...
 #+end_src
 
-This project also includes a [[file:bin-graph-section.sh][bin-graph-section.sh]] script. It uses =readelf= and
+This project also includes a [[file:scripts/bin-graph-section.sh][bin-graph-section.sh]] script. It uses =readelf= and
 =grep= to find the offset and size of the specified region, and uses that as the
 =--offset-*= arguments for =bin-graph=. Additional options after the section name
 will be passed to =bin-graph=.
 
 #+begin_src bash
-./bin-graph-section.sh SECTION [OPTION...] INPUT OUTPUT.png
+./scripts/bin-graph-section.sh SECTION [OPTION...] INPUT OUTPUT.png
 # ...
 #+end_src
 
@@ -112,14 +112,14 @@ This is the basic process for generating an image from a binary.
 
 #+begin_src bash
 # Only the .text section of the ELF file
-./bin-graph-section.sh .text --mode histogram bin-graph examples/histogram.png
+./scripts/bin-graph-section.sh .text --mode histogram bin-graph examples/histogram.png
 #+end_src
 
 [[file:examples/histogram.png]]
 
 #+begin_src bash
 # Only the .rodata section of the ELF file
-./bin-graph-section.sh .rodata --mode bigrams bin-graph examples/rodata-bigrams.png
+./scripts/bin-graph-section.sh .rodata --mode bigrams bin-graph examples/rodata-bigrams.png
 #+end_src
 
 [[file:examples/rodata-bigrams.png]]
