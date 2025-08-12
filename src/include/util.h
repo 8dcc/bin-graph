@@ -52,12 +52,4 @@
         exit(1);                                                               \
     } while (0)
 
-/*----------------------------------------------------------------------------*/
-
-/*
- * Calculate the Shannon entropy of the specified bytes. Since log2() is used,
- * the return value is in the [0..8] range.
- */
-double entropy(void* data, size_t data_sz);
-
 #endif /* UTIL_H_ */
