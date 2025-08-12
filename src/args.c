@@ -176,7 +176,7 @@ static struct argp_option options[] = {
     },
     {
       "transform-squares",
-      LONGOPT_BLOCK_SIZE,
+      LONGOPT_TRANSFORM_SQUARES,
       "SIDE",
       0,
       "After generating the image, group its pixels into squares of side SIDE. "
