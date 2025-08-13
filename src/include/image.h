@@ -19,7 +19,7 @@
 #ifndef IMAGE_H_
 #define IMAGE_H_ 1
 
-#include <stdint.h>
+#include <stddef.h>
 #include <stdbool.h>
 
 #include "args.h" /* Args */
@@ -30,7 +30,7 @@ typedef struct Color {
 
 typedef struct Image {
     Color* pixels;          /* RGB */
-    uint32_t width, height; /* In pixels, not bytes */
+    size_t width, height; /* In pixels, not bytes */
 } Image;
 
 /*----------------------------------------------------------------------------*/
@@ -50,7 +50,7 @@ void image_free(Image* image);
  * Group the data of a linear image into squares of side N. If the image
  * dimensions are not divisible by N, they will be increased.
  */
-void image_transform_squares(Image* image, uint32_t square_side);
+void image_transform_squares(Image* image, size_t square_side);
 
 /*
  * Write the specified Image structure into a PNG file with the specified name.

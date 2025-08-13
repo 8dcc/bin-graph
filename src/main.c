@@ -16,9 +16,8 @@
  * this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <stdint.h>
-#include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "include/args.h"
 #include "include/read_file.h"

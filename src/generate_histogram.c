@@ -50,7 +50,7 @@ Image* generate_histogram(const Args* args, ByteArray* bytes) {
      * function.
      */
     uint8_t most_frequent = 0;
-    uint32_t* occurrences = calloc(256, sizeof(uint32_t));
+    size_t* occurrences   = calloc(256, sizeof(size_t));
     if (occurrences == NULL)
         return NULL;
 
@@ -67,7 +67,7 @@ Image* generate_histogram(const Args* args, ByteArray* bytes) {
      * frequent byte.
      */
     for (size_t y = 0; y < image->height; y++) {
-        const uint32_t line_width =
+        const size_t line_width =
           occurrences[y] * image->width / occurrences[most_frequent];
 
         for (size_t x = 0; x < line_width; x++) {

@@ -39,12 +39,7 @@ bool image_init(Image* image, size_t width, size_t height) {
     image->width  = width;
     image->height = height;
 
-    /*
-     * Allocate the array that will contain the color information. We need to
-     * cast the first value to `size_t' to make sure the multiplication result
-     * doesn't overflow in an `uint32_t'.
-     */
-    image->pixels = calloc((size_t)image->height * image->width, sizeof(Color));
+    image->pixels = calloc(image->height * image->width, sizeof(Color));
     if (image->pixels == NULL)
         return false;
 
@@ -58,7 +53,7 @@ void image_free(Image* image) {
 
 /*----------------------------------------------------------------------------*/
 
-void image_transform_squares(Image* image, uint32_t square_side) {
+void image_transform_squares(Image* image, size_t square_side) {
     const int square_size     = square_side * square_side;
     const size_t total_pixels = image->width * image->height;
 
@@ -75,8 +70,7 @@ void image_transform_squares(Image* image, uint32_t square_side) {
     const size_t squares_per_row = image->width / square_side;
 
     /* Allocate the array with the new image dimensions */
-    Color* new_pixels =
-      calloc((size_t)image->height * image->width, sizeof(Color));
+    Color* new_pixels = calloc(image->height * image->width, sizeof(Color));
 
     /* Iterate the original pixels */
     for (size_t i = 0; i < total_pixels; i++) {
@@ -120,8 +114,8 @@ void image2png(Image* image, const char* filename, int zoom) {
         DIE("Can't create png_infop");
 
     /* The actual PNG image dimensions, remember that the Image is unscaled */
-    uint32_t png_height = image->height * zoom;
-    uint32_t png_width  = image->width * zoom;
+    const size_t png_height = image->height * zoom;
+    const size_t png_width  = image->width * zoom;
 
     /* Specify the PNG info */
     png_init_io(png, fd);
@@ -144,10 +138,10 @@ void image2png(Image* image, const char* filename, int zoom) {
     if (rows == NULL)
         DIE("Failed to allocate PNG rows");
 
-    for (uint32_t y = 0; y < png_height; y++) {
+    for (size_t y = 0; y < png_height; y++) {
         rows[y] = malloc(png_width * PNG_BPP);
         if (rows[y] == NULL)
-            DIE("Failed to allocate PNG row %d", y);
+            DIE("Failed to allocate PNG row %zu", y);
     }
 
     /*
@@ -157,9 +151,9 @@ void image2png(Image* image, const char* filename, int zoom) {
      * The outer loops iterate the unscaled pixels, and are needed for accessing
      * the `bytes->data' array.
      */
-    for (uint32_t y = 0; y < image->height; y++) {
-        for (uint32_t x = 0; x < image->width; x++) {
-            Color color = image->pixels[(size_t)image->width * y + x];
+    for (size_t y = 0; y < image->height; y++) {
+        for (size_t x = 0; x < image->width; x++) {
+            Color color = image->pixels[image->width * y + x];
 
             /* Draw a rectangle of side `g_output_zoom' */
             for (int rect_y = 0; rect_y < zoom; rect_y++) {
@@ -180,7 +174,7 @@ void image2png(Image* image, const char* filename, int zoom) {
     png_write_end(png, NULL);
 
     /* Free each pointer of the `rows' array, and the array itself */
-    for (uint32_t y = 0; y < png_height; y++)
+    for (size_t y = 0; y < png_height; y++)
         free(rows[y]);
     free(rows);
 

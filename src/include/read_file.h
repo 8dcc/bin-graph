@@ -31,7 +31,7 @@ typedef struct ByteArray {
 /*----------------------------------------------------------------------------*/
 
 /*
- * Return the size of a file using `fseek'.
+ * Return the size of a file using 'fseek' and 'ftell'.
  */
 long get_file_size(FILE* fp);
 
@@ -43,13 +43,16 @@ long get_file_size(FILE* fp);
  * It also translates:
  *   - A zero end offset, which translates to the EOF.
  */
-void get_real_offsets(FILE* fp, long* offset_start, long* offset_end);
+void get_real_offsets(FILE* fp, size_t* offset_start, size_t* offset_end);
 
 /*
  * Read the bytes of a file in a linear way from the starting offset to the end
  * offset. Internally calls `get_real_offsets' to ensure they are valid.
  */
-void read_file(ByteArray* dst, FILE* fp, long offset_start, long offset_end);
+void read_file(ByteArray* dst,
+               FILE* fp,
+               size_t offset_start,
+               size_t offset_end);
 
 /*
  * Initialize a ByteArray structure for reading a chunk of a file. Internally
@@ -58,8 +61,8 @@ void read_file(ByteArray* dst, FILE* fp, long offset_start, long offset_end);
  */
 void byte_array_init(ByteArray* bytes,
                      FILE* fp,
-                     long offset_start,
-                     long offset_end);
+                     size_t offset_start,
+                     size_t offset_end);
 
 /*
  * Free all members of a ByteArray structure. Doesn't free the ByteArray itself.

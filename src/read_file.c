@@ -19,10 +19,10 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <assert.h>
+#include <errno.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <errno.h>
 
 #include "include/args.h"
 #include "include/read_file.h"
@@ -35,8 +35,8 @@ long get_file_size(FILE* fp) {
     return file_sz;
 }
 
-void get_real_offsets(FILE* fp, long* offset_start, long* offset_end) {
-    const long file_sz = get_file_size(fp);
+void get_real_offsets(FILE* fp, size_t* offset_start, size_t* offset_end) {
+    const size_t file_sz = get_file_size(fp);
 
     /* Make sure the offsets are not out of bounds */
     if (*offset_start > file_sz || *offset_end > file_sz)
@@ -55,7 +55,10 @@ void get_real_offsets(FILE* fp, long* offset_start, long* offset_end) {
             *offset_start);
 }
 
-void read_file(ByteArray* dst, FILE* fp, long offset_start, long offset_end) {
+void read_file(ByteArray* dst,
+               FILE* fp,
+               size_t offset_start,
+               size_t offset_end) {
     /* Ensure these are real and valid offsets */
     get_real_offsets(fp, &offset_start, &offset_end);
 
@@ -75,8 +78,8 @@ void read_file(ByteArray* dst, FILE* fp, long offset_start, long offset_end) {
 
 void byte_array_init(ByteArray* bytes,
                      FILE* fp,
-                     long offset_start,
-                     long offset_end) {
+                     size_t offset_start,
+                     size_t offset_end) {
     /* Ensure these are real and valid offsets */
     get_real_offsets(fp, &offset_start, &offset_end);
 

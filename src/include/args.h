@@ -20,7 +20,6 @@
 #define ARGS_H_ 1
 
 #include <stddef.h>
-#include <stdint.h>
 
 enum EArgsError {
     ARGS_ERR_NONE  = 0,
@@ -51,23 +50,23 @@ typedef struct args {
     /* Program mode. Determines how the bytes will be displayed. */
     enum EArgsMode mode;
 
-    /* Block size used in some modes like MODE_ENTROPY. */
-    uint32_t block_size;
+    /* Block size used in some modes like 'ARGS_MODE_ENTROPY' */
+    size_t block_size;
 
     /* Width in pixels of the output image (before applying the zoom) */
-    uint32_t output_width;
+    int output_width;
 
     /* Start and end offsets for reading the input file. Zero means ignore. */
     size_t offset_start, offset_end;
 
     /* Width and height of each "pixel" when drawn in the actual PNG image */
-    uint32_t output_zoom;
+    int output_zoom;
 
     /*
      * Side of each square used when transforming the generated image. Values
      * lower than two are ignored.
      */
-    uint32_t transform_squares_side;
+    int transform_squares_side;
 } Args;
 
 /*----------------------------------------------------------------------------*/
