@@ -16,8 +16,10 @@
  * this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "include/args.h"
 #include "include/read_file.h"
@@ -32,8 +34,8 @@ int main(int argc, char** argv) {
 
     /* Open the input for reading */
     FILE* fp = fopen(args.input_filename, "rb");
-    if (!fp)
-        DIE("Can't open file: \"%s\"", args.input_filename);
+    if (fp == NULL)
+        DIE("Can't open file '%s': %s", args.input_filename, strerror(errno));
 
     /* Allocate the bytes needed for reading this chunk of the file */
     ByteArray file_bytes;

@@ -17,8 +17,10 @@
  */
 
 #include <assert.h>
+#include <errno.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 #include <ctype.h>
 
 #include <png.h>
@@ -101,17 +103,17 @@ void image_transform_squares(Image* image, size_t square_side) {
 
 void image2png(Image* image, const char* filename, int zoom) {
     FILE* fd = fopen(filename, "wb");
-    if (!fd)
-        DIE("Can't open file: \"%s\"", filename);
+    if (fd == NULL)
+        DIE("Can't open file '%s': %s", filename, strerror(errno));
 
     png_structp png =
       png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-    if (!png)
-        DIE("Can't create png_structp");
+    if (png == NULL)
+        DIE("Can't create 'png_structp'. Aborting.");
 
     png_infop info = png_create_info_struct(png);
-    if (!info)
-        DIE("Can't create png_infop");
+    if (info == NULL)
+        DIE("Can't create 'png_infop'. Aborting.");
 
     /* The actual PNG image dimensions, remember that the Image is unscaled */
     const size_t png_height = image->height * zoom;
