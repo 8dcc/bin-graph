@@ -30,7 +30,7 @@
  * different information about the input bytes.
  *
  * Depending on the function, the 'Image' dimensions might change, but normally
- * the width will match the `output_width' member of the received 'Args'
+ * the width will match the 'output_width' member of the received 'Args'
  * structure.
  *
  * For more information on each mode, run the program with the '--list-modes'

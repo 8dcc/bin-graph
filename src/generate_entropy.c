@@ -83,7 +83,7 @@ Image* generate_entropy(const Args* args, ByteArray* bytes) {
 
     /* Iterate blocks of the input, each will share the same entropy color */
     for (size_t i = 0; i < bytes->size; i += args->block_size) {
-        /* Make sure we are not reading past the end of `bytes->size' */
+        /* Make sure we are not reading past the end of 'bytes->size' */
         const size_t real_block_size = (i + args->block_size < bytes->size)
                                          ? args->block_size
                                          : bytes->size - i;

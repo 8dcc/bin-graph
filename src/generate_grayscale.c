@@ -50,8 +50,8 @@ Image* generate_grayscale(const Args* args, ByteArray* bytes) {
     for (size_t y = 0; y < image->height; y++) {
         for (size_t x = 0; x < image->width; x++) {
             /*
-             * One-dimensional index for both the `bytes->data' and
-             * `image->pixels' arrays.
+             * One-dimensional index for both the 'bytes->data' and
+             * 'image->pixels' arrays.
              */
             const size_t raw_idx = image->width * y + x;
 

@@ -29,7 +29,7 @@ typedef struct Color {
 } Color;
 
 typedef struct Image {
-    Color* pixels;          /* RGB */
+    Color* pixels;        /* RGB */
     size_t width, height; /* In pixels, not bytes */
 } Image;
 
@@ -53,9 +53,8 @@ void image_free(Image* image);
 void image_transform_squares(Image* image, size_t square_side);
 
 /*
- * Write the specified Image structure into a PNG file with the specified name.
- * This function is responsible for scaling the Image depending on
- * `g_output_zoom'.
+ * Write the specified 'Image' structure into a PNG file with the specified
+ * name, using 'zoom' for scaling.
  */
 void image2png(Image* image, const char* filename, int zoom);
 

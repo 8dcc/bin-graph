@@ -147,17 +147,17 @@ void image2png(Image* image, const char* filename, int zoom) {
     }
 
     /*
-     * Write the `bytes' array we received into the `rows' array we just
+     * Write the 'bytes' array we received into the 'rows' array we just
      * allocated.
      *
      * The outer loops iterate the unscaled pixels, and are needed for accessing
-     * the `bytes->data' array.
+     * the 'bytes->data' array.
      */
     for (size_t y = 0; y < image->height; y++) {
         for (size_t x = 0; x < image->width; x++) {
             Color color = image->pixels[image->width * y + x];
 
-            /* Draw a rectangle of side `g_output_zoom' */
+            /* Draw a rectangle of side 'zoom' */
             for (int rect_y = 0; rect_y < zoom; rect_y++) {
                 for (int rect_x = 0; rect_x < zoom; rect_x++) {
                     const png_bytep row = rows[zoom * y + rect_y];
@@ -175,7 +175,7 @@ void image2png(Image* image, const char* filename, int zoom) {
     png_write_image(png, rows);
     png_write_end(png, NULL);
 
-    /* Free each pointer of the `rows' array, and the array itself */
+    /* Free each pointer of the 'rows' array, and the array itself */
     for (size_t y = 0; y < png_height; y++)
         free(rows[y]);
     free(rows);

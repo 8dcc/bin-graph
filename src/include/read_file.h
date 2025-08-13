@@ -47,7 +47,7 @@ void get_real_offsets(FILE* fp, size_t* offset_start, size_t* offset_end);
 
 /*
  * Read the bytes of a file in a linear way from the starting offset to the end
- * offset. Internally calls `get_real_offsets' to ensure they are valid.
+ * offset. Internally calls 'get_real_offsets' to ensure they are valid.
  */
 void read_file(ByteArray* dst,
                FILE* fp,
@@ -56,8 +56,8 @@ void read_file(ByteArray* dst,
 
 /*
  * Initialize a ByteArray structure for reading a chunk of a file. Internally
- * calls `get_real_offsets' to ensure they are valid. It must be freed with
- * `byte_array_free'.
+ * calls 'get_real_offsets' to ensure they are valid. It must be freed with
+ * 'byte_array_free'.
  */
 void byte_array_init(ByteArray* bytes,
                      FILE* fp,
