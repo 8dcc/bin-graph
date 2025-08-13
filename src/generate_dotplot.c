@@ -23,14 +23,29 @@
 #include "include/image.h"
 #include "include/args.h"
 #include "include/read_file.h"
+#include "include/util.h"
 
-Image* generate_dotplot(const Args* args, ByteArray* bytes) {
+static inline Image* alloc_and_init_image(ByteArray* bytes) {
     Image* image = malloc(sizeof(Image));
     if (image == NULL)
         return NULL;
-    image_init(image, args, bytes->size);
 
-    // FIXME
+    const size_t width  = bytes->size;
+    const size_t height = bytes->size;
+    if (!image_init(image, width, height))
+        return NULL;
+
+    return image;
+}
+
+/*----------------------------------------------------------------------------*/
+
+Image* generate_dotplot(const Args* args, ByteArray* bytes) {
+    UNUSED(args);
+
+    Image* image = alloc_and_init_image(bytes);
+    if (image == NULL)
+        return NULL;
     assert(image->width == bytes->size && image->height == bytes->size);
 
     for (size_t y = 0; y < image->height; y++) {

@@ -24,15 +24,31 @@
 #include "include/args.h"
 #include "include/read_file.h"
 
-Image* generate_histogram(const Args* args, ByteArray* bytes) {
+static inline Image* alloc_and_init_image(const Args* args) {
     Image* image = malloc(sizeof(Image));
     if (image == NULL)
         return NULL;
-    image_init(image, args, bytes->size);
 
-    // FIXME
+    const size_t width  = args->output_width;
+    const size_t height = 256;
+    if (!image_init(image, width, height))
+        return NULL;
+
+    return image;
+}
+
+/*----------------------------------------------------------------------------*/
+
+Image* generate_histogram(const Args* args, ByteArray* bytes) {
+    Image* image = alloc_and_init_image(args);
+    if (image == NULL)
+        return NULL;
     assert(image->height == 256);
 
+    /*
+     * TODO: Perhaps abstract "occurrence counting" logic into a separate static
+     * function.
+     */
     uint8_t most_frequent = 0;
     uint32_t* occurrences = calloc(256, sizeof(uint32_t));
     if (occurrences == NULL)
@@ -41,9 +57,7 @@ Image* generate_histogram(const Args* args, ByteArray* bytes) {
     /* Store the occurrences including the most frequent byte */
     for (size_t i = 0; i < bytes->size; i++) {
         const uint8_t byte = bytes->data[i];
-
         occurrences[byte]++;
-
         if (occurrences[byte] > occurrences[most_frequent])
             most_frequent = byte;
     }

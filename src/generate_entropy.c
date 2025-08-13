@@ -25,6 +25,22 @@
 #include "include/args.h"
 #include "include/read_file.h"
 
+static inline Image* alloc_and_init_image(const Args* args, ByteArray* bytes) {
+    Image* image = malloc(sizeof(Image));
+    if (image == NULL)
+        return NULL;
+
+    size_t width  = args->output_width;
+    size_t height = bytes->size / width;
+    if (bytes->size % width != 0)
+        height++;
+
+    if (!image_init(image, width, height))
+        return NULL;
+
+    return image;
+}
+
 /*
  * Calculate the Shannon entropy of the specified bytes. Since log2() is used,
  * the return value is in the [0..8] range.
@@ -60,10 +76,9 @@ static double entropy(void* data, size_t data_sz) {
 /*----------------------------------------------------------------------------*/
 
 Image* generate_entropy(const Args* args, ByteArray* bytes) {
-    Image* image = malloc(sizeof(Image));
+    Image* image = alloc_and_init_image(args, bytes);
     if (image == NULL)
         return NULL;
-    image_init(image, args, bytes->size);
 
     /* Iterate blocks of the input, each will share the same entropy color */
     for (size_t i = 0; i < bytes->size; i += args->block_size) {

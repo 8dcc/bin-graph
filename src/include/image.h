@@ -20,8 +20,9 @@
 #define IMAGE_H_ 1
 
 #include <stdint.h>
+#include <stdbool.h>
 
-#include "args.h"      /* Args */
+#include "args.h" /* Args */
 
 typedef struct Color {
     uint8_t r, g, b;
@@ -35,10 +36,10 @@ typedef struct Image {
 /*----------------------------------------------------------------------------*/
 
 /*
- * Initialize an Image structure. Get its dimensions, and allocate the pixel
- * array. It must be freed with `image_free'.
+ * Initialize an 'Image' structure. The caller is responsible of deinitializing
+ * the image with 'image_free'.
  */
-void image_init(Image* image, const Args* args, size_t data_sz);
+bool image_init(Image* image, size_t width, size_t height);
 
 /*
  * Free all members of an Image structure. Doesn't free the Image itself.

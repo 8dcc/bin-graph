@@ -23,14 +23,29 @@
 #include "include/image.h"
 #include "include/args.h"
 #include "include/read_file.h"
+#include "include/util.h"
 
-Image* generate_bigrams(const Args* args, ByteArray* bytes) {
+static inline Image* alloc_and_init_image(void) {
     Image* image = malloc(sizeof(Image));
     if (image == NULL)
         return NULL;
-    image_init(image, args, bytes->size);
 
-    // FIXME
+    const size_t width  = 256;
+    const size_t height = 256;
+    if (!image_init(image, width, height))
+        return NULL;
+
+    return image;
+}
+
+/*----------------------------------------------------------------------------*/
+
+Image* generate_bigrams(const Args* args, ByteArray* bytes) {
+    UNUSED(args);
+
+    Image* image = alloc_and_init_image();
+    if (image == NULL)
+        return NULL;
     assert(image->width == 256 && image->height == 256);
 
     /* Initialize the image to black */

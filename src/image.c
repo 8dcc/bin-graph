@@ -17,9 +17,11 @@
  */
 
 #include <assert.h>
+#include <stdbool.h>
 #include <stdlib.h>
-#include <png.h>
 #include <ctype.h>
+
+#include <png.h>
 
 #include "include/args.h"
 #include "include/read_file.h"
@@ -31,36 +33,11 @@
 
 /*----------------------------------------------------------------------------*/
 
-void image_init(Image* image, const Args* args, size_t data_sz) {
-    /*
-     * The image conversion functions ignore zoom. It will be applied when
-     * generating the PNG.
-     */
-    switch (args->mode) {
-        case ARGS_MODE_GRAYSCALE:
-        case ARGS_MODE_ASCII:
-        case ARGS_MODE_ENTROPY: {
-            image->width  = args->output_width;
-            image->height = data_sz / image->width;
-            if (data_sz % image->width != 0)
-                image->height++;
-        } break;
+bool image_init(Image* image, size_t width, size_t height) {
+    assert(image != NULL);
 
-        case ARGS_MODE_HISTOGRAM: {
-            image->width  = args->output_width;
-            image->height = 256;
-        } break;
-
-        case ARGS_MODE_BIGRAMS: {
-            image->width  = 256;
-            image->height = 256;
-        } break;
-
-        case ARGS_MODE_DOTPLOT: {
-            image->width  = data_sz;
-            image->height = data_sz;
-        } break;
-    }
+    image->width  = width;
+    image->height = height;
 
     /*
      * Allocate the array that will contain the color information. We need to
@@ -69,7 +46,9 @@ void image_init(Image* image, const Args* args, size_t data_sz) {
      */
     image->pixels = calloc((size_t)image->height * image->width, sizeof(Color));
     if (image->pixels == NULL)
-        DIE("Failed to allocate pixel array");
+        return false;
+
+    return true;
 }
 
 void image_free(Image* image) {
