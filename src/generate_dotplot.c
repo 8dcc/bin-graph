@@ -52,6 +52,7 @@ Image* generate_dotplot(const Args* args, ByteArray* bytes) {
              *   B| *  *
              *   D|     *
              */
+            assert(x < bytes->size && y < bytes->size);
             color->r = color->g = color->b =
               (bytes->data[x] == bytes->data[y]) ? 0xFF : 0x00;
         }

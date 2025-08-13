@@ -40,7 +40,7 @@ Image* generate_ascii(const Args* args, ByteArray* bytes) {
              * generic padding color.
              */
             if (raw_idx >= bytes->size) {
-                color->r = color->g = color->b = 0;
+                color->r = color->g = color->b = 0x00;
                 continue;
             }
 

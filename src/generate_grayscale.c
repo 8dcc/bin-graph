@@ -40,6 +40,15 @@ Image* generate_grayscale(const Args* args, ByteArray* bytes) {
             /* Pointer to the current color in the Image */
             Color* color = &image->pixels[raw_idx];
 
+            /*
+             * If we are not in-bounds, we are filling the last row; use a
+             * generic padding color.
+             */
+            if (raw_idx >= bytes->size) {
+                color->r = color->g = color->b = 0x00;
+                continue;
+            }
+
             /* The color brightness is determined by the byte value */
             color->r = color->g = color->b = bytes->data[raw_idx];
         }
