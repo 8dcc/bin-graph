@@ -30,13 +30,10 @@ int main(int argc, char** argv) {
     args_init(&args);
     args_parse(&args, argc, argv);
 
-    const char* input_filename  = argv[argc - 2];
-    const char* output_filename = argv[argc - 1];
-
     /* Open the input for reading */
-    FILE* fp = fopen(input_filename, "rb");
+    FILE* fp = fopen(args.input_filename, "rb");
     if (!fp)
-        DIE("Can't open file: \"%s\"", input_filename);
+        DIE("Can't open file: \"%s\"", args.input_filename);
 
     /* Allocate the bytes needed for reading this chunk of the file */
     ByteArray file_bytes;
@@ -88,7 +85,7 @@ int main(int argc, char** argv) {
         image_transform_squares(image, args.transform_squares_side);
 
     /* Write the Image structure to the PNG file */
-    image2png(image, output_filename, args.output_zoom);
+    image2png(image, args.output_filename, args.output_zoom);
 
     /* We are done with the image, free it */
     image_free(image);
