@@ -33,7 +33,7 @@ typedef struct ByteArray {
 /*
  * Return the size of a file using 'fseek' and 'ftell'.
  */
-long get_file_size(FILE* fp);
+size_t get_file_size(FILE* fp);
 
 /*
  * Validate and translate the offsets of a file.

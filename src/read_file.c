@@ -28,10 +28,21 @@
 #include "include/read_file.h"
 #include "include/util.h"
 
-long get_file_size(FILE* fp) {
-    fseek(fp, 0L, SEEK_END);
+size_t get_file_size(FILE* fp) {
+    /* Preserve current position in the file */
+    const long old_position = ftell(fp);
+    if (old_position < 0)
+        DIE("Failed to get file position: %s", strerror(errno));
+
+    /* Move to the end of the file, and obtain the size */
+    if (fseek(fp, 0L, SEEK_END) < 0)
+        DIE("Could not move to the end of file: %s", strerror(errno));
     const long file_sz = ftell(fp);
-    fseek(fp, 0L, SEEK_SET);
+    if (file_sz < 0)
+        DIE("Failed to get file position: %s", strerror(errno));
+
+    /* Restore the old position and return the total size in bytes */
+    fseek(fp, old_position, SEEK_SET);
     return file_sz;
 }
 
