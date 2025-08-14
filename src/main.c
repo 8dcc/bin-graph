@@ -17,6 +17,7 @@
  */
 
 #include <errno.h>
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -45,39 +46,13 @@ int main(int argc, char** argv) {
     read_file(&file_bytes, fp, args.offset_start, args.offset_end);
     fclose(fp);
 
-    /*
-     * Convert the ByteArray to a color Image depending on the global mode.
-     *
-     * TODO: Since all these functions share the same interface, we could set a
-     * function pointer variable and call that, instead of duplicating this
-     * calling logic.
-     */
-    Image* image;
-    switch (args.mode) {
-        case ARGS_MODE_GRAYSCALE:
-            image = generate_grayscale(&args, &file_bytes);
-            break;
+    /* Obtain the image generation function from the program mode */
+    generation_func_ptr_t generation_func =
+      generation_func_from_mode(args.mode);
+    assert(generation_func != NULL);
 
-        case ARGS_MODE_ASCII:
-            image = generate_ascii(&args, &file_bytes);
-            break;
-
-        case ARGS_MODE_ENTROPY:
-            image = generate_entropy(&args, &file_bytes);
-            break;
-
-        case ARGS_MODE_HISTOGRAM:
-            image = generate_histogram(&args, &file_bytes);
-            break;
-
-        case ARGS_MODE_BIGRAMS:
-            image = generate_bigrams(&args, &file_bytes);
-            break;
-
-        case ARGS_MODE_DOTPLOT:
-            image = generate_dotplot(&args, &file_bytes);
-            break;
-    }
+    /* Convert the ByteArray to a color Image depending on the global mode */
+    Image* image = generation_func(&args, &file_bytes);
 
     /* We are done with the initial file bytes, free them */
     byte_array_free(&file_bytes);

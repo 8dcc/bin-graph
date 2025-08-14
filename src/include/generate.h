@@ -23,7 +23,10 @@
 #include "read_file.h" /* ByteArray */
 #include "image.h"     /* Image */
 
-/* TODO: Typedef the generation function prototype. */
+/*
+ * Pointer to a function that generates an 'Image' from a 'ByteArray'.
+ */
+typedef Image* (*generation_func_ptr_t)(const Args* args, ByteArray* bytes);
 
 /*
  * From the specified 'ByteArray' structure, generate an 'Image' that represents
@@ -42,5 +45,29 @@ Image* generate_entropy(const Args* args, ByteArray* bytes);
 Image* generate_histogram(const Args* args, ByteArray* bytes);
 Image* generate_bigrams(const Args* args, ByteArray* bytes);
 Image* generate_dotplot(const Args* args, ByteArray* bytes);
+
+/*----------------------------------------------------------------------------*/
+
+/*
+ * Return a pointer to the generation function associated to a specific mode.
+ */
+static inline generation_func_ptr_t generation_func_from_mode(
+  enum EArgsMode mode) {
+    switch (mode) {
+        case ARGS_MODE_GRAYSCALE:
+            return generate_grayscale;
+        case ARGS_MODE_ASCII:
+            return generate_ascii;
+        case ARGS_MODE_ENTROPY:
+            return generate_entropy;
+        case ARGS_MODE_HISTOGRAM:
+            return generate_histogram;
+        case ARGS_MODE_BIGRAMS:
+            return generate_bigrams;
+        case ARGS_MODE_DOTPLOT:
+            return generate_dotplot;
+    }
+    return NULL;
+}
 
 #endif /* GENERATE_H_ */
