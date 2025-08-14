@@ -333,10 +333,30 @@ static error_t parse_opt(int key, char* arg, struct argp_state* state) {
         } break;
 
         case ARGP_KEY_END: {
-            if (state->arg_num < 2) {
+            /*
+             * We expect two mandatory arguments: the input and output
+             * filenames.
+             */
+            if (state->arg_num < 2 || parsed_args->input_filename == NULL ||
+                parsed_args->input_filename == NULL) {
                 fprintf(state->err_stream,
                         "%s: Not enough arguments.\n",
                         state->name);
+                argp_usage(state);
+            }
+
+            /*
+             * If the "end" offset is specified (i.e. not zero), it must be
+             * greater than the "start" offset.
+             */
+            if (parsed_args->offset_end != 0 &&
+                parsed_args->offset_end <= parsed_args->offset_start) {
+                fprintf(state->err_stream,
+                        "%s: The end offset (%zx) must be bigger than the "
+                        "start offset (%zx).\n",
+                        state->name,
+                        parsed_args->offset_end,
+                        parsed_args->offset_start);
                 argp_usage(state);
             }
         } break;
