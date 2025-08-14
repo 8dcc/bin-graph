@@ -20,6 +20,7 @@
 #define IMAGE_H_ 1
 
 #include <stddef.h>
+#include <stdint.h>
 #include <stdbool.h>
 
 #include "args.h" /* Args */
@@ -37,14 +38,14 @@ typedef struct Image {
 
 /*
  * Initialize an 'Image' structure. The caller is responsible of deinitializing
- * the image with 'image_free'.
+ * the image with 'image_deinit'.
  */
 bool image_init(Image* image, size_t width, size_t height);
 
 /*
  * Free all members of an Image structure. Doesn't free the Image itself.
  */
-void image_free(Image* image);
+void image_deinit(Image* image);
 
 /*
  * Group the data of a linear image into squares of side N. If the image

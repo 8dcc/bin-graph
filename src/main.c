@@ -65,7 +65,7 @@ int main(int argc, char** argv) {
     image2png(image, args.output_filename, args.output_zoom);
 
     /* We are done with the image, free it */
-    image_free(image);
+    image_deinit(image);
     free(image);
 
     return 0;

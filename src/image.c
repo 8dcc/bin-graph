@@ -48,7 +48,7 @@ bool image_init(Image* image, size_t width, size_t height) {
     return true;
 }
 
-void image_free(Image* image) {
+void image_deinit(Image* image) {
     free(image->pixels);
     image->pixels = NULL;
 }
