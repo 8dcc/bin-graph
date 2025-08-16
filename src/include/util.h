@@ -33,12 +33,23 @@
 #define LENGTH(ARR) (sizeof(ARR) / sizeof((ARR)[0]))
 
 /*
+ * Print a warning with the specified format, along with the program name and a
+ * newline.
+ */
+#define WRN(...)                                                               \
+    do {                                                                       \
+        fprintf(stderr, "bin-graph: Warning: ");                               \
+        fprintf(stderr, __VA_ARGS__);                                          \
+        fputc('\n', stderr);                                                   \
+    } while (0)
+
+/*
  * Print an error with the specified format, along with the program name and a
  * newline.
  */
 #define ERR(...)                                                               \
     do {                                                                       \
-        fprintf(stderr, "bin-graph: ");                                        \
+        fprintf(stderr, "bin-graph: Error: ");                                 \
         fprintf(stderr, __VA_ARGS__);                                          \
         fputc('\n', stderr);                                                   \
     } while (0)
