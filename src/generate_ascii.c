@@ -23,6 +23,16 @@
 #include "include/image.h"
 #include "include/args.h"
 #include "include/read_file.h"
+#include "include/util.h"
+
+static bool validate_args(const Args* args) {
+    if (args->block_size != ARGS_DEFAULT_BLOCK_SIZE)
+        WRN("The current mode (%s) is not affected by the user-specified block "
+            "size (%zu).",
+            args_get_mode_name(args->mode),
+            args->block_size);
+    return true;
+}
 
 static inline Image* alloc_and_init_image(const Args* args, ByteArray* bytes) {
     Image* image = malloc(sizeof(Image));
@@ -43,6 +53,9 @@ static inline Image* alloc_and_init_image(const Args* args, ByteArray* bytes) {
 /*----------------------------------------------------------------------------*/
 
 Image* generate_ascii(const Args* args, ByteArray* bytes) {
+    if (!validate_args(args))
+        return NULL;
+
     Image* image = alloc_and_init_image(args, bytes);
     if (image == NULL)
         return NULL;

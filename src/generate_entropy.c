@@ -25,6 +25,18 @@
 #include "include/image.h"
 #include "include/args.h"
 #include "include/read_file.h"
+#include "include/util.h"
+
+static bool validate_args(const Args* args) {
+    if (args->block_size <= 1) {
+        ERR("The current block size (%zu) is too small for the current mode "
+            "(%s).",
+            args->block_size,
+            args_get_mode_name(args->mode));
+        return false;
+    }
+    return true;
+}
 
 static inline Image* alloc_and_init_image(const Args* args, ByteArray* bytes) {
     Image* image = malloc(sizeof(Image));
@@ -77,6 +89,9 @@ static double entropy(void* data, size_t data_sz) {
 /*----------------------------------------------------------------------------*/
 
 Image* generate_entropy(const Args* args, ByteArray* bytes) {
+    if (!validate_args(args))
+        return NULL;
+
     Image* image = alloc_and_init_image(args, bytes);
     if (image == NULL)
         return NULL;

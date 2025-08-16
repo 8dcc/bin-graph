@@ -23,6 +23,20 @@
 #include "include/image.h"
 #include "include/args.h"
 #include "include/read_file.h"
+#include "include/util.h"
+
+static bool validate_args(const Args* args) {
+    if (args->block_size != ARGS_DEFAULT_BLOCK_SIZE)
+        WRN("The current mode (%s) is not affected by the user-specified block "
+            "size (%zu).",
+            args_get_mode_name(args->mode),
+            args->block_size);
+    if (args->transform_squares_side > 1)
+        WRN("The \"squares\" transformation is not recommended for the current "
+            "mode (%s).",
+            args_get_mode_name(args->mode));
+    return true;
+}
 
 static inline Image* alloc_and_init_image(const Args* args) {
     Image* image = malloc(sizeof(Image));
@@ -40,6 +54,9 @@ static inline Image* alloc_and_init_image(const Args* args) {
 /*----------------------------------------------------------------------------*/
 
 Image* generate_histogram(const Args* args, ByteArray* bytes) {
+    if (!validate_args(args))
+        return NULL;
+
     Image* image = alloc_and_init_image(args);
     if (image == NULL)
         return NULL;

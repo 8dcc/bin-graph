@@ -25,6 +25,24 @@
 #include "include/read_file.h"
 #include "include/util.h"
 
+static bool validate_args(const Args* args) {
+    if (args->block_size != ARGS_DEFAULT_BLOCK_SIZE)
+        WRN("The current mode (%s) is not affected by the user-specified block "
+            "size (%zu).",
+            args_get_mode_name(args->mode),
+            args->block_size);
+    if (args->output_width != ARGS_DEFAULT_OUTPUT_WIDTH)
+        WRN("The user-specified output width (%d) will be overwritten by the "
+            "current mode (%s).",
+            args->output_width,
+            args_get_mode_name(args->mode));
+    if (args->transform_squares_side > 1)
+        WRN("The \"squares\" transformation is not recommended for the current "
+            "mode (%s).",
+            args_get_mode_name(args->mode));
+    return true;
+}
+
 static inline Image* alloc_and_init_image(void) {
     Image* image = malloc(sizeof(Image));
     if (image == NULL)
@@ -41,7 +59,8 @@ static inline Image* alloc_and_init_image(void) {
 /*----------------------------------------------------------------------------*/
 
 Image* generate_bigrams(const Args* args, ByteArray* bytes) {
-    UNUSED(args);
+    if (!validate_args(args))
+        return NULL;
 
     Image* image = alloc_and_init_image();
     if (image == NULL)
