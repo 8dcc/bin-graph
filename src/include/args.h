@@ -82,4 +82,9 @@ void args_init(Args* args);
  */
 void args_parse(Args* args, int argc, char** argv);
 
+/*
+ * Get the name of the specified mode enumerator.
+ */
+const char* args_get_mode_name(enum EArgsMode mode);
+
 #endif /* ARGS_H_ */
