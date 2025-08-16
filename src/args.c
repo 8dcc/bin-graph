@@ -29,18 +29,6 @@
 
 /*----------------------------------------------------------------------------*/
 
-#ifndef DEFAULT_BLOCK_SIZE
-#define DEFAULT_BLOCK_SIZE 256
-#endif /* DEFAULT_BLOCK_SIZE */
-
-#ifndef DEFAULT_OUTPUT_WIDTH
-#define DEFAULT_OUTPUT_WIDTH 512
-#endif /* DEFAULT_OUTPUT_WIDTH */
-
-#ifndef DEFAULT_OUTPUT_ZOOM
-#define DEFAULT_OUTPUT_ZOOM 2
-#endif /* DEFAULT_OUTPUT_ZOOM */
-
 #ifndef VERSION
 #define VERSION NULL
 #endif /* VERSION */
@@ -373,11 +361,11 @@ void args_init(Args* args) {
     args->input_filename         = NULL;
     args->output_filename        = NULL;
     args->mode                   = ARGS_MODE_ASCII;
-    args->block_size             = DEFAULT_BLOCK_SIZE;
-    args->output_width           = DEFAULT_OUTPUT_WIDTH;
+    args->block_size             = ARGS_DEFAULT_BLOCK_SIZE;
+    args->output_width           = ARGS_DEFAULT_OUTPUT_WIDTH;
     args->offset_start           = 0;
     args->offset_end             = 0;
-    args->output_zoom            = DEFAULT_OUTPUT_ZOOM;
+    args->output_zoom            = ARGS_DEFAULT_OUTPUT_ZOOM;
     args->transform_squares_side = 0;
 }
 

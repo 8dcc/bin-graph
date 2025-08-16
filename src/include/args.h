@@ -21,12 +21,17 @@
 
 #include <stddef.h>
 
-enum EArgsError {
-    ARGS_ERR_NONE  = 0,
-    ARGS_ERR_EXIT  = 1,
-    ARGS_ERR_USAGE = 2,
-    ARGS_ERR_HELP  = 3,
-};
+#ifndef ARGS_DEFAULT_BLOCK_SIZE
+#define ARGS_DEFAULT_BLOCK_SIZE 256
+#endif /* ARGS_DEFAULT_BLOCK_SIZE */
+
+#ifndef ARGS_DEFAULT_OUTPUT_WIDTH
+#define ARGS_DEFAULT_OUTPUT_WIDTH 512
+#endif /* ARGS_DEFAULT_OUTPUT_WIDTH */
+
+#ifndef ARGS_DEFAULT_OUTPUT_ZOOM
+#define ARGS_DEFAULT_OUTPUT_ZOOM 2
+#endif /* ARGS_DEFAULT_OUTPUT_ZOOM */
 
 /* TODO: Add more modes: bigram_freq, etc. */
 enum EArgsMode {
@@ -37,6 +42,8 @@ enum EArgsMode {
     ARGS_MODE_BIGRAMS,
     ARGS_MODE_DOTPLOT,
 };
+
+/*----------------------------------------------------------------------------*/
 
 /*
  * Structure filled by 'args_parse' to indicate the program's command-line
