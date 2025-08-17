@@ -20,13 +20,14 @@
 #define EXPORT_H_ 1
 
 #include <stdbool.h>
+#include <stdio.h> /* FILE */
 
 #include "image.h"
 
 /*
- * Export the specified 'Image' structure into a PNG file with the specified
- * name, using 'zoom' for scaling.
+ * Export the specified 'Image' structure into the specified PNG file, using
+ * 'zoom' for scaling.
  */
-bool export_png(Image* image, const char* filename, int zoom);
+bool export_png(Image* image, FILE* output_fp, int zoom);
 
 #endif /* EXPORT_H_ */

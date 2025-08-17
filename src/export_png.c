@@ -31,13 +31,7 @@
 /* Bytes per pixel of the PNG image (R, G, B) */
 #define PNG_BPP 3
 
-bool export_png(Image* image, const char* filename, int zoom) {
-    FILE* fd = fopen(filename, "wb");
-    if (fd == NULL) {
-        ERR("Can't open file '%s': %s", filename, strerror(errno));
-        return false;
-    }
-
+bool export_png(Image* image, FILE* output_fp, int zoom) {
     png_structp png =
       png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
     if (png == NULL) {
@@ -56,7 +50,7 @@ bool export_png(Image* image, const char* filename, int zoom) {
     const size_t png_width  = image->width * zoom;
 
     /* Specify the PNG info */
-    png_init_io(png, fd);
+    png_init_io(png, output_fp);
     png_set_IHDR(png,
                  info,
                  png_width,
@@ -121,7 +115,6 @@ bool export_png(Image* image, const char* filename, int zoom) {
     free(rows);
 
     png_destroy_write_struct(&png, &info);
-    fclose(fd);
 
     return true;
 }

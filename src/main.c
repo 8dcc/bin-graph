@@ -35,17 +35,17 @@ int main(int argc, char** argv) {
     args_parse(&args, argc, argv);
 
     /* Open the input for reading */
-    FILE* fp = fopen(args.input_filename, "rb");
-    if (fp == NULL)
+    FILE* input_fp = fopen(args.input_filename, "rb");
+    if (input_fp == NULL)
         DIE("Can't open file '%s': %s", args.input_filename, strerror(errno));
 
     /* Allocate the bytes needed for reading this chunk of the file */
     ByteArray file_bytes;
-    byte_array_init(&file_bytes, fp, args.offset_start, args.offset_end);
+    byte_array_init(&file_bytes, input_fp, args.offset_start, args.offset_end);
 
     /* Read and store the file bytes in a linear way */
-    read_file(&file_bytes, fp, args.offset_start, args.offset_end);
-    fclose(fp);
+    read_file(&file_bytes, input_fp, args.offset_start, args.offset_end);
+    fclose(input_fp);
 
     /* Obtain the image generation function from the program mode */
     generation_func_ptr_t generation_func =
@@ -62,12 +62,18 @@ int main(int argc, char** argv) {
     if (args.transform_squares_side > 1)
         image_transform_squares(image, args.transform_squares_side);
 
+    FILE* output_fp = fopen(args.output_filename, "wb");
+    if (output_fp == NULL)
+        DIE("Can't open file '%s': %s", args.output_filename, strerror(errno));
+
     /* Write the 'Image' structure to the PNG file */
-    export_png(image, args.output_filename, args.output_zoom);
+    export_png(image, output_fp, args.output_zoom);
 
     /* We are done with the image, free it */
     image_deinit(image);
     free(image);
+
+    fclose(output_fp);
 
     return 0;
 }
