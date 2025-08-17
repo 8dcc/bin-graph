@@ -19,14 +19,14 @@
 #ifndef EXPORT_H_
 #define EXPORT_H_ 1
 
+#include <stdbool.h>
+
 #include "image.h"
 
 /*
  * Export the specified 'Image' structure into a PNG file with the specified
  * name, using 'zoom' for scaling.
- *
- * TODO: Return boolean instead of using 'DIE'.
  */
-void export_png(Image* image, const char* filename, int zoom);
+bool export_png(Image* image, const char* filename, int zoom);
 
 #endif /* EXPORT_H_ */

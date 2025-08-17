@@ -17,6 +17,7 @@
  */
 
 #include <errno.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -30,19 +31,25 @@
 /* Bytes per pixel of the PNG image (R, G, B) */
 #define PNG_BPP 3
 
-void export_png(Image* image, const char* filename, int zoom) {
+bool export_png(Image* image, const char* filename, int zoom) {
     FILE* fd = fopen(filename, "wb");
-    if (fd == NULL)
-        DIE("Can't open file '%s': %s", filename, strerror(errno));
+    if (fd == NULL) {
+        ERR("Can't open file '%s': %s", filename, strerror(errno));
+        return false;
+    }
 
     png_structp png =
       png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-    if (png == NULL)
-        DIE("Can't create 'png_structp'. Aborting.");
+    if (png == NULL) {
+        ERR("Can't create 'png_structp'.");
+        return false;
+    }
 
     png_infop info = png_create_info_struct(png);
-    if (info == NULL)
-        DIE("Can't create 'png_infop'. Aborting.");
+    if (info == NULL) {
+        ERR("Can't create 'png_infop'.");
+        return false;
+    }
 
     /* The actual PNG image dimensions, remember that the Image is unscaled */
     const size_t png_height = image->height * zoom;
@@ -62,17 +69,21 @@ void export_png(Image* image, const char* filename, int zoom) {
     png_write_info(png, info);
 
     /*
-     * Allocate the PNG rows. Since png_bytep is typedef'd to a pointer, this is
-     * a (void**).
+     * Allocate the PNG rows. Since 'png_bytep' is typedef'd to a pointer, this
+     * is a (void**).
      */
     png_bytep* rows = calloc(png_height, sizeof(png_bytep));
-    if (rows == NULL)
-        DIE("Failed to allocate PNG rows");
+    if (rows == NULL) {
+        ERR("Failed to allocate PNG rows array.");
+        return false;
+    }
 
     for (size_t y = 0; y < png_height; y++) {
         rows[y] = malloc(png_width * PNG_BPP);
-        if (rows[y] == NULL)
-            DIE("Failed to allocate PNG row %zu", y);
+        if (rows[y] == NULL) {
+            ERR("Failed to allocate PNG row #%zu.", y);
+            return false;
+        }
     }
 
     /*
@@ -109,6 +120,8 @@ void export_png(Image* image, const char* filename, int zoom) {
         free(rows[y]);
     free(rows);
 
-    fclose(fd);
     png_destroy_write_struct(&png, &info);
+    fclose(fd);
+
+    return true;
 }
