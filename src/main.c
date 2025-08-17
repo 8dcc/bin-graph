@@ -26,6 +26,7 @@
 #include "include/read_file.h"
 #include "include/image.h"
 #include "include/generate.h"
+#include "include/export.h"
 #include "include/util.h"
 
 int main(int argc, char** argv) {
@@ -61,8 +62,8 @@ int main(int argc, char** argv) {
     if (args.transform_squares_side > 1)
         image_transform_squares(image, args.transform_squares_side);
 
-    /* Write the Image structure to the PNG file */
-    image2png(image, args.output_filename, args.output_zoom);
+    /* Write the 'Image' structure to the PNG file */
+    export_png(image, args.output_filename, args.output_zoom);
 
     /* We are done with the image, free it */
     image_deinit(image);

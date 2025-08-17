@@ -53,10 +53,4 @@ void image_deinit(Image* image);
  */
 void image_transform_squares(Image* image, size_t square_side);
 
-/*
- * Write the specified 'Image' structure into a PNG file with the specified
- * name, using 'zoom' for scaling.
- */
-void image2png(Image* image, const char* filename, int zoom);
-
 #endif /* IMAGE_H_ */
