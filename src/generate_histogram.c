@@ -62,16 +62,15 @@ Image* generate_histogram(const Args* args, ByteArray* bytes) {
         return NULL;
     assert(image->height == 256);
 
-    /*
-     * TODO: Perhaps abstract "occurrence counting" logic into a separate static
-     * function.
-     */
-    uint8_t most_frequent = 0;
-    size_t* occurrences   = calloc(256, sizeof(size_t));
+    size_t* occurrences = calloc(256, sizeof(size_t));
     if (occurrences == NULL)
         return NULL;
 
-    /* Store the occurrences including the most frequent byte */
+    /*
+     * Count the number of occurrences of each byte, also storing which is the
+     * most frequent byte.
+     */
+    uint8_t most_frequent = 0;
     for (size_t i = 0; i < bytes->size; i++) {
         const uint8_t byte = bytes->data[i];
         occurrences[byte]++;
