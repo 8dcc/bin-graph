@@ -125,6 +125,11 @@ static struct {
       .name   = "png",
       .desc   = "Export to a PNG file.",
     },
+    {
+      .format = ARGS_OUTPUT_FORMAT_ASCII,
+      .name   = "ascii",
+      .desc   = "Export to a text file or terminal.",
+    },
 };
 
 /*
