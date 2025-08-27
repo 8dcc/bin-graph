@@ -25,8 +25,29 @@
 #include "image.h"
 
 /*
+ * Pointer to a function that exports an 'Image' into an output file.
+ */
+typedef bool (*export_func_ptr_t)(const Args* args,
+                                  const Image* image,
+                                  FILE* output_fp);
+
+/*
  * Export the specified 'Image' structure into the specified PNG file.
  */
 bool export_png(const Args* args, const Image* image, FILE* output_fp);
+
+/*----------------------------------------------------------------------------*/
+
+/*
+ * Return a pointer to the export function associated to a specific mode.
+ */
+static inline export_func_ptr_t export_func_from_output_format(
+  enum EArgsOutputFormat format) {
+    switch (format) {
+        case ARGS_OUTPUT_FORMAT_PNG:
+            return export_png;
+    }
+    return NULL;
+}
 
 #endif /* EXPORT_H_ */

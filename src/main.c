@@ -34,7 +34,10 @@ int main(int argc, char** argv) {
     args_init(&args);
     args_parse(&args, argc, argv);
 
-    /* Open the input for reading */
+    /*
+     * Open the input for reading.
+     * TODO: Support "-" as a filename for standard input.
+     */
     FILE* input_fp = fopen(args.input_filename, "rb");
     if (input_fp == NULL)
         DIE("Can't open file '%s': %s", args.input_filename, strerror(errno));
@@ -62,12 +65,21 @@ int main(int argc, char** argv) {
     if (args.transform_squares_side > 1)
         image_transform_squares(image, args.transform_squares_side);
 
+    /*
+     * Open the output file for writing.
+     * TODO: Support "-" as a filename for standard output.
+     */
     FILE* output_fp = fopen(args.output_filename, "wb");
     if (output_fp == NULL)
         DIE("Can't open file '%s': %s", args.output_filename, strerror(errno));
 
-    /* Write the 'Image' structure to the PNG file */
-    export_png(&args, image, output_fp);
+    /* Obtain the export function from the program arguments */
+    export_func_ptr_t export_func =
+      export_func_from_output_format(args.output_format);
+    assert(export_func != NULL);
+
+    /* Export the 'Image' structure to the file */
+    export_func(&args, image, output_fp);
 
     /* We are done with the image, free it */
     image_deinit(image);

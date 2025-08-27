@@ -47,8 +47,10 @@ enum ELongOptionIds {
     LONGOPT_OFFSET_START = 256,
     LONGOPT_OFFSET_END,
     LONGOPT_BLOCK_SIZE,
+    LONGOPT_OUTPUT_FORMAT,
     LONGOPT_TRANSFORM_SQUARES,
     LONGOPT_LIST_MODES,
+    LONGOPT_LIST_OUTPUT_FORMATS,
 };
 
 /*
@@ -111,6 +113,21 @@ static struct {
 };
 
 /*
+ * Output format names and descriptions used when parsing the program arguments.
+ */
+static struct {
+    enum EArgsOutputFormat format;
+    const char* name;
+    const char* desc;
+} g_output_formats[] = {
+    {
+      .format = ARGS_OUTPUT_FORMAT_PNG,
+      .name   = "png",
+      .desc   = "Export to a PNG file.",
+    },
+};
+
+/*
  * Command-line options used by the Argp library.
  */
 static struct argp_option options[] = {
@@ -152,6 +169,15 @@ static struct argp_option options[] = {
     },
     { NULL, 0, NULL, 0, "Output options", 3 },
     {
+      "output-format",
+      LONGOPT_OUTPUT_FORMAT,
+      "FORMAT",
+      0,
+      "Set the output format to FORMAT. Use `--list-output-formats' for a list "
+      "of available options.",
+      3,
+    },
+    {
       "zoom",
       'z',
       "FACTOR",
@@ -189,6 +215,15 @@ static struct argp_option options[] = {
       "descriptions.",
       4,
     },
+    {
+      "list-output-formats",
+      LONGOPT_LIST_OUTPUT_FORMATS,
+      NULL,
+      0,
+      "List the availiable values for the `--output-format' option, along with "
+      "their descriptions.",
+      4,
+    },
     { NULL, 0, NULL, 0, NULL, 0 }
 };
 
@@ -205,7 +240,22 @@ static bool mode_name_to_enumerator(const char* name, enum EArgsMode* out) {
             return true;
         }
     }
+    return false;
+}
 
+/*
+ * Write the corresponding output format enumerator from its name. The function
+ * returns true on success, or false if the provided name does not match any
+ * known output format.
+ */
+static bool output_format_name_to_enumerator(const char* name,
+                                             enum EArgsOutputFormat* out) {
+    for (size_t i = 0; i < LENGTH(g_output_formats); i++) {
+        if (strcmp(name, g_output_formats[i].name) == 0) {
+            *out = g_output_formats[i].format;
+            return true;
+        }
+    }
     return false;
 }
 
@@ -253,6 +303,18 @@ static error_t parse_opt(int key, char* arg, struct argp_state* state) {
                 argp_usage(state);
             }
             parsed_args->output_width = signed_width;
+        } break;
+
+        case LONGOPT_OUTPUT_FORMAT: {
+            if (!output_format_name_to_enumerator(arg,
+                                                  &parsed_args
+                                                     ->output_format)) {
+                fprintf(state->err_stream,
+                        "%s: Unknown output format '%s'\n",
+                        state->name,
+                        arg);
+                argp_usage(state);
+            }
         } break;
 
         case LONGOPT_OFFSET_START: {
@@ -305,6 +367,16 @@ static error_t parse_opt(int key, char* arg, struct argp_state* state) {
                 printf("* %s: %s\n",
                        g_mode_names[i].name,
                        g_mode_names[i].desc);
+            }
+            exit(0);
+        } break;
+
+        case LONGOPT_LIST_OUTPUT_FORMATS: {
+            /* TODO: Wrap descriptions to column 80 when priting */
+            for (size_t i = 0; i < LENGTH(g_output_formats); i++) {
+                printf("* %s: %s\n",
+                       g_output_formats[i].name,
+                       g_output_formats[i].desc);
             }
             exit(0);
         } break;
@@ -387,5 +459,12 @@ const char* args_get_mode_name(enum EArgsMode mode) {
     for (size_t i = 0; i < LENGTH(g_mode_names); i++)
         if (g_mode_names[i].mode == mode)
             return g_mode_names[i].name;
+    return "???";
+}
+
+const char* args_get_output_format_name(enum EArgsOutputFormat format) {
+    for (size_t i = 0; i < LENGTH(g_output_formats); i++)
+        if (g_output_formats[i].format == format)
+            return g_output_formats[i].name;
     return "???";
 }

@@ -43,6 +43,10 @@ enum EArgsMode {
     ARGS_MODE_DOTPLOT,
 };
 
+enum EArgsOutputFormat {
+    ARGS_OUTPUT_FORMAT_PNG,
+};
+
 /*----------------------------------------------------------------------------*/
 
 /*
@@ -59,6 +63,9 @@ typedef struct args {
 
     /* Block size used in some modes like 'ARGS_MODE_ENTROPY' */
     size_t block_size;
+
+    /* Output format */
+    enum EArgsOutputFormat output_format;
 
     /* Width in pixels of the output image (before applying the zoom) */
     int output_width;
@@ -93,5 +100,10 @@ void args_parse(Args* args, int argc, char** argv);
  * Get the name of the specified mode enumerator.
  */
 const char* args_get_mode_name(enum EArgsMode mode);
+
+/*
+ * Get the name of the specified output format enumerator.
+ */
+const char* args_get_output_format_name(enum EArgsOutputFormat format);
 
 #endif /* ARGS_H_ */
