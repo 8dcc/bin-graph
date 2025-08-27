@@ -31,7 +31,7 @@
 /* Bytes per pixel of the PNG image (R, G, B) */
 #define PNG_BPP 3
 
-bool export_png(const Image* image, FILE* output_fp, int zoom) {
+bool export_png(const Args* args, const Image* image, FILE* output_fp) {
     png_structp png =
       png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
     if (png == NULL) {
@@ -46,6 +46,7 @@ bool export_png(const Image* image, FILE* output_fp, int zoom) {
     }
 
     /* The actual PNG image dimensions, remember that the Image is unscaled */
+    const int zoom          = args->output_zoom;
     const size_t png_height = image->height * zoom;
     const size_t png_width  = image->width * zoom;
 
@@ -89,7 +90,7 @@ bool export_png(const Image* image, FILE* output_fp, int zoom) {
      */
     for (size_t y = 0; y < image->height; y++) {
         for (size_t x = 0; x < image->width; x++) {
-            Color color = image->pixels[image->width * y + x];
+            const Color color = image->pixels[image->width * y + x];
 
             /* Draw a rectangle of side 'zoom' */
             for (int rect_y = 0; rect_y < zoom; rect_y++) {

@@ -67,7 +67,7 @@ int main(int argc, char** argv) {
         DIE("Can't open file '%s': %s", args.output_filename, strerror(errno));
 
     /* Write the 'Image' structure to the PNG file */
-    export_png(image, output_fp, args.output_zoom);
+    export_png(&args, image, output_fp);
 
     /* We are done with the image, free it */
     image_deinit(image);
