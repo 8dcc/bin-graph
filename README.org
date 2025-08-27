@@ -49,25 +49,52 @@ sudo make install
 
 * Usage and modes
 
-There are various different graph modes that determine how the input binary is
-represented in the output image. The full mode list with their descriptions can
-be found with the program's =help= command.
+To see the full program usage, use the =--help= argument.
 
 #+begin_src bash
 bin-graph --help
-# Usage:
-#   ./bin-graph [OPTION...] INPUT OUTPUT.png
+# Usage: bin-graph [OPTION...] INPUT OUTPUT
+# Simple program for visualizing binary files.
 #
 # ...
 #+end_src
 
-This project also includes a [[file:scripts/bin-graph-section.sh][bin-graph-section.sh]] script. It uses =readelf= and
-=grep= to find the offset and size of the specified region, and uses that as the
-=--offset-*= arguments for =bin-graph=. Additional options after the section name
-will be passed to =bin-graph=.
+The main behavior of the program is determined by the "generation mode", which
+affects how the input binary is represented in the output graph. This is
+controlled by the =--mode= option, and the list of available values, along with
+their descriptions, can be printed with the =--list-modes= argument.
+
+#+begin_src bash
+bin-graph --list-modes
+# * grayscale: The brightness of each pixel represents the value of each sample
+#   (00..FF).
+# * ascii: The color of each pixel represents the "printability" of each sample
+#   in a linear way. Black represents a null byte (00), white represents a set
+#   byte (FF), blue represents printable characters and red represents any other
+#   value.
+# ...
+#+end_src
+
+* Scripts
+
+This project also includes some bash scripts that extend the functionality of
+the main program.
+
+The [[file:scripts/bin-graph-section.sh][bin-graph-section.sh]] script uses =readelf= and =grep= to find the offset and
+size of the specified ELF section, and uses that as the =--offset-*= arguments for
+=bin-graph=. Additional options after the section name will be passed to
+=bin-graph=.
 
 #+begin_src bash
 ./scripts/bin-graph-section.sh SECTION [OPTION...] INPUT OUTPUT.png
+# ...
+#+end_src
+
+The [[file:scripts/bin-graph-hexdump.sh][bin-graph-hexdump.sh]] script prints the output of a hexdump command (=xxd=)
+side-by-side with the ANSI-escaped output of =bin-graph=.
+
+#+begin_src bash
+./scripts/bin-graph-hexdump.sh [OPTION...] INPUT
 # ...
 #+end_src
 
@@ -78,17 +105,17 @@ for more maintainability and for easier expansion.
 
 This is the basic process for generating an image from a binary.
 
-1. The arguments are parsed, and the necessary global variables in [[file:src/args.c][args.c]] are
-   overwritten. These will be used from all the sources.
-2. The data is read from the input file as a byte array, using the =read_file=
+1. The arguments are /parsed/ by [[https://www.gnu.org/software/libc/manual/html_node/Argp.html][the =argp= library]] from =args.c= into an =Args=
+   structure. Some common checks are performed in this stage, but most modes
+   also have their own mode-specific conditions.
+2. The data is /read/ from the input file as a byte array, using the =read_file=
    function, defined in [[file:src/read_file.c][read_file.c]].
-3. The array of bytes is converted into an =Image= structure, which is just an
-   array of RGB =Color= structures, along with its dimensions. The program mode
-   (which might have been overwritten with the =--mode= parameter) determines what
-   =image_*= function is used. These =image_*= functions are defined in [[file:src/image.c][image.c]]. For
-   more information on the available modes, see [[*Usage and modes][Usage and modes]].
-4. The =Image= structure is converted into a PNG file with the =image2png= function,
-   defined in [[file:src/image.c][image.c]].
+3. An =Image= structure is /generated/ from the byte array, using a different
+   generation function depending on the main program mode. This =Image= structure
+   is stored in memory as an array of RGB =Color= structures along with the image
+   dimensions.
+4. The =Image= structure is /exported/ into the output file depending on the output
+   format (e.g. into a PNG file, or as ANSI escaped text).
 
 * Screenshots
 
