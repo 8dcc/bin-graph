@@ -59,7 +59,7 @@ int main(int argc, char** argv) {
     Image* image = generation_func(&args, &file_bytes);
 
     /* We are done with the initial file bytes, free them */
-    byte_array_free(&file_bytes);
+    byte_array_destroy(&file_bytes);
 
     /* Perform different transformations to the generated image */
     if (args.transform_squares_side > 1)

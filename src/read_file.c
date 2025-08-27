@@ -28,7 +28,10 @@
 #include "include/read_file.h"
 #include "include/util.h"
 
-size_t get_file_size(FILE* fp) {
+/*
+ * Return the size of a file using 'fseek' and 'ftell'.
+ */
+static size_t get_file_size(FILE* fp) {
     /* Preserve current position in the file */
     const long old_position = ftell(fp);
     if (old_position < 0)
@@ -46,7 +49,15 @@ size_t get_file_size(FILE* fp) {
     return file_sz;
 }
 
-void get_real_offsets(FILE* fp, size_t* offset_start, size_t* offset_end) {
+/*
+ * Validate and translate the offsets of a file.
+ * It validates that:
+ *   - Both offsets are within the file limits.
+ *   - The end offset is greater or equal than the start offset.
+ * It also translates:
+ *   - A zero end offset, which translates to the EOF.
+ */
+static void get_real_offsets(FILE* fp, size_t* offset_start, size_t* offset_end) {
     const size_t file_sz = get_file_size(fp);
 
     /* Make sure the offsets are not out of bounds */
@@ -100,7 +111,7 @@ void byte_array_init(ByteArray* bytes,
         DIE("Failed to allocate the byte array (%zu bytes)", bytes->size);
 }
 
-void byte_array_free(ByteArray* bytes) {
+void byte_array_destroy(ByteArray* bytes) {
     free(bytes->data);
     bytes->data = NULL;
 }
