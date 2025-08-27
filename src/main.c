@@ -65,11 +65,10 @@ int main(int argc, char** argv) {
     if (args.transform_squares_side > 1)
         image_transform_squares(image, args.transform_squares_side);
 
-    /*
-     * Open the output file for writing.
-     * TODO: Support "-" as a filename for standard output.
-     */
-    FILE* output_fp = fopen(args.output_filename, "wb");
+    /* Open the output file for writing */
+    FILE* output_fp = (strcmp(args.output_filename, "-") == 0)
+                        ? stdout
+                        : fopen(args.output_filename, "wb");
     if (output_fp == NULL)
         DIE("Can't open file '%s': %s", args.output_filename, strerror(errno));
 
