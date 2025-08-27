@@ -63,40 +63,47 @@ const char* argp_program_bug_address = "<8dcc.git@gmail.com>";
  * Mode names and descriptions used when parsing the program arguments.
  */
 static struct {
+    enum EArgsMode mode;
     const char* name;
     const char* desc;
 } g_mode_names[] = {
-    [ARGS_MODE_GRAYSCALE] = {
+    {
+      .mode = ARGS_MODE_GRAYSCALE,
       .name = "grayscale",
       .desc = "The brightness of each pixel represents the value of each "
               "sample (00..FF).",
     },
-    [ARGS_MODE_ASCII] = {
+    {
+      .mode = ARGS_MODE_ASCII,
       .name = "ascii",
       .desc = "The color of each pixel represents the \"printability\" of each "
               "sample in a linear way. Black represents a null byte (00), "
               "white represents a set byte (FF), blue represents printable "
               "characters and red represents any other value.",
     },
-    [ARGS_MODE_ENTROPY] = {
+    {
+      .mode = ARGS_MODE_ENTROPY,
       .name = "entropy",
       .desc = "The intensity of each pixel represents its entropy (i.e. its "
               "\"predictability\"). This is useful for distinguishing "
               "compressed/encrypted from non-compressed chunks.",
     },
-    [ARGS_MODE_HISTOGRAM] = {
+    {
+      .mode = ARGS_MODE_HISTOGRAM,
       .name = "histogram",
       .desc = "Each row represents a byte (00..FF), and the width of each line "
               "represents the frequency of that byte relative to the most "
               "frequent one.",
     },
-    [ARGS_MODE_BIGRAMS] = {
+    {
+      .mode = ARGS_MODE_BIGRAMS,
       .name = "bigrams",
       .desc = "The coordinates of each point are determined by a pair of "
               "samples in the input. This can be used to identify patterns of "
               "different file formats.",
     },
-    [ARGS_MODE_DOTPLOT] = {
+    {
+      .mode = ARGS_MODE_DOTPLOT,
       .name = "dotplot",
       .desc = "Measure self-similarity. A point (X,Y) in the graph shows if "
               "the X-th sample matches the Y-th sample.",
@@ -192,13 +199,9 @@ static struct argp_option options[] = {
  * true on success, or false if the provided name does not match any known mode.
  */
 static bool mode_name_to_enumerator(const char* name, enum EArgsMode* out) {
-    /*
-     * NOTE: This assumes that the mode enumerators start from zero, and are
-     * sequencial.
-     */
-    for (size_t mode = 0; mode < LENGTH(g_mode_names); mode++) {
-        if (strcmp(name, g_mode_names[mode].name) == 0) {
-            *out = mode;
+    for (size_t i = 0; i < LENGTH(g_mode_names); i++) {
+        if (strcmp(name, g_mode_names[i].name) == 0) {
+            *out = g_mode_names[i].mode;
             return true;
         }
     }
@@ -298,10 +301,10 @@ static error_t parse_opt(int key, char* arg, struct argp_state* state) {
 
         case LONGOPT_LIST_MODES: {
             /* TODO: Wrap descriptions to column 80 when priting */
-            for (size_t mode = 0; mode < LENGTH(g_mode_names); mode++) {
+            for (size_t i = 0; i < LENGTH(g_mode_names); i++) {
                 printf("* %s: %s\n",
-                       g_mode_names[mode].name,
-                       g_mode_names[mode].desc);
+                       g_mode_names[i].name,
+                       g_mode_names[i].desc);
             }
             exit(0);
         } break;
@@ -381,5 +384,8 @@ void args_parse(Args* args, int argc, char** argv) {
 }
 
 const char* args_get_mode_name(enum EArgsMode mode) {
-    return g_mode_names[mode].name;
+    for (size_t i = 0; i < LENGTH(g_mode_names); i++)
+        if (g_mode_names[i].mode == mode)
+            return g_mode_names[i].name;
+    return "???";
 }
