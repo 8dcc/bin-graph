@@ -28,6 +28,6 @@
  * Export the specified 'Image' structure into the specified PNG file, using
  * 'zoom' for scaling.
  */
-bool export_png(Image* image, FILE* output_fp, int zoom);
+bool export_png(const Image* image, FILE* output_fp, int zoom);
 
 #endif /* EXPORT_H_ */

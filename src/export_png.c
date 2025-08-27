@@ -31,7 +31,7 @@
 /* Bytes per pixel of the PNG image (R, G, B) */
 #define PNG_BPP 3
 
-bool export_png(Image* image, FILE* output_fp, int zoom) {
+bool export_png(const Image* image, FILE* output_fp, int zoom) {
     png_structp png =
       png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
     if (png == NULL) {
