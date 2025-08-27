@@ -45,7 +45,7 @@ enum EArgsMode {
 
 enum EArgsOutputFormat {
     ARGS_OUTPUT_FORMAT_PNG,
-    ARGS_OUTPUT_FORMAT_ASCII,
+    ARGS_OUTPUT_FORMAT_ESC_TEXT,
 };
 
 /*----------------------------------------------------------------------------*/

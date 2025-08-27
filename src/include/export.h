@@ -37,10 +37,10 @@ typedef bool (*export_func_ptr_t)(const Args* args,
 bool export_png(const Args* args, const Image* image, FILE* output_fp);
 
 /*
- * Export the specified 'Image' structure into the specified text file (or
- * terminal).
+ * Export the specified 'Image' structure as ANSI-escaped colored text into the
+ * specified text file or terminal.
  */
-bool export_ascii(const Args* args, const Image* image, FILE* output_fp);
+bool export_escaped_text(const Args* args, const Image* image, FILE* output_fp);
 
 /*----------------------------------------------------------------------------*/
 
@@ -52,8 +52,8 @@ static inline export_func_ptr_t export_func_from_output_format(
     switch (format) {
         case ARGS_OUTPUT_FORMAT_PNG:
             return export_png;
-        case ARGS_OUTPUT_FORMAT_ASCII:
-            return export_ascii;
+        case ARGS_OUTPUT_FORMAT_ESC_TEXT:
+            return export_escaped_text;
     }
     return NULL;
 }

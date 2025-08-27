@@ -24,7 +24,7 @@ static void print_ascii_color(FILE* fp, Color color, int zoom) {
 
 /*----------------------------------------------------------------------------*/
 
-bool export_ascii(const Args* args, const Image* image, FILE* output_fp) {
+bool export_escaped_text(const Args* args, const Image* image, FILE* output_fp) {
     for (size_t y = 0; y < image->height; y++) {
         for (size_t x = 0; x < image->width; x++) {
             const Color color = image->pixels[image->width * y + x];

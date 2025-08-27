@@ -26,7 +26,7 @@ set -e
 HEXDUMP='xxd'
 HEXDUMP_ARGS=(-R always)
 BIN_GRAPH='bin-graph'
-BIN_GRAPH_ARGS=(--width 16 --zoom 2 --output-format 'ascii')
+BIN_GRAPH_ARGS=(--width 16 --zoom 2 --output-format 'escaped-text')
 PASTE='paste'
 
 if [ $# -lt 1 ]; then

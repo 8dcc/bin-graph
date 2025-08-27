@@ -123,12 +123,12 @@ static struct {
     {
       .format = ARGS_OUTPUT_FORMAT_PNG,
       .name   = "png",
-      .desc   = "Export to a PNG file.",
+      .desc   = "Export as a PNG file with colored pixels/squares.",
     },
     {
-      .format = ARGS_OUTPUT_FORMAT_ASCII,
-      .name   = "ascii",
-      .desc   = "Export to a text file or terminal.",
+      .format = ARGS_OUTPUT_FORMAT_ESC_TEXT,
+      .name   = "escaped-text",
+      .desc   = "Export as ANSI-escaped colored text.",
     },
 };
 
@@ -442,6 +442,7 @@ void args_init(Args* args) {
     args->output_filename        = NULL;
     args->mode                   = ARGS_MODE_ASCII;
     args->block_size             = ARGS_DEFAULT_BLOCK_SIZE;
+    args->output_format          = ARGS_OUTPUT_FORMAT_PNG;
     args->output_width           = ARGS_DEFAULT_OUTPUT_WIDTH;
     args->offset_start           = 0;
     args->offset_end             = 0;
