@@ -19,9 +19,9 @@
 #ifndef GENERATE_H_
 #define GENERATE_H_ 1
 
-#include "args.h"      /* Args */
-#include "read_file.h" /* ByteArray */
-#include "image.h"     /* Image */
+#include "args.h"       /* Args */
+#include "byte_array.h" /* ByteArray */
+#include "image.h"      /* Image */
 
 /*
  * Pointer to a function that generates an 'Image' from a 'ByteArray'.

@@ -22,7 +22,7 @@
 #include "include/generate.h"
 #include "include/image.h"
 #include "include/args.h"
-#include "include/read_file.h"
+#include "include/byte_array.h"
 #include "include/util.h"
 
 static bool validate_args(const Args* args) {

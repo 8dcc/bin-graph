@@ -23,7 +23,7 @@
 
 #include "include/image.h"
 #include "include/args.h"
-#include "include/read_file.h"
+#include "include/byte_array.h"
 #include "include/util.h"
 
 bool image_init(Image* image, size_t width, size_t height) {

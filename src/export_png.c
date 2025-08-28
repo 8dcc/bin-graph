@@ -26,7 +26,7 @@
 
 #include "include/export.h"
 #include "include/image.h"
-#include "include/read_file.h"
+#include "include/byte_array.h"
 #include "include/util.h"
 
 /* Bytes per pixel of the PNG image (R, G, B) */
