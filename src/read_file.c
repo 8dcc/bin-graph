@@ -24,8 +24,9 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "include/args.h"
 #include "include/read_file.h"
+#include "include/args.h"
+#include "include/byte_array.h"
 #include "include/util.h"
 
 /*
@@ -57,7 +58,9 @@ static size_t get_file_size(FILE* fp) {
  * It also translates:
  *   - A zero end offset, which translates to the EOF.
  */
-static void get_real_offsets(FILE* fp, size_t* offset_start, size_t* offset_end) {
+static void get_real_offsets(FILE* fp,
+                             size_t* offset_start,
+                             size_t* offset_end) {
     const size_t file_sz = get_file_size(fp);
 
     /* Make sure the offsets are not out of bounds */
@@ -77,12 +80,17 @@ static void get_real_offsets(FILE* fp, size_t* offset_start, size_t* offset_end)
             *offset_start);
 }
 
+/*----------------------------------------------------------------------------*/
+
 void read_file(ByteArray* dst,
                FILE* fp,
                size_t offset_start,
                size_t offset_end) {
     /* Ensure these are real and valid offsets */
     get_real_offsets(fp, &offset_start, &offset_end);
+
+    /* Initialize the 'ByteArray' structure with the real offsets */
+    byte_array_init(dst, offset_end - offset_start);
 
     /* Move to the starting offset */
     if (fseek(fp, offset_start, SEEK_SET) != 0)
@@ -94,24 +102,4 @@ void read_file(ByteArray* dst,
     /* Read the bytes from the file */
     for (size_t i = 0; i < dst->size; i++)
         dst->data[i] = fgetc(fp);
-}
-
-/*----------------------------------------------------------------------------*/
-
-void byte_array_init(ByteArray* bytes,
-                     FILE* fp,
-                     size_t offset_start,
-                     size_t offset_end) {
-    /* Ensure these are real and valid offsets */
-    get_real_offsets(fp, &offset_start, &offset_end);
-
-    bytes->size = offset_end - offset_start;
-    bytes->data = calloc(bytes->size, sizeof(uint8_t));
-    if (bytes->data == NULL)
-        DIE("Failed to allocate the byte array (%zu bytes)", bytes->size);
-}
-
-void byte_array_destroy(ByteArray* bytes) {
-    free(bytes->data);
-    bytes->data = NULL;
 }

@@ -42,11 +42,8 @@ int main(int argc, char** argv) {
     if (input_fp == NULL)
         DIE("Can't open file '%s': %s", args.input_filename, strerror(errno));
 
-    /* Allocate the bytes needed for reading this chunk of the file */
+    /* Read and store the file bytes in a 'ByteArray' */
     ByteArray file_bytes;
-    byte_array_init(&file_bytes, input_fp, args.offset_start, args.offset_end);
-
-    /* Read and store the file bytes in a linear way */
     read_file(&file_bytes, input_fp, args.offset_start, args.offset_end);
     fclose(input_fp);
 

@@ -16,21 +16,29 @@
  * this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef READ_FILE_H_
-#define READ_FILE_H_ 1
+#ifndef BYTE_ARRAY_H_
+#define BYTE_ARRAY_H_ 1
 
 #include <stddef.h>
-#include <stdio.h> /* FILE */
+#include <stdint.h>
+#include <stdbool.h>
 
-#include "byte_array.h"
+typedef struct ByteArray {
+    uint8_t* data;
+    size_t size;
+} ByteArray;
 
 /*
- * Read the bytes of a file in a linear way from the starting offset to the end
- * offset. Internally calls 'get_real_offsets' to ensure they are valid.
+ * Initialize a 'ByteArray' structure with the specified size. The caller is
+ * responsible for deinitializing the structure with 'byte_array_destroy'.
  */
-void read_file(ByteArray* dst,
-               FILE* fp,
-               size_t offset_start,
-               size_t offset_end);
+bool byte_array_init(ByteArray* array, size_t size);
 
-#endif /* READ_FILE_H_ */
+/*
+ * Destroy a 'ByteArray' structure, freeing its members. Doesn't free the
+ * 'ByteArray' structure itself.
+ */
+void byte_array_destroy(ByteArray* array);
+
+
+#endif /* BYTE_ARRAY_H_ */

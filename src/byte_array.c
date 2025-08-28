@@ -16,21 +16,25 @@
  * this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef READ_FILE_H_
-#define READ_FILE_H_ 1
-
 #include <stddef.h>
-#include <stdio.h> /* FILE */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 
-#include "byte_array.h"
+#include "include/byte_array.h"
 
-/*
- * Read the bytes of a file in a linear way from the starting offset to the end
- * offset. Internally calls 'get_real_offsets' to ensure they are valid.
- */
-void read_file(ByteArray* dst,
-               FILE* fp,
-               size_t offset_start,
-               size_t offset_end);
+bool byte_array_init(ByteArray* array, size_t size) {
+    array->size = size;
+    array->data = calloc(array->size, sizeof(uint8_t));
+    if (array->data == NULL)
+        return false;
 
-#endif /* READ_FILE_H_ */
+    return true;
+}
+
+void byte_array_destroy(ByteArray* array) {
+    if (array->data != NULL) {
+        free(array->data);
+        array->data = NULL;
+    }
+}
