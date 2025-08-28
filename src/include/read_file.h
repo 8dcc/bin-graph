@@ -20,15 +20,20 @@
 #define READ_FILE_H_ 1
 
 #include <stddef.h>
+#include <stdbool.h>
 #include <stdio.h> /* FILE */
 
 #include "byte_array.h"
 
 /*
  * Read the bytes of a file in a linear way from the starting offset to the end
- * offset. Internally calls 'get_real_offsets' to ensure they are valid.
+ * offset. This function returns true on success, or false otherwise.
+ *
+ * Note that this function expects the file position to be on the first byte,
+ * that is, the 'offset_start' and 'offset_end' arguments are actually relative
+ * to the current file position.
  */
-void read_file(ByteArray* dst,
+bool read_file(ByteArray* dst,
                FILE* fp,
                size_t offset_start,
                size_t offset_end);

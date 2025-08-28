@@ -18,6 +18,7 @@
 
 #include <errno.h>
 #include <stdbool.h>
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -46,6 +47,7 @@ bool export_png(const Args* args, const Image* image, FILE* output_fp) {
     }
 
     /* The actual PNG image dimensions, remember that the Image is unscaled */
+    assert(image->height > 0 && image->width > 0);
     const int zoom          = args->output_zoom;
     const size_t png_height = image->height * zoom;
     const size_t png_width  = image->width * zoom;

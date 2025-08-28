@@ -18,88 +18,42 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include <assert.h>
-#include <errno.h>
 #include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+#include <assert.h>
 
 #include "include/read_file.h"
 #include "include/args.h"
 #include "include/byte_array.h"
 #include "include/util.h"
 
-/*
- * Return the size of a file using 'fseek' and 'ftell'.
- */
-static size_t get_file_size(FILE* fp) {
-    /* Preserve current position in the file */
-    const long old_position = ftell(fp);
-    if (old_position < 0)
-        DIE("Failed to get file position: %s", strerror(errno));
-
-    /* Move to the end of the file, and obtain the size */
-    if (fseek(fp, 0L, SEEK_END) < 0)
-        DIE("Could not move to the end of file: %s", strerror(errno));
-    const long file_sz = ftell(fp);
-    if (file_sz < 0)
-        DIE("Failed to get file position: %s", strerror(errno));
-
-    /* Restore the old position and return the total size in bytes */
-    fseek(fp, old_position, SEEK_SET);
-    return file_sz;
-}
-
-/*
- * Validate and translate the offsets of a file.
- * It validates that:
- *   - Both offsets are within the file limits.
- *   - The end offset is greater or equal than the start offset.
- * It also translates:
- *   - A zero end offset, which translates to the EOF.
- */
-static void get_real_offsets(FILE* fp,
-                             size_t* offset_start,
-                             size_t* offset_end) {
-    const size_t file_sz = get_file_size(fp);
-
-    /* Make sure the offsets are not out of bounds */
-    if (*offset_start > file_sz || *offset_end > file_sz)
-        DIE("An offset (%zX, %zX) was bigger than the file size (%zX)",
-            *offset_start,
-            *offset_end,
-            file_sz);
-
-    /* If the global offset is zero, it means end of the file. Overwrite it */
-    if (*offset_end == 0)
-        *offset_end = file_sz;
-
-    if (*offset_end <= *offset_start)
-        DIE("End offset (%zX) was smaller or equal than the start offset (%zX)",
-            *offset_end,
-            *offset_start);
-}
-
-/*----------------------------------------------------------------------------*/
-
-void read_file(ByteArray* dst,
+bool read_file(ByteArray* dst,
                FILE* fp,
                size_t offset_start,
                size_t offset_end) {
-    /* Ensure these are real and valid offsets */
-    get_real_offsets(fp, &offset_start, &offset_end);
+    assert(offset_end >= offset_start);
 
-    /* Initialize the 'ByteArray' structure with the real offsets */
-    byte_array_init(dst, offset_end - offset_start);
+    /* Allocate and initialize the 'ByteArray' structure */
+    const size_t initial_size =
+      (offset_end == 0) ? 255 : offset_end - offset_start;
+    byte_array_init(dst, initial_size);
 
-    /* Move to the starting offset */
-    if (fseek(fp, offset_start, SEEK_SET) != 0)
-        DIE("fseek() failed with offset 0x%zX. Errno: %s (%d)",
-            offset_start,
-            strerror(errno),
-            errno);
+    /* Skip initial bytes */
+    int last_char = 0;
+    for (size_t i = 0; i < offset_start && last_char != EOF; i++)
+        last_char = fgetc(fp);
 
-    /* Read the bytes from the file */
-    for (size_t i = 0; i < dst->size; i++)
-        dst->data[i] = fgetc(fp);
+    /* Read the target bytes from the file, resizing it dynamically */
+    size_t i;
+    for (i = 0; last_char != EOF && (offset_end == 0 || i < offset_end); i++) {
+        if (i >= dst->size && !byte_array_resize(dst, dst->size * 2))
+            return false;
+
+        dst->data[i] = last_char = fgetc(fp);
+    }
+
+    /* Overwrite with the actual length */
+    assert(i <= dst->size);
+    dst->size = i;
+
+    return true;
 }
