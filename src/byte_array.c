@@ -32,6 +32,16 @@ bool byte_array_init(ByteArray* array, size_t size) {
     return true;
 }
 
+bool byte_array_resize(ByteArray* array, size_t new_size) {
+    void* new_ptr = realloc(array->data, new_size);
+    if (new_ptr == NULL)
+        return false;
+
+    array->data = new_ptr;
+    array->size = new_size;
+    return true;
+}
+
 void byte_array_destroy(ByteArray* array) {
     if (array->data != NULL) {
         free(array->data);

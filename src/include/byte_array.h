@@ -29,10 +29,19 @@ typedef struct ByteArray {
 } ByteArray;
 
 /*
- * Initialize a 'ByteArray' structure with the specified size. The caller is
- * responsible for deinitializing the structure with 'byte_array_destroy'.
+ * Initialize a 'ByteArray' structure with the specified size. This function
+ * returns true on success, or false otherwise.
+ *
+ * The caller is responsible for deinitializing the structure with
+ * 'byte_array_destroy'.
  */
 bool byte_array_init(ByteArray* array, size_t size);
+
+/*
+ * Resize a 'ByteArray' structure to the specified size. This function returns
+ * true on success, or false otherwise.
+ */
+bool byte_array_resize(ByteArray* array, size_t new_size);
 
 /*
  * Destroy a 'ByteArray' structure, freeing its members. Doesn't free the
