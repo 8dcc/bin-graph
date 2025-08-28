@@ -45,11 +45,29 @@ assert_cmd "$HEXDUMP"
 assert_cmd "$BIN_GRAPH"
 assert_cmd "$PASTE"
 
+# Last argument must be the input file.
 input_file="${*: -1}"
-if [ ! -f "$input_file" ]; then
-    echo "$(basename "$0"): Input file '${input_file}' not found." 1>&2
-    exit 1
+
+# Final string of arguments for 'bin-graph'.
+bin_graph_args=("${BIN_GRAPH_ARGS[@]}" "${@:1:$#-1}")
+
+# In order to redirect the standard input to both commands, it needs to be
+# buffered in a temporary file.
+if [ "$input_file" = "-" ]; then
+    tmp_file="$(mktemp --tmpdir "bin-graph-hexdump.XXXXX.bin")"
+    cat "$input_file" > "$tmp_file"
+    input_file="$tmp_file"
 fi
 
+# Merge the output of the hexdump command with the ANSI-encoded output of
+# 'bin-graph'.
+#
+# FIXME: If the last hexdump line is partial, the output of 'bin-graph' is not
+# aligned.
 "$PASTE" <("$HEXDUMP" "${HEXDUMP_ARGS[@]}" "$input_file") \
-         <("$BIN_GRAPH" "${BIN_GRAPH_ARGS[@]}" "$@" '-')
+         <("$BIN_GRAPH" "${bin_graph_args[@]}" "$input_file" '-')
+
+# We are done with the temporary file, delete it.
+if [ -n "$tmp_file" ]; then
+    rm "$tmp_file"
+fi
