@@ -18,13 +18,36 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include <stdio.h>
 #include <assert.h>
+#include <stdio.h>
+#include <string.h>
 
 #include "include/file.h"
 #include "include/args.h"
 #include "include/byte_array.h"
 #include "include/util.h"
+
+#define STDIN_FILENAME  "-"
+#define STDOUT_FILENAME "-"
+
+FILE* file_open(const char* path, enum EFileOpenMode mode) {
+    switch (mode) {
+        case FILE_MODE_READ:
+            if (strcmp(path, STDIN_FILENAME) == 0)
+                return stdin;
+            else
+                return fopen(path, "rb");
+
+        case FILE_MODE_WRITE:
+            if (strcmp(path, STDOUT_FILENAME) == 0)
+                return stdout;
+            else
+                return fopen(path, "wb");
+
+        default:
+            DIE("Invalid mode enumerator. Aborting.");
+    }
+}
 
 bool file_read(ByteArray* dst,
                FILE* fp,

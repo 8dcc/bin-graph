@@ -34,11 +34,8 @@ int main(int argc, char** argv) {
     args_init(&args);
     args_parse(&args, argc, argv);
 
-    /*
-     * Open the input for reading.
-     * TODO: Support "-" as a filename for standard input.
-     */
-    FILE* input_fp = fopen(args.input_filename, "rb");
+    /* Open the input for reading */
+    FILE* input_fp = file_open(args.input_filename, FILE_MODE_READ);
     if (input_fp == NULL)
         DIE("Can't open file '%s': %s", args.input_filename, strerror(errno));
 
@@ -67,9 +64,7 @@ int main(int argc, char** argv) {
         image_transform_squares(image, args.transform_squares_side);
 
     /* Open the output file for writing */
-    FILE* output_fp = (strcmp(args.output_filename, "-") == 0)
-                        ? stdout
-                        : fopen(args.output_filename, "wb");
+    FILE* output_fp = file_open(args.output_filename, FILE_MODE_WRITE);
     if (output_fp == NULL)
         DIE("Can't open file '%s': %s", args.output_filename, strerror(errno));
 

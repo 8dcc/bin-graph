@@ -26,6 +26,26 @@
 #include "byte_array.h"
 
 /*
+ * Enumeration with the available modes for opening files.
+ */
+enum EFileOpenMode {
+    FILE_MODE_READ,
+    FILE_MODE_WRITE,
+};
+
+/*----------------------------------------------------------------------------*/
+
+/*
+ * Open the file at the specified path with the specified mode. This function
+ * supports special strings for specifying 'stdin' and 'stdout', defined in
+ * 'file.c'.
+ *
+ * The caller is responsible for checking if this function returns NULL in case
+ * of error.
+ */
+FILE* file_open(const char* path, enum EFileOpenMode mode);
+
+/*
  * Read the bytes of a file in a linear way from the starting offset to the end
  * offset. This function returns true on success, or false otherwise.
  *
