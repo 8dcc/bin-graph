@@ -21,12 +21,12 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include "include/read_file.h"
+#include "include/file.h"
 #include "include/args.h"
 #include "include/byte_array.h"
 #include "include/util.h"
 
-bool read_file(ByteArray* dst,
+bool file_read(ByteArray* dst,
                FILE* fp,
                size_t offset_start,
                size_t offset_end) {

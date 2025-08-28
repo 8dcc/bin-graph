@@ -16,8 +16,8 @@
  * this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef READ_FILE_H_
-#define READ_FILE_H_ 1
+#ifndef FILE_H_
+#define FILE_H_ 1
 
 #include <stddef.h>
 #include <stdbool.h>
@@ -33,9 +33,9 @@
  * that is, the 'offset_start' and 'offset_end' arguments are actually relative
  * to the current file position.
  */
-bool read_file(ByteArray* dst,
+bool file_read(ByteArray* dst,
                FILE* fp,
                size_t offset_start,
                size_t offset_end);
 
-#endif /* READ_FILE_H_ */
+#endif /* FILE_H_ */

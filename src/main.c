@@ -23,8 +23,8 @@
 #include <string.h>
 
 #include "include/args.h"
-#include "include/read_file.h"
 #include "include/image.h"
+#include "include/file.h"
 #include "include/generate.h"
 #include "include/export.h"
 #include "include/util.h"
@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
 
     /* Read and store the file bytes in a 'ByteArray' */
     ByteArray file_bytes;
-    if (!read_file(&file_bytes, input_fp, args.offset_start, args.offset_end))
+    if (!file_read(&file_bytes, input_fp, args.offset_start, args.offset_end))
         DIE("Error reading file '%s'.", args.input_filename);
     if (file_bytes.size <= 0)
         DIE("Received empty byte array after reading input file. Aborting.");
