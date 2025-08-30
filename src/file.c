@@ -53,7 +53,8 @@ bool file_read(ByteArray* dst,
                FILE* fp,
                size_t offset_start,
                size_t offset_end) {
-    assert(offset_end >= offset_start);
+    const bool has_offset_end = (offset_end != 0);
+    assert(!has_offset_end || offset_end >= offset_start);
 
     /* Allocate and initialize the 'ByteArray' structure */
     const size_t initial_size =
@@ -69,7 +70,7 @@ bool file_read(ByteArray* dst,
     /* Read the target bytes from the file, resizing it dynamically */
     size_t dst_pos;
     for (dst_pos = 0;
-         last_char != EOF && (offset_end == 0 || file_pos < offset_end);
+         last_char != EOF && (!has_offset_end || file_pos < offset_end);
          dst_pos++, file_pos++) {
         if (dst_pos >= dst->size && !byte_array_resize(dst, dst->size * 2))
             return false;
