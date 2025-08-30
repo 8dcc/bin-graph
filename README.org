@@ -98,6 +98,14 @@ side-by-side with the ANSI-escaped output of =bin-graph=.
 # ...
 #+end_src
 
+The [[file:scripts/bin-graph-all-modes.sh][bin-graph-all-modes.sh]] script generates all possible binary graphs from an
+input file by calling =bin-graph= with different =--mode= arguments.
+
+#+begin_src bash
+./scripts/bin-graph-all-modes.sh INPUT
+# ...
+#+end_src
+
 * Overview of the code
 
 I tried to make each part of the program as modular and independent as possible,
