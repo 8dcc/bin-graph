@@ -7,13 +7,15 @@ SRC=main.c args.c byte_array.c image.c util.c file.c generate_ascii.c generate_b
 OBJ=$(addprefix obj/, $(addsuffix .o, $(SRC)))
 
 BIN=bin-graph
+COMPLETION=bin-graph-completion.bash
 
 PREFIX=/usr/local
 BINDIR=$(PREFIX)/bin
+COMPLETIONDIR=$(PREFIX)/share/bash-completion/completions
 
 #-------------------------------------------------------------------------------
 
-.PHONY: all clean install
+.PHONY: all clean install install-bin install-completion
 
 all: $(BIN)
 
@@ -21,8 +23,13 @@ clean:
 	rm -f $(OBJ)
 	rm -f $(BIN)
 
-install: $(BIN)
+install: install-bin install-completion
+
+install-bin: $(BIN)
 	install -D -m 755 $^ -t $(DESTDIR)$(BINDIR)
+
+install-completion: $(COMPLETION)
+	install -D -m 644 $^ $(DESTDIR)$(COMPLETIONDIR)/$(BIN)
 
 #-------------------------------------------------------------------------------
 
