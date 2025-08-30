@@ -55,6 +55,8 @@ int main(int argc, char** argv) {
 
     /* Convert the ByteArray to a color Image depending on the global mode */
     Image* image = generation_func(&args, &file_bytes);
+    if (image == NULL)
+        DIE("Failed to generate image.");
 
     /* We are done with the initial file bytes, free them */
     byte_array_destroy(&file_bytes);
