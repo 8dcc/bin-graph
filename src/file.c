@@ -61,22 +61,25 @@ bool file_read(ByteArray* dst,
     byte_array_init(dst, initial_size);
 
     /* Skip initial bytes */
+    size_t file_pos;
     int last_char = 0;
-    for (size_t i = 0; i < offset_start && last_char != EOF; i++)
+    for (file_pos = 0; file_pos < offset_start && last_char != EOF; file_pos++)
         last_char = fgetc(fp);
 
     /* Read the target bytes from the file, resizing it dynamically */
-    size_t i;
-    for (i = 0; last_char != EOF && (offset_end == 0 || i < offset_end); i++) {
-        if (i >= dst->size && !byte_array_resize(dst, dst->size * 2))
+    size_t dst_pos;
+    for (dst_pos = 0;
+         last_char != EOF && (offset_end == 0 || file_pos < offset_end);
+         dst_pos++, file_pos++) {
+        if (dst_pos >= dst->size && !byte_array_resize(dst, dst->size * 2))
             return false;
 
-        dst->data[i] = last_char = fgetc(fp);
+        dst->data[dst_pos] = last_char = fgetc(fp);
     }
 
     /* Overwrite with the actual length */
-    assert(i <= dst->size);
-    dst->size = i;
+    assert(dst_pos <= dst->size);
+    dst->size = dst_pos;
 
     return true;
 }
