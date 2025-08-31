@@ -23,6 +23,15 @@
 #include <stdlib.h> /* exit */
 
 /*
+ * Maximum value returned by a function that calculates the entropy of an array
+ * of bytes using a base 2 logarithm. For more information, see:
+ * https://8dcc.github.io/programming/understanding-entropy.html#entropy-range
+ */
+#define MAX_ENTROPY 8.0
+
+/*----------------------------------------------------------------------------*/
+
+/*
  * Mark a symbol as unused in the current scope.
  */
 #define UNUSED(SYM) ((void)SYM)
@@ -62,5 +71,16 @@
         ERR(__VA_ARGS__);                                                      \
         exit(1);                                                               \
     } while (0)
+
+/*----------------------------------------------------------------------------*/
+
+/*
+ * Calculate the Shannon entropy of the specified bytes. Since log2() is used,
+ * the return value is in the [0..8] range.
+ *
+ * For more information, see my article about entropy:
+ * https://8dcc.github.io/programming/understanding-entropy.html
+ */
+double entropy(void* data, size_t data_sz);
 
 #endif /* UTIL_H_ */

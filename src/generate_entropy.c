@@ -19,7 +19,6 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <math.h> /* log2() */
 
 #include "include/generate.h"
 #include "include/image.h"
@@ -52,38 +51,6 @@ static inline Image* alloc_and_init_image(const Args* args, ByteArray* bytes) {
         return NULL;
 
     return image;
-}
-
-/*
- * Calculate the Shannon entropy of the specified bytes. Since log2() is used,
- * the return value is in the [0..8] range.
- *
- * For more information, see my article about entropy:
- * https://8dcc.github.io/programming/understanding-entropy.html
- */
-static double entropy(void* data, size_t data_sz) {
-    size_t* occurrences = calloc(256, sizeof(size_t));
-
-    /* Count the occurrences of each byte in the input */
-    for (size_t i = 0; i < data_sz; i++) {
-        const uint8_t byte = ((uint8_t*)data)[i];
-        occurrences[byte]++;
-    }
-
-    double result = 0.0;
-    for (int byte = 0; byte < 256; byte++) {
-        if (occurrences[byte] == 0)
-            continue;
-
-        /* Probablity of encountering this byte on the input */
-        const double probability = (double)occurrences[byte] / data_sz;
-
-        /* Accumulate entropy of each possible value (00..FF) */
-        result -= probability * log2(probability);
-    }
-
-    free(occurrences);
-    return result;
 }
 
 /*----------------------------------------------------------------------------*/

@@ -16,6 +16,37 @@
  * this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h> /* log2() */
+
 #include "include/util.h"
 
-/* TODO */
+double entropy(void* data, size_t data_sz) {
+    size_t* occurrences = calloc(256, sizeof(size_t));
+    if (occurrences == NULL)
+        return 0.0;
+
+    /* Count the occurrences of each byte in the input */
+    for (size_t i = 0; i < data_sz; i++) {
+        const uint8_t byte = ((uint8_t*)data)[i];
+        occurrences[byte]++;
+    }
+
+    double result = 0.0;
+    for (int byte = 0; byte < 256; byte++) {
+        if (occurrences[byte] == 0)
+            continue;
+
+        /* Probablity of encountering this byte on the input */
+        const double probability = (double)occurrences[byte] / data_sz;
+
+        /* Accumulate entropy of each possible value (00..FF) */
+        result -= probability * log2(probability);
+    }
+
+    free(occurrences);
+    return result;
+}
