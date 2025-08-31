@@ -146,8 +146,14 @@ This is the basic process for generating an image from a binary.
 [[file:examples/entropy-squared.png]]
 
 #+begin_src bash
+./bin-graph --mode entropy-histogram --width 256 --block-size 512 bin-graph examples/entropy-histogram.png
+#+end_src
+
+[[file:examples/entropy-histogram.png]]
+
+#+begin_src bash
 # Only the .text section of the ELF file
-./scripts/bin-graph-section.sh .text --mode histogram bin-graph examples/histogram.png
+./scripts/bin-graph-section.sh .text --width 256 --mode histogram bin-graph examples/histogram.png
 #+end_src
 
 [[file:examples/histogram.png]]
