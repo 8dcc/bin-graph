@@ -42,6 +42,7 @@ typedef Image* (*generation_func_ptr_t)(const Args* args, ByteArray* bytes);
 Image* generate_grayscale(const Args* args, ByteArray* bytes);
 Image* generate_ascii(const Args* args, ByteArray* bytes);
 Image* generate_entropy(const Args* args, ByteArray* bytes);
+Image* generate_entropy_histogram(const Args* args, ByteArray* bytes);
 Image* generate_histogram(const Args* args, ByteArray* bytes);
 Image* generate_bigrams(const Args* args, ByteArray* bytes);
 Image* generate_dotplot(const Args* args, ByteArray* bytes);
@@ -60,6 +61,8 @@ static inline generation_func_ptr_t generation_func_from_mode(
             return generate_ascii;
         case ARGS_MODE_ENTROPY:
             return generate_entropy;
+        case ARGS_MODE_ENTROPY_HISTOGRAM:
+            return generate_entropy_histogram;
         case ARGS_MODE_HISTOGRAM:
             return generate_histogram;
         case ARGS_MODE_BIGRAMS:

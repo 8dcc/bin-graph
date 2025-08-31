@@ -91,10 +91,17 @@ static struct {
               "compressed/encrypted from non-compressed chunks.",
     },
     {
+      .mode = ARGS_MODE_ENTROPY_HISTOGRAM,
+      .name = "entropy-histogram",
+      .desc = "Each row represents a block of input data, and the width of "
+              "each line indicates the entropy of that block relative to the "
+              "maximum possible entropy.",
+    },
+    {
       .mode = ARGS_MODE_HISTOGRAM,
       .name = "histogram",
       .desc = "Each row represents a byte (00..FF), and the width of each line "
-              "represents the frequency of that byte relative to the most "
+              "indicates the frequency of that byte relative to the most "
               "frequent one.",
     },
     {
