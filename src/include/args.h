@@ -88,13 +88,13 @@ typedef struct args {
 /*----------------------------------------------------------------------------*/
 
 /*
- * Initialize an 'args_t' structure.
+ * Initialize an 'Args' structure.
  */
 void args_init(Args* args);
 
 /*
  * Parse the arguments in the 'argv' array, of length 'argc', storing the
- * results in the 'args_t' structure pointed to by 'args'.
+ * results in the 'Args' structure pointed to by 'args'.
  */
 void args_parse(Args* args, int argc, char** argv);
 
