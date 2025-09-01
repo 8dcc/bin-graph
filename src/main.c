@@ -26,6 +26,7 @@
 #include "include/image.h"
 #include "include/file.h"
 #include "include/generate.h"
+#include "include/transform.h"
 #include "include/export.h"
 #include "include/util.h"
 
@@ -61,9 +62,14 @@ int main(int argc, char** argv) {
     /* We are done with the initial file bytes, free them */
     byte_array_destroy(&file_bytes);
 
-    /* Perform different transformations to the generated image */
-    if (args.transform_squares_side > 1)
-        image_transform_squares(image, args.transform_squares_side);
+    /*
+     * Optionally, perform different transformations to the generated image.
+     * TODO: Zigzag, Z-order, Hilbert
+     */
+    transformation_func_ptr_t transformation_func =
+      transformation_func_from_args(&args);
+    if (transformation_func != NULL)
+        transformation_func(&args, image);
 
     /* Open the output file for writing */
     FILE* output_fp = file_open(args.output_filename, FILE_MODE_WRITE);

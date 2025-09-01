@@ -47,10 +47,4 @@ bool image_init(Image* image, size_t width, size_t height);
  */
 void image_deinit(Image* image);
 
-/*
- * Group the data of a linear image into squares of side N. If the image
- * dimensions are not divisible by N, they will be increased.
- */
-void image_transform_squares(Image* image, size_t square_side);
-
 #endif /* IMAGE_H_ */

@@ -3,7 +3,7 @@ CC=gcc
 CFLAGS=-std=c99 -Wall -Wextra -Wpedantic -ggdb3
 LDLIBS=-lm -lpng
 
-SRC=main.c args.c byte_array.c image.c util.c file.c generate_grayscale.c generate_ascii.c generate_entropy.c generate_entropy_histogram.c generate_histogram.c generate_bigrams.c generate_dotplot.c export_png.c export_escaped_text.c
+SRC=main.c args.c byte_array.c image.c util.c file.c generate_grayscale.c generate_ascii.c generate_entropy.c generate_entropy_histogram.c generate_histogram.c generate_bigrams.c generate_dotplot.c transform_squares.c export_png.c export_escaped_text.c
 OBJ=$(addprefix obj/, $(addsuffix .o, $(SRC)))
 
 BIN=bin-graph
