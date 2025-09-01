@@ -34,10 +34,6 @@ static bool validate_args(const Args* args) {
             args_get_mode_name(args->mode));
         return false;
     }
-    if (args->transform_squares_side > 1)
-        WRN("The \"squares\" transformation is not recommended for the current "
-            "mode (%s).",
-            args_get_mode_name(args->mode));
     return true;
 }
 

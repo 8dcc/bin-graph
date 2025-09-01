@@ -21,9 +21,32 @@
 #include <stdlib.h>
 
 #include "include/transform.h"
+#include "include/args.h"
+#include "include/image.h"
+#include "include/util.h"
+
+static bool validate_args(const Args* args) {
+    switch (args->mode) {
+        case ARGS_MODE_HISTOGRAM:
+        case ARGS_MODE_ENTROPY_HISTOGRAM:
+        case ARGS_MODE_BIGRAMS:
+        case ARGS_MODE_DOTPLOT:
+            WRN("The \"squares\" transformation is not recommended for the "
+                "current "
+                "mode (%s).",
+                args_get_mode_name(args->mode));
+            break;
+        default:
+            break;
+    }
+    return true;
+}
 
 void transform_squares(const Args* args, Image* image) {
     assert(args->transform_squares_side > 0);
+
+    if (!validate_args(args))
+        return;
 
     const int square_side     = args->transform_squares_side;
     const int square_size     = square_side * square_side;
