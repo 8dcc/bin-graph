@@ -83,4 +83,10 @@
  */
 double entropy(void* data, size_t data_sz);
 
+/*
+ * Reverse a buffer in-place, with the specified number of elements of the
+ * specified size each. Returns the 'buf' argument on success, or NULL on error.
+ */
+void* reverse_buffer(void* buf, size_t num_elems, size_t elem_sz);
+
 #endif /* UTIL_H_ */
