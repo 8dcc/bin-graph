@@ -20,6 +20,7 @@
 #define ARGS_H_ 1
 
 #include <stddef.h>
+#include <stdbool.h>
 
 #ifndef ARGS_DEFAULT_BLOCK_SIZE
 #define ARGS_DEFAULT_BLOCK_SIZE 256
@@ -33,7 +34,6 @@
 #define ARGS_DEFAULT_OUTPUT_ZOOM 2
 #endif /* ARGS_DEFAULT_OUTPUT_ZOOM */
 
-/* TODO: Add more modes: bigram_freq, etc. */
 enum EArgsMode {
     ARGS_MODE_GRAYSCALE,
     ARGS_MODE_ASCII,
@@ -83,6 +83,11 @@ typedef struct args {
      * lower than two are ignored.
      */
     int transform_squares_side;
+
+    /*
+     * True if the image should be transforming with the "ZigZag" method.
+     */
+    bool transform_zigzag;
 } Args;
 
 /*----------------------------------------------------------------------------*/

@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
 
     /*
      * Optionally, perform different transformations to the generated image.
-     * TODO: Zigzag, Z-order, Hilbert
+     * TODO: Z-order, Hilbert
      */
     transformation_func_ptr_t transformation_func =
       transformation_func_from_args(&args);

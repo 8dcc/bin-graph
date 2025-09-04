@@ -49,6 +49,7 @@ enum ELongOptionIds {
     LONGOPT_BLOCK_SIZE,
     LONGOPT_OUTPUT_FORMAT,
     LONGOPT_TRANSFORM_SQUARES,
+    LONGOPT_TRANSFORM_ZIGZAG,
     LONGOPT_LIST_MODES,
     LONGOPT_LIST_OUTPUT_FORMATS,
 };
@@ -217,6 +218,15 @@ static struct argp_option options[] = {
       "increased. This option is useful with the entropy mode.",
       3,
     },
+    {
+      "transform-zigzag",
+      LONGOPT_TRANSFORM_ZIGZAG,
+      NULL,
+      0,
+      "Transform the image in a linear image into a ZigZag pattern, reversing "
+      "odd rows.",
+      3,
+    },
     { NULL, 0, NULL, 0, "Help options", 4 },
     {
       "list-modes",
@@ -371,6 +381,10 @@ static error_t parse_opt(int key, char* arg, struct argp_state* state) {
                 argp_usage(state);
             }
             parsed_args->transform_squares_side = signed_side;
+        } break;
+
+        case LONGOPT_TRANSFORM_ZIGZAG: {
+            parsed_args->transform_zigzag = true;
         } break;
 
         case LONGOPT_LIST_MODES: {

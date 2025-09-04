@@ -34,6 +34,12 @@ typedef void (*transformation_func_ptr_t)(const Args* args, Image* image);
  */
 void transform_squares(const Args* args, Image* image);
 
+/*
+ * Transform the image in a linear image into a ZigZag pattern, reversing odd
+ * rows.
+ */
+void transform_zigzag(const Args* args, Image* image);
+
 /*----------------------------------------------------------------------------*/
 
 /*
@@ -44,6 +50,8 @@ static inline transformation_func_ptr_t transformation_func_from_args(
   const Args* args) {
     if (args->transform_squares_side > 1)
         return transform_squares;
+    if (args->transform_zigzag)
+        return transform_zigzag;
     return NULL;
 }
 
