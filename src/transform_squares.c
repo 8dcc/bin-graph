@@ -32,8 +32,7 @@ static bool validate_args(const Args* args) {
         case ARGS_MODE_BIGRAMS:
         case ARGS_MODE_DOTPLOT:
             WRN("The \"squares\" transformation is not recommended for the "
-                "current "
-                "mode (%s).",
+                "current mode (%s).",
                 args_get_mode_name(args->mode));
             break;
         default:
@@ -66,6 +65,10 @@ void transform_squares(const Args* args, Image* image) {
 
     /* Allocate the array with the new image dimensions */
     Color* new_pixels = calloc(image->height * image->width, sizeof(Color));
+    if (new_pixels == NULL) {
+        ERR("Failed to allocate new pixels array.");
+        return;
+    }
 
     /* Iterate the original pixels */
     for (size_t i = 0; i < total_pixels; i++) {
