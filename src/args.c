@@ -469,6 +469,7 @@ void args_init(Args* args) {
     args->offset_end             = 0;
     args->output_zoom            = ARGS_DEFAULT_OUTPUT_ZOOM;
     args->transform_squares_side = 0;
+    args->transform_zigzag       = false;
 }
 
 void args_parse(Args* args, int argc, char** argv) {
