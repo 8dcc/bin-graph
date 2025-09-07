@@ -116,14 +116,16 @@ This is the basic process for generating an image from a binary.
 1. The arguments are /parsed/ by [[https://www.gnu.org/software/libc/manual/html_node/Argp.html][the =argp= library]] from =args.c= into an =Args=
    structure. Some common checks are performed in this stage, but most modes
    also have their own mode-specific conditions.
-2. The data is /read/ from the input file as a byte array, using the =read_file=
-   function, defined in [[file:src/read_file.c][read_file.c]].
+2. The input file is opened and the data is /read/ from the input file as a byte
+   array, using the =file_open= and =file_read= function, defined in [[file:src/file.c][file.c]].
 3. An =Image= structure is /generated/ from the byte array, using a different
    generation function depending on the main program mode. This =Image= structure
    is stored in memory as an array of RGB =Color= structures along with the image
    dimensions.
-4. The =Image= structure is /exported/ into the output file depending on the output
-   format (e.g. into a PNG file, or as ANSI escaped text).
+4. Optionally, the image is /transformed/ using different methods, such as the
+   [[https://en.wikipedia.org/wiki/Hilbert_curve][Hilbert curve]] algorithm.
+5. The =Image= structure is /exported/ into the output file depending on the output
+   format (e.g. as PNG file, ANSI escaped text, etc.).
 
 * Screenshots
 
