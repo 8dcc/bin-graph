@@ -170,3 +170,15 @@ This is the basic process for generating an image from a binary.
 #+end_src
 
 [[file:examples/dotplot.png]]
+
+#+begin_src bash
+./bin-graph --width 256 --transform-hilbert 8 bin-graph examples/hilbert-ascii.png
+#+end_src
+
+[[file:examples/hilbert-ascii.png]]
+
+#+begin_src bash
+./bin-graph --width 256 --transform-hilbert 8 --mode entropy --block-size 256 bin-graph examples/hilbert-entropy.png
+#+end_src
+
+[[file:examples/hilbert-entropy.png]]
