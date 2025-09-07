@@ -23,7 +23,7 @@
 #include "include/image.h"
 #include "include/util.h"
 
-void transform_zigzag(const Args* args, Image* image) {
+bool transform_zigzag(const Args* args, Image* image) {
     UNUSED(args);
 
     for (size_t y = 0; y < image->height; y++) {
@@ -37,4 +37,6 @@ void transform_zigzag(const Args* args, Image* image) {
                            sizeof(Color)) == NULL)
             break;
     }
+
+    return true;
 }

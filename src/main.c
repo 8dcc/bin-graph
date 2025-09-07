@@ -62,14 +62,11 @@ int main(int argc, char** argv) {
     /* We are done with the initial file bytes, free them */
     byte_array_destroy(&file_bytes);
 
-    /*
-     * Optionally, perform different transformations to the generated image.
-     * TODO: Z-order, Hilbert
-     */
+    /* Optionally, perform different transformations to the generated image */
     transformation_func_ptr_t transformation_func =
       transformation_func_from_args(&args);
-    if (transformation_func != NULL)
-        transformation_func(&args, image);
+    if (transformation_func != NULL && !transformation_func(&args, image))
+        ERR("Failed to run transformation function. Ignoring...");
 
     /* Open the output file for writing */
     FILE* output_fp = file_open(args.output_filename, FILE_MODE_WRITE);

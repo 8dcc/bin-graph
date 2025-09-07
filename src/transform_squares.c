@@ -41,11 +41,10 @@ static bool validate_args(const Args* args) {
     return true;
 }
 
-void transform_squares(const Args* args, Image* image) {
+bool transform_squares(const Args* args, Image* image) {
     assert(args->transform_squares_side > 0);
-
     if (!validate_args(args))
-        return;
+        return false;
 
     const int square_side     = args->transform_squares_side;
     const int square_size     = square_side * square_side;
@@ -67,7 +66,7 @@ void transform_squares(const Args* args, Image* image) {
     Color* new_pixels = calloc(image->height * image->width, sizeof(Color));
     if (new_pixels == NULL) {
         ERR("Failed to allocate new pixels array.");
-        return;
+        return false;
     }
 
     /* Iterate the original pixels */
@@ -93,4 +92,6 @@ void transform_squares(const Args* args, Image* image) {
     /* Free the old pixel array and overwrite the pointer with the new one */
     free(image->pixels);
     image->pixels = new_pixels;
+
+    return true;
 }

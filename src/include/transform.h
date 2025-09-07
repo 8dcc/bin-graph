@@ -19,34 +19,34 @@
 #ifndef TRANSFORM_H_
 #define TRANSFORM_H_ 1
 
+#include <stdbool.h>
+
 #include "image.h"
 #include "args.h"
 
 /*
  * Pointer to a function that transforms an 'Image' depending on the program
  * arguments.
- *
- * TODO: Return boolean.
  */
-typedef void (*transformation_func_ptr_t)(const Args* args, Image* image);
+typedef bool (*transformation_func_ptr_t)(const Args* args, Image* image);
 
 /*
  * Group the data of a linear image into squares of side N. If the image
  * dimensions are not divisible by N, they will be increased.
  */
-void transform_squares(const Args* args, Image* image);
+bool transform_squares(const Args* args, Image* image);
 
 /*
  * Transform the image in a linear image into a ZigZag pattern, reversing odd
  * rows.
  */
-void transform_zigzag(const Args* args, Image* image);
+bool transform_zigzag(const Args* args, Image* image);
 
 /*
  * Transform the specified input string into an output grid buffer using a
  * space-filling Hilbert curve, with the specified recursion level.
  */
-void transform_hilbert(const Args* args, Image* image);
+bool transform_hilbert(const Args* args, Image* image);
 
 /*----------------------------------------------------------------------------*/
 

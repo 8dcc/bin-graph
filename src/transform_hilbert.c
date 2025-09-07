@@ -238,10 +238,10 @@ static void recursive_hilbert(HilbertCtx* ctx,
     }
 }
 
-void transform_hilbert(const Args* args, Image* input_image) {
+bool transform_hilbert(const Args* args, Image* input_image) {
     assert(args->transform_hilbert_level > 0);
     if (!validate_args(args))
-        return;
+        return false;
 
     /*
      * Ensure the height is divisible by the width, allowing us to stack
@@ -262,7 +262,7 @@ void transform_hilbert(const Args* args, Image* input_image) {
         ERR("Not enough width for the specified hilbert level (expected at "
             "least %zu).",
             draws_per_side);
-        return;
+        return false;
     }
 
     /*
@@ -272,7 +272,7 @@ void transform_hilbert(const Args* args, Image* input_image) {
     if (output_image.width % draws_per_side != 0) {
         ERR("Need to draw %zu hilbert points, but the width is not divisible.",
             draws_per_side);
-        return;
+        return false;
     }
     const size_t block_side = output_image.width / draws_per_side;
 
@@ -281,7 +281,7 @@ void transform_hilbert(const Args* args, Image* input_image) {
       calloc(output_image.width * output_image.height, sizeof(Color));
     if (output_image.pixels == NULL) {
         ERR("Failed to allocate new pixels array.");
-        return;
+        return false;
     }
 
     /*
@@ -328,4 +328,6 @@ void transform_hilbert(const Args* args, Image* input_image) {
     input_image->pixels = output_image.pixels;
     input_image->height = output_image.height;
     input_image->width  = output_image.width;
+
+    return true;
 }
