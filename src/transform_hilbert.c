@@ -259,7 +259,9 @@ void transform_hilbert(const Args* args, Image* input_image) {
     /* Number of hilbert points per square side (not in total) */
     const size_t draws_per_side = (size_t)pow(2, args->transform_hilbert_level);
     if (draws_per_side > output_image.width) {
-        ERR("Not enough data for the specified hilbert level.");
+        ERR("Not enough width for the specified hilbert level (expected at "
+            "least %zu).",
+            draws_per_side);
         return;
     }
 
