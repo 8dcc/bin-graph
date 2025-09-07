@@ -94,11 +94,13 @@ static void draw_next(HilbertCtx* ctx) {
              * Ensure we are not out-of-bounds in the input, since the output
              * might be bigger after squaring.
              */
-            if (ctx->input_pos <
+            if (ctx->input_pos >=
                 ctx->input_image->width * ctx->input_image->height)
-                ctx->output_image
-                  ->pixels[ctx->output_image->width * raw_y + raw_x] =
-                  ctx->input_image->pixels[ctx->input_pos++];
+                return;
+
+            ctx->output_image
+              ->pixels[ctx->output_image->width * raw_y + raw_x] =
+              ctx->input_image->pixels[ctx->input_pos++];
         }
     }
 }
