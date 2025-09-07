@@ -25,6 +25,8 @@
 /*
  * Pointer to a function that transforms an 'Image' depending on the program
  * arguments.
+ *
+ * TODO: Return boolean.
  */
 typedef void (*transformation_func_ptr_t)(const Args* args, Image* image);
 
@@ -40,6 +42,12 @@ void transform_squares(const Args* args, Image* image);
  */
 void transform_zigzag(const Args* args, Image* image);
 
+/*
+ * Transform the specified input string into an output grid buffer using a
+ * space-filling Hilbert curve, with the specified recursion level.
+ */
+void transform_hilbert(const Args* args, Image* image);
+
 /*----------------------------------------------------------------------------*/
 
 /*
@@ -52,6 +60,8 @@ static inline transformation_func_ptr_t transformation_func_from_args(
         return transform_squares;
     if (args->transform_zigzag)
         return transform_zigzag;
+    if (args->transform_hilbert_level >= 1)
+        return transform_hilbert;
     return NULL;
 }
 

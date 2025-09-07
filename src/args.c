@@ -50,6 +50,7 @@ enum ELongOptionIds {
     LONGOPT_OUTPUT_FORMAT,
     LONGOPT_TRANSFORM_SQUARES,
     LONGOPT_TRANSFORM_ZIGZAG,
+    LONGOPT_TRANSFORM_HILBERT,
     LONGOPT_LIST_MODES,
     LONGOPT_LIST_OUTPUT_FORMATS,
 };
@@ -227,6 +228,15 @@ static struct argp_option options[] = {
       "odd rows.",
       3,
     },
+    {
+      "transform-hilbert",
+      LONGOPT_TRANSFORM_HILBERT,
+      "LEVEL",
+      0,
+      "Transform the image using the space-filling Hilbert curve, with the "
+      "specified recursion LEVEL.",
+      3,
+    },
     { NULL, 0, NULL, 0, "Help options", 4 },
     {
       "list-modes",
@@ -387,6 +397,18 @@ static error_t parse_opt(int key, char* arg, struct argp_state* state) {
             parsed_args->transform_zigzag = true;
         } break;
 
+        case LONGOPT_TRANSFORM_HILBERT: {
+            int signed_level;
+            if (sscanf(arg, "%d", &signed_level) != 1 || signed_level <= 0) {
+                fprintf(state->err_stream,
+                        "%s: The Hilber curve recursion level must be an "
+                        "integer greater than zero.\n",
+                        state->name);
+                argp_usage(state);
+            }
+            parsed_args->transform_hilbert_level = signed_level;
+        } break;
+
         case LONGOPT_LIST_MODES: {
             /* TODO: Wrap descriptions to column 80 when priting */
             for (size_t i = 0; i < LENGTH(g_mode_names); i++) {
@@ -459,17 +481,18 @@ static error_t parse_opt(int key, char* arg, struct argp_state* state) {
 /*----------------------------------------------------------------------------*/
 
 void args_init(Args* args) {
-    args->input_filename         = NULL;
-    args->output_filename        = NULL;
-    args->mode                   = ARGS_MODE_ASCII;
-    args->block_size             = ARGS_DEFAULT_BLOCK_SIZE;
-    args->output_format          = ARGS_OUTPUT_FORMAT_PNG;
-    args->output_width           = ARGS_DEFAULT_OUTPUT_WIDTH;
-    args->offset_start           = 0;
-    args->offset_end             = 0;
-    args->output_zoom            = ARGS_DEFAULT_OUTPUT_ZOOM;
-    args->transform_squares_side = 0;
-    args->transform_zigzag       = false;
+    args->input_filename          = NULL;
+    args->output_filename         = NULL;
+    args->mode                    = ARGS_MODE_ASCII;
+    args->block_size              = ARGS_DEFAULT_BLOCK_SIZE;
+    args->output_format           = ARGS_OUTPUT_FORMAT_PNG;
+    args->output_width            = ARGS_DEFAULT_OUTPUT_WIDTH;
+    args->offset_start            = 0;
+    args->offset_end              = 0;
+    args->output_zoom             = ARGS_DEFAULT_OUTPUT_ZOOM;
+    args->transform_squares_side  = 0;
+    args->transform_zigzag        = false;
+    args->transform_hilbert_level = 0;
 }
 
 void args_parse(Args* args, int argc, char** argv) {

@@ -88,6 +88,12 @@ typedef struct args {
      * True if the image should be transforming with the "ZigZag" method.
      */
     bool transform_zigzag;
+
+    /*
+     * Recursion level when transforming the image through the space-filling
+     * Hilbert curve.
+     */
+    int transform_hilbert_level;
 } Args;
 
 /*----------------------------------------------------------------------------*/
