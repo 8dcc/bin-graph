@@ -283,8 +283,8 @@ void transform_hilbert(const Args* args, Image* input_image) {
     }
 
     /*
-     * FIXME: This probably needs to be generated each iteration, and the
-     * members of 'output_image', extracted outside.
+     * Define the 'HilbertCtx' structure that will be modified each iteration
+     * below.
      */
     HilbertCtx ctx = {
         .output_image = &output_image,
@@ -296,23 +296,29 @@ void transform_hilbert(const Args* args, Image* input_image) {
     };
 
     /*
-     * Generate the actual hilbert curve, starting from the top left and ending
-     * on the bottom right, allowing us to stack curves on top of each other:
-     *
-     *     o------o
-     *            |
-     *            |
-     *     o------o
-     *
-     * Each iteration, a new square will be stacked in the output image.
+     * Each iteration, a square with a Hilbert curve will be placed in the
+     * output image, below the previous one.
      */
-    while (ctx.input_pos < ctx.input_image->width * ctx.input_image->height) {
-        recursive_hilbert(&ctx, args->transform_hilbert_level, DIR_LEFT);
+    for (size_t i = 0;
+         ctx.input_pos < ctx.input_image->width * ctx.input_image->height;
+         i++) {
+        /*
+         * Move the context position one Hilbert square down.
+         */
+        ctx.y = i * draws_per_side;
+        ctx.x = 0;
 
         /*
-         * TODO: Modify the 'HilbertCtx' structure for stacking multiple
-         * squares.
+         * Generate the actual hilbert curve, starting from the top left and
+         * ending on the bottom right, allowing us to stack curves on top of
+         * each other:
+         *
+         *     o------o
+         *            |
+         *            |
+         *     o------o
          */
+        recursive_hilbert(&ctx, args->transform_hilbert_level, DIR_LEFT);
     }
 
     /* Free the old pixel array and overwrite the pointer with the new one */
