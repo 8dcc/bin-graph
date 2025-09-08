@@ -20,12 +20,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 #include <math.h> /* log2() */
 
 #include "include/util.h"
 
 double entropy(void* data, size_t data_sz) {
-    size_t* occurrences = calloc(256, sizeof(size_t));
+    size_t* occurrences = calloc(UCHAR_MAX + 1, sizeof(size_t));
     if (occurrences == NULL)
         return 0.0;
 
@@ -36,7 +37,7 @@ double entropy(void* data, size_t data_sz) {
     }
 
     double result = 0.0;
-    for (int byte = 0; byte < 256; byte++) {
+    for (int byte = 0; byte < UCHAR_MAX + 1; byte++) {
         if (occurrences[byte] == 0)
             continue;
 

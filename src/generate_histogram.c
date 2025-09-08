@@ -18,6 +18,7 @@
 
 #include <assert.h>
 #include <stdlib.h>
+#include <limits.h>
 
 #include "include/generate.h"
 #include "include/image.h"
@@ -40,7 +41,7 @@ static inline Image* alloc_and_init_image(const Args* args) {
         return NULL;
 
     const size_t width  = args->output_width;
-    const size_t height = 256;
+    const size_t height = UCHAR_MAX + 1;
     if (!image_init(image, width, height))
         return NULL;
 
@@ -56,9 +57,9 @@ Image* generate_histogram(const Args* args, ByteArray* bytes) {
     Image* image = alloc_and_init_image(args);
     if (image == NULL)
         return NULL;
-    assert(image->height == 256);
+    assert(image->height == UCHAR_MAX + 1);
 
-    size_t* occurrences = calloc(256, sizeof(size_t));
+    size_t* occurrences = calloc(UCHAR_MAX + 1, sizeof(size_t));
     if (occurrences == NULL)
         return NULL;
 

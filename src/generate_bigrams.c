@@ -18,6 +18,7 @@
 
 #include <assert.h>
 #include <stdlib.h>
+#include <limits.h>
 
 #include "include/generate.h"
 #include "include/image.h"
@@ -44,8 +45,8 @@ static inline Image* alloc_and_init_image(void) {
     if (image == NULL)
         return NULL;
 
-    const size_t width  = 256;
-    const size_t height = 256;
+    const size_t width  = UCHAR_MAX + 1;
+    const size_t height = UCHAR_MAX + 1;
     if (!image_init(image, width, height))
         return NULL;
 
@@ -61,7 +62,7 @@ Image* generate_bigrams(const Args* args, ByteArray* bytes) {
     Image* image = alloc_and_init_image();
     if (image == NULL)
         return NULL;
-    assert(image->width == 256 && image->height == 256);
+    assert(image->width == UCHAR_MAX + 1 && image->height == UCHAR_MAX + 1);
 
     /* Initialize the image to black */
     for (size_t y = 0; y < image->height; y++) {

@@ -19,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <limits.h>
 
 #include "include/generate.h"
 #include "include/image.h"
@@ -77,7 +78,7 @@ Image* generate_entropy(const Args* args, ByteArray* bytes) {
          * Calculate the [00..FF] color for this block based on the [0..8]
          * entropy.
          */
-        uint8_t color_intensity = block_entropy * 255 / 8;
+        uint8_t color_intensity = block_entropy * UCHAR_MAX / 8;
 
         /* Render this block with the same color */
         for (size_t j = 0; j < real_block_size; j++) {
