@@ -69,13 +69,16 @@ bool file_read(ByteArray* dst,
 
     /* Read the target bytes from the file, resizing it dynamically */
     size_t dst_pos;
-    for (dst_pos = 0;
-         last_char != EOF && (!has_offset_end || file_pos < offset_end);
+    for (dst_pos = 0; (!has_offset_end || file_pos < offset_end);
          dst_pos++, file_pos++) {
         if (dst_pos >= dst->size && !byte_array_resize(dst, dst->size * 2))
             return false;
 
-        dst->data[dst_pos] = last_char = fgetc(fp);
+        last_char = fgetc(fp);
+        if (last_char == EOF)
+            break;
+
+        dst->data[dst_pos] = last_char;
     }
 
     /* Overwrite with the actual length */
