@@ -1,5 +1,6 @@
 
 CC=gcc
+CPPFLAGS=-DBIN_GRAPH_HEATMAP
 CFLAGS=-std=c99 -Wall -Wextra -Wpedantic -ggdb3
 LDLIBS=-lm -lpng
 
@@ -34,8 +35,8 @@ install-completion: $(COMPLETION)
 #-------------------------------------------------------------------------------
 
 $(BIN): $(OBJ)
-	$(CC) $(CFLAGS) -o $@ $^ $(LDLIBS)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ $^ $(LDLIBS)
 
 obj/%.c.o : src/%.c
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -o $@ -c $<
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<

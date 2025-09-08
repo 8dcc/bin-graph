@@ -78,12 +78,12 @@ Image* generate_entropy(const Args* args, ByteArray* bytes) {
          * Calculate the [00..FF] color for this block based on the [0..8]
          * entropy.
          */
-        uint8_t color_intensity = block_entropy * UCHAR_MAX / 8;
+        const uint8_t color_intensity = block_entropy * UCHAR_MAX / 8;
 
         /* Render this block with the same color */
         for (size_t j = 0; j < real_block_size; j++) {
             Color* color = &image->pixels[i + j];
-            color->r = color->g = color->b = color_intensity;
+            *color       = from_intensity(color_intensity);
         }
     }
 

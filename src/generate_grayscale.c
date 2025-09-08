@@ -81,7 +81,7 @@ Image* generate_grayscale(const Args* args, ByteArray* bytes) {
             }
 
             /* The color brightness is determined by the byte value */
-            color->r = color->g = color->b = bytes->data[raw_idx];
+            *color = from_intensity(bytes->data[raw_idx]);
         }
     }
 

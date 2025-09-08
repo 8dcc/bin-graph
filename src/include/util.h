@@ -19,8 +19,11 @@
 #ifndef UTIL_H_
 #define UTIL_H_ 1
 
+#include <stdint.h>
 #include <stdio.h>  /* printf, stderr */
 #include <stdlib.h> /* exit */
+
+#include "image.h" /* Color */
 
 /*
  * Maximum value returned by a function that calculates the entropy of an array
@@ -88,5 +91,10 @@ double entropy(void* data, size_t data_sz);
  * specified size each. Returns the 'buf' argument on success, or NULL on error.
  */
 void* reverse_buffer(void* buf, size_t num_elems, size_t elem_sz);
+
+/*
+ * Get a color from the intensity of a byte.
+ */
+Color from_intensity(uint8_t value);
 
 #endif /* UTIL_H_ */
