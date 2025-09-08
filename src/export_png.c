@@ -97,6 +97,7 @@ bool export_png(const Args* args, const Image* image, FILE* output_fp) {
             /* Draw a rectangle of side 'zoom' */
             for (int rect_y = 0; rect_y < zoom; rect_y++) {
                 for (int rect_x = 0; rect_x < zoom; rect_x++) {
+                    assert(y * zoom + rect_y < png_height);
                     const png_bytep row = rows[zoom * y + rect_y];
 
                     /* Note that we are using RGB, not RGBA */
