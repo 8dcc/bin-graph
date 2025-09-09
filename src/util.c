@@ -87,11 +87,14 @@ void* reverse_buffer(void* buf, size_t num_elems, size_t elem_sz) {
 Color from_intensity(uint8_t value) {
 #ifdef BIN_GRAPH_HEATMAP
     /*
-     * The heatmap visualization uses a linear scale for blue values, but
-     * exponential values for red values.
+     * The heatmap visualization uses a linear scale for blue values, but an
+     * exponential scale for red values. This representation is more closely
+     * related to how entropy is calculated (using a base 2 logarithm); in other
+     * words, brighter values are exponentially more significant/informative
+     * than darker values.
      */
     return (Color){
-        .r = pow(value, 3) / pow(255, 3) * 255,
+        .r = (uint8_t)(pow((double)value / UCHAR_MAX, 3) * 255.0),
         .g = 0,
         .b = value,
     };
