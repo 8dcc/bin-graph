@@ -20,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <math.h> /* pow() */
 
 #include "include/generate.h"
 #include "include/image.h"
@@ -78,12 +79,27 @@ Image* generate_entropy(const Args* args, ByteArray* bytes) {
          * Calculate the [00..FF] color for this block based on the [0..8]
          * entropy.
          */
-        const uint8_t color_intensity = block_entropy * UCHAR_MAX / 8;
+        const uint8_t color_intensity = block_entropy * 255 / 8;
 
         /* Render this block with the same color */
         for (size_t j = 0; j < real_block_size; j++) {
             Color* color = &image->pixels[i + j];
-            *color       = from_intensity(color_intensity);
+
+#ifdef BIN_GRAPH_HEATMAP
+            /*
+             * The heatmap visualization uses a linear scale for blue values,
+             * but an exponential scale for red values. This representation is
+             * more closely related to how entropy is calculated (using a base 2
+             * logarithm); in other words, brighter values are exponentially
+             * more significant/informative than darker values.
+             */
+            color->r =
+              (uint8_t)(pow((double)color_intensity / UCHAR_MAX, 3) * 255.0);
+            color->g = 0;
+            color->b = color_intensity;
+#else  /* not BIN_GRAPH_HEATMAP */
+            color->r = color->g = color->b = color_intensity;
+#endif /* not BIN_GRAPH_HEATMAP */
         }
     }
 
