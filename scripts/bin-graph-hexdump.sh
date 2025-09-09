@@ -19,8 +19,7 @@
 #
 # ------------------------------------------------------------------------------
 #
-# Print the output of a 'hexdump' command side by side with the ASCII output of
-# 'bin-graph'.
+# Generate multiple binary graphs, and merge them together into a big image.
 set -e
 
 HEXDUMP='xxd'
