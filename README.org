@@ -106,6 +106,14 @@ input file by calling =bin-graph= with different =--mode= arguments.
 # ...
 #+end_src
 
+The [[file:scripts/bin-graph-merged.sh][bin-graph-merged.sh]] script generates multiple binary graphs from an input
+file, and merges them together into a large PNG file.
+
+#+begin_src bash
+./scripts/bin-graph-merged.sh [OPTION...] INPUT OUTPUT.png
+# ...
+#+end_src
+
 * Overview of the code
 
 I tried to make each part of the program as modular and independent as possible,
@@ -184,3 +192,9 @@ This is the basic process for generating an image from a binary.
 #+end_src
 
 [[file:examples/hilbert-entropy.png]]
+
+#+begin_src bash
+./scripts/bin-graph-merged.sh --zoom 1 bin-graph examples/merged.png
+#+end_src
+
+[[file:examples/merged.png]]
