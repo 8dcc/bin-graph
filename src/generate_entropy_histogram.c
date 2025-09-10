@@ -80,16 +80,21 @@ Image* generate_entropy_histogram(const Args* args, ByteArray* bytes) {
 
         /*
          * Convert the entropy to a percentage, dividing it by its maximum
-         * value. Then, similarly to the histogram, calculate the row width.
+         * value. Then, similarly to the "histogram" mode, calculate the row
+         * width based on the percentage.
          */
         const double entropy_percent = block_entropy / MAX_ENTROPY;
         const size_t line_width      = entropy_percent * image->width;
 
-        /* Render this block with the same color */
+#ifdef BIN_GRAPH_ENTROPY_HISTOGRAM_DOTS
+        Color* color = &image->pixels[image->width * y + line_width];
+        color->r = color->g = color->b = 0xFF;
+#else  /* not BIN_GRAPH_ENTROPY_HISTOGRAM_DOTS */
         for (size_t x = 0; x < line_width; x++) {
             Color* color = &image->pixels[image->width * y + x];
             color->r = color->g = color->b = 0xFF;
         }
+#endif /* not BIN_GRAPH_ENTROPY_HISTOGRAM_DOTS */
     }
 
     return image;
