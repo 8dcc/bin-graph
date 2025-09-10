@@ -29,24 +29,61 @@ if [ $# -lt 2 ]; then
     exit 1
 fi
 
-assert_cmd() {
-    if [ ! "$(command -v "$1")" ]; then
-        echo "$(basename "$0"): The '$1' command is not installed." 1>&2
-        exit 1
-    fi
-}
+if [ ! "$(command -v "$BIN_GRAPH")" ]; then
+    echo "$(basename "$0"): The '$BIN_GRAPH' command is not installed." 1>&2
+    exit
+fi
 
-assert_cmd "$BIN_GRAPH"
-assert_cmd 'magick'
+if [ ! "$(command -v 'magick')" ] &&
+       { [ ! "$(command -v 'identify')" ] || [ ! "$(command -v 'convert')" ]; }; then
+    echo "$(basename "$0"): The '$BIN_GRAPH' command is not installed." 1>&2
+    exit
+fi
 
 get_width() {
     local image="$1"
-    magick "$image" -format "%w" info:
+    if [ -n "$(command -v 'magick')" ]; then
+        magick "$image" -format "%w" info:
+    else
+        identify -format "%w" "$image"
+    fi
 }
 
 get_height() {
     local image="$1"
-    magick "$image" -format "%h" info:
+    if [ -n "$(command -v 'magick')" ]; then
+        magick "$image" -format "%h" info:
+    else
+        identify -format "%h" "$image"
+    fi
+}
+
+merge_images() {
+    local total_width="$1"
+    local total_height="$2"
+    local output_path="$3"
+    local args=("${@:4}")  # ('path1' '+x+y' 'path2' '+x+y' ...)
+
+    local magick_args=()
+    i=0
+    for arg in "${args[@]}"; do
+        if [ $((i % 2)) -eq 0 ]; then
+            magick_args+=("$arg")  # File name (even)
+        else
+            magick_args+=(-geometry "$arg" -composite)  # Position (odd)
+        fi
+        i=$((i+1))
+    done
+
+    if [ -n "$(command -v 'magick')" ]; then
+        magick -background transparent \
+               -size "${total_width}x${total_height}" \
+               xc:transparent "${magick_args[@]}" "$output_path"
+    else
+        convert -background transparent \
+                -size "${total_width}x${total_height}" \
+                xc:transparent "${magick_args[@]}" "$output_path"
+    fi
 }
 
 max() {
@@ -129,14 +166,13 @@ y6="$((y5 + height5 + padding))"
 
 total_width="$((x5 + $(max "$width5" "$width6") + padding))"
 total_height="$((y1 + $(max "$height1" "$height2" "$height3" "$height4" $((height5 + padding + height6))) + padding))"
-magick -background transparent -size "${total_width}x${total_height}" xc:transparent \
-  "$image1" -geometry +"$x1"+"$y1" -composite \
-  "$image2" -geometry +"$x2"+"$y2" -composite \
-  "$image3" -geometry +"$x3"+"$y3" -composite \
-  "$image4" -geometry +"$x4"+"$y4" -composite \
-  "$image5" -geometry +"$x5"+"$y5" -composite \
-  "$image6" -geometry +"$x6"+"$y6" -composite \
-  "$output_path"
+merge_images "$total_width" "$total_height" "$output_path" \
+             "$image1" "+${x1}+${y1}" \
+             "$image2" "+${x2}+${y2}" \
+             "$image3" "+${x3}+${y3}" \
+             "$image4" "+${x4}+${y4}" \
+             "$image5" "+${x5}+${y5}" \
+             "$image6" "+${x6}+${y6}"
 
 if [ -d "$tmp_dir" ]; then
     rm -r "$tmp_dir"
