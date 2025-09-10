@@ -73,18 +73,18 @@ tmp_dir="$(mktemp --tmpdir --directory "bin-graph-merged.XXXXX")"
 "$BIN_GRAPH" "${bin_graph_args[@]}" --mode 'histogram' --width 256 "$input_path" "${tmp_dir}/${input_name}.histogram.png"
 "$BIN_GRAPH" "${bin_graph_args[@]}" --mode 'bigrams' "$input_path" "${tmp_dir}/${input_name}.bigrams.png"
 
-#   +-+-----+-----+-----+---+
-#   | |     |     |     | 5 |
-#   | |     |     |     |---+
-#   |1|  2  |  3  |  4  | 6 |
-#   | |     |     |     |---+
-#   | |     |     |     |
-#   +-+-----+-----+-----+
+#   +-----+-+-----+-----+---+
+#   |     | |     |     | 5 |
+#   |     | |     |     |---+
+#   |  1  |2|  3  |  4  | 6 |
+#   |     | |     |     |---+
+#   |     | |     |     |
+#   +-----+-+-----+-----+
 #
 # Target layout:
 #
-#   1. Entropy histogram.
-#   2. Grayscale.
+#   1. Grayscale.
+#   2. Entropy histogram.
 #   3. Hilbert ASCII.
 #   4. Hilbert entropy.
 #   5. Histogram.
@@ -127,8 +127,8 @@ y4="$y3"
 y5="$y4"
 y6="$((y5 + height5 + padding))"
 
-total_width="$((padding * 2 + x5 + $(max "$width5" "$width6")))"
-total_height="$((padding * 2 + $(max "$height1" "$height2" "$height3" "$height4" $((height5 + height6)))))"
+total_width="$((x5 + $(max "$width5" "$width6") + padding))"
+total_height="$((y1 + $(max "$height1" "$height2" "$height3" "$height4" $((height5 + padding + height6))) + padding))"
 magick -background transparent -size "${total_width}x${total_height}" xc:transparent \
   "$image1" -geometry +"$x1"+"$y1" -composite \
   "$image2" -geometry +"$x2"+"$y2" -composite \
