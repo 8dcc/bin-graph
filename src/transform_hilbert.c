@@ -266,14 +266,31 @@ bool transform_hilbert(const Args* args, Image* input_image) {
     }
 
     /*
-     * Calculate the width of each hilbert point (block), ensuring the width can
-     * be divided into the necessary points.
+     * First, ensure that the width of the image is divisible by the number of
+     * hilber points per square side.
+     *
+     * The maximum supported hilbert level for a specific width is the largest
+     * value X that can satisfy:
+     *
+     *     Width % 2^X == 0
+     *
+     * This is the 2-adic valuation of the width, that is, the largest power of
+     * 2 that divides the width. Conveniently, the 2-adic valuation of a number
+     * is also its number of trailing binary zeros.
      */
     if (output_image.width % draws_per_side != 0) {
-        ERR("Need to draw %zu hilbert points, but the width is not divisible.",
+        ERR("Maximum supported hilbert level for width %zu is %d "
+            "(%zu %% 2^%d = %zu %% %zu != 0).",
+            output_image.width,
+            count_trailing_zero_bits(output_image.width),
+            output_image.width,
+            args->transform_hilbert_level,
+            output_image.width,
             draws_per_side);
         return false;
     }
+
+    /* Calculate the width of each hilbert point (block) */
     const size_t block_side = output_image.width / draws_per_side;
 
     /* Allocate the array with the new image dimensions */
