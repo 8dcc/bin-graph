@@ -92,4 +92,10 @@ double entropy(void* data, size_t data_sz);
  */
 void* reverse_buffer(void* buf, size_t num_elems, size_t elem_sz);
 
+/*
+ * Count the number of trailing zero bits in the specified integer, starting
+ * from the least significant bit position.
+ */
+int count_trailing_zero_bits(uint32_t x);
+
 #endif /* UTIL_H_ */

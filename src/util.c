@@ -83,3 +83,32 @@ void* reverse_buffer(void* buf, size_t num_elems, size_t elem_sz) {
     free(tmp);
     return buf;
 }
+
+int count_trailing_zero_bits(uint32_t x) {
+    if (x == 0)
+        return 32;
+
+    /*
+     * Credit for this method to Figure 5–2 of Hacker's Delight, by
+     * Henry S. Warren, Jr.
+     */
+    int n = 1;
+    if ((x & 0x0000FFFF) == 0) {
+        n += 16;
+        x >>= 16;
+    }
+    if ((x & 0x000000FF) == 0) {
+        n += 8;
+        x >>= 8;
+    }
+    if ((x & 0x0000000F) == 0) {
+        n += 4;
+        x >>= 4;
+    }
+    if ((x & 0x00000003) == 0) {
+        n += 2;
+        x >>= 2;
+    }
+
+    return n - (x & 1);
+}
