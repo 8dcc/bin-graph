@@ -9,7 +9,9 @@ _bin_graph_completion() {
         --block-size
         --offset-start --offset-end
         --output-format
+        --transform-hilbert
         --transform-squares
+        --transform-zigzag
     )
     nonarg_opts=(
         -h --help
